@@ -1,0 +1,820 @@
+// Changing an existing collaborator's role.
+//
+// The report: on a countdown's edit screen each collaborator row showed their
+// role, but the row's three-dot menu offered only Block. There was no way to
+// promote a viewer to editor, and the invite form's role selector only ever set
+// the role of a *new* invitation.
+//
+// These pin the policy (one role system: `ParticipantRole`), the write, and the
+// menu itself — including the cases that must stay refused: changing your own
+// role, granting above your own, and touching the creator.
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:table_talk/core/models.dart';
+import 'package:table_talk/core/theme.dart';
+import 'package:table_talk/providers/app_providers.dart';
+import 'package:table_talk/screens/event_editor_screen.dart';
+import 'package:table_talk/services/auth_service.dart';
+import 'package:table_talk/services/event_repository.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockFirestore extends Mock implements FirebaseFirestore {}
+
+// Mocktail needs implements-based doubles for these sealed SDK interfaces.
+// ignore: subtype_of_sealed_class
+class _MockCollectionReference extends Mock
+    implements CollectionReference<Map<String, dynamic>> {}
+
+// ignore: subtype_of_sealed_class
+class _MockDocumentReference extends Mock
+    implements DocumentReference<Map<String, dynamic>> {}
+
+// ignore: subtype_of_sealed_class
+class _MockDocumentSnapshot extends Mock
+    implements DocumentSnapshot<Map<String, dynamic>> {}
+
+Participant _person(
+  String id,
+  ParticipantRole role, {
+  InviteStatus status = InviteStatus.accepted,
+  String? name,
+}) =>
+    Participant(
+      userId: id,
+      email: '$id@example.com',
+      role: role,
+      inviteStatus: status,
+      displayName: name ?? id,
+    );
+
+CountdownEvent _event(List<Participant> participants) => CountdownEvent(
+      id: 'e1',
+      title: 'Trip',
+      description: '',
+      at: DateTime(2030, 1, 1),
+      createdBy: 'owner',
+      createdAt: DateTime(2026, 1, 1),
+      updatedAt: DateTime(2026, 1, 1),
+      participants: participants,
+    );
+
+/// The participant rows a countdown always has: an owner, an admin who is not
+/// the owner, an editor, a viewer, and someone still waiting to answer.
+final _rows = [
+  _person('owner', ParticipantRole.admin),
+  _person('admin', ParticipantRole.admin),
+  _person('editor', ParticipantRole.editor),
+  _person('viewer', ParticipantRole.viewer),
+  _person('invited', ParticipantRole.viewer, status: InviteStatus.pending),
+];
+
+void main() {
+  group('checkRoleChange', () {
+    final event = _event(_rows);
+    Participant row(String id) =>
+        event.participants.firstWhere((p) => p.userId == id);
+
+    test('an admin can change a viewer to editor or admin', () {
+      for (final role in [ParticipantRole.editor, ParticipantRole.admin]) {
+        expect(
+          event
+              .checkRoleChange(
+                  actorId: 'admin', target: row('viewer'), role: role)
+              .allowed,
+          isTrue,
+          reason: 'admin -> $role',
+        );
+      }
+      // …and setting the role they already have is not a change.
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'admin',
+                target: row('viewer'),
+                role: ParticipantRole.viewer)
+            .allowed,
+        isFalse,
+      );
+    });
+
+    test('an admin can change another admin (demote or promote)', () {
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'admin',
+                target: row('owner'),
+                role: ParticipantRole.editor)
+            .allowed,
+        isFalse,
+        reason: 'the creator is protected before anyone else is considered',
+      );
+      final otherAdmin = _person('other-admin', ParticipantRole.admin);
+      final withTwoAdmins = _event([..._rows, otherAdmin]);
+      expect(
+        withTwoAdmins
+            .checkRoleChange(
+                actorId: 'admin',
+                target: otherAdmin,
+                role: ParticipantRole.viewer)
+            .allowed,
+        isTrue,
+        reason: 'admins outrank each other; the creator is the protected one',
+      );
+    });
+
+    test('the creator may change any collaborator', () {
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'owner',
+                target: row('admin'),
+                role: ParticipantRole.viewer)
+            .allowed,
+        isTrue,
+      );
+    });
+
+    test('the creator keeps ownership: their role cannot be changed', () {
+      final check = event.checkRoleChange(
+          actorId: 'admin', target: row('owner'), role: ParticipantRole.viewer);
+      expect(check.allowed, isFalse);
+      expect(check.message, contains('ownership'));
+    });
+
+    test('nobody may change their own role, not even the creator', () {
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'admin',
+                target: row('admin'),
+                role: ParticipantRole.viewer)
+            .allowed,
+        isFalse,
+      );
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'owner',
+                target: row('owner'),
+                role: ParticipantRole.editor)
+            .allowed,
+        isFalse,
+      );
+      expect(
+        event.assignableRolesFor(actorId: 'admin', target: row('admin')),
+        isEmpty,
+      );
+    });
+
+    test('an editor cannot manage people, and cannot grant admin', () {
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'editor',
+                target: row('viewer'),
+                role: ParticipantRole.viewer)
+            .allowed,
+        isFalse,
+      );
+      expect(
+        event.assignableRolesFor(actorId: 'editor', target: row('viewer')),
+        isEmpty,
+      );
+    });
+
+    test('a viewer cannot change anyone', () {
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'viewer',
+                target: row('editor'),
+                role: ParticipantRole.viewer)
+            .allowed,
+        isFalse,
+      );
+    });
+
+    test('setting the role someone already has is not a change', () {
+      expect(
+        event
+            .checkRoleChange(
+                actorId: 'admin',
+                target: row('viewer'),
+                role: ParticipantRole.viewer)
+            .allowed,
+        isFalse,
+      );
+    });
+
+    test('a circle placeholder is not a person', () {
+      const circle = Participant(
+        userId: 'circle:c1',
+        email: '',
+        role: ParticipantRole.viewer,
+        inviteStatus: InviteStatus.pending,
+        kind: ParticipantKind.circle,
+      );
+      final withCircle = _event([..._rows, circle]);
+      expect(
+        withCircle
+            .checkRoleChange(
+                actorId: 'admin', target: circle, role: ParticipantRole.editor)
+            .allowed,
+        isFalse,
+      );
+    });
+
+    test('assignableRolesFor offers exactly the roles the menu shows', () {
+      expect(
+        event
+            .assignableRolesFor(actorId: 'admin', target: row('viewer'))
+            .map((r) => r.label),
+        ['Editor', 'Admin'],
+        reason: 'the two they could be moved to; not the one they have',
+      );
+      expect(
+        event
+            .assignableRolesFor(actorId: 'admin', target: row('editor'))
+            .map((r) => r.label),
+        ['Viewer', 'Admin'],
+        reason: 'a demotion to viewer is offered as well',
+      );
+      expect(
+        event
+            .assignableRolesFor(actorId: 'admin', target: row('editor'))
+            .map((r) => r.label),
+        ['Viewer', 'Admin'],
+        reason: 'the role they already have is not offered as a change',
+      );
+      // The creator's row is never offered, and neither is your own.
+      expect(event.assignableRolesFor(actorId: 'admin', target: row('owner')),
+          isEmpty);
+      expect(event.assignableRolesFor(actorId: 'owner', target: row('owner')),
+          isEmpty);
+    });
+  });
+
+  group('updateParticipantRole', () {
+    late FakeFirebaseFirestore db;
+    late EventRepository repo;
+
+    setUp(() async {
+      db = FakeFirebaseFirestore();
+      repo = EventRepository(firestore: db);
+      await db.collection('events').doc('e1').set({
+        'title': 'Trip',
+        'createdBy': 'owner',
+        'at': Timestamp.fromDate(DateTime(2030)),
+      });
+      for (final row in _rows) {
+        await db
+            .collection('events')
+            .doc('e1')
+            .collection('participants')
+            .doc(row.userId)
+            .set({
+          'userId': row.userId,
+          'email': row.email,
+          'displayName': row.displayName,
+          'role': row.role.name,
+          'inviteStatus': row.inviteStatus.name,
+        });
+      }
+    });
+
+    Future<String?> storedRole(String userId) async => (await db
+            .collection('events')
+            .doc('e1')
+            .collection('participants')
+            .doc(userId)
+            .get())
+        .data()?['role'] as String?;
+
+    test('an admin promotes a viewer, and the change persists', () async {
+      await repo.updateParticipantRole(
+        eventId: 'e1',
+        actorId: 'admin',
+        participant: _rows[3],
+        role: ParticipantRole.editor,
+      );
+
+      expect(await storedRole('viewer'), 'editor');
+
+      // …and it is the role that grants access: the editor can now edit, but
+      // still cannot manage people.
+      final refreshed = (await db
+              .collection('events')
+              .doc('e1')
+              .collection('participants')
+              .get())
+          .docs
+          .map((d) => Participant.fromMap(d.id, d.data()))
+          .toList();
+      expect(refreshed.firstWhere((p) => p.userId == 'viewer').role.canEdit,
+          isTrue);
+      expect(refreshed.firstWhere((p) => p.userId == 'viewer').role.canManage,
+          isFalse);
+    });
+
+    test('a role change keeps the rest of the row intact', () async {
+      await repo.updateParticipantRole(
+        eventId: 'e1',
+        actorId: 'owner',
+        participant: _rows[3],
+        role: ParticipantRole.admin,
+      );
+
+      final data = (await db
+              .collection('events')
+              .doc('e1')
+              .collection('participants')
+              .doc('viewer')
+              .get())
+          .data()!;
+      expect(data['email'], 'viewer@example.com');
+      expect(data['displayName'], 'viewer');
+      expect(data['inviteStatus'], 'accepted');
+    });
+
+    test('refuses to change your own role', () async {
+      await expectLater(
+        repo.updateParticipantRole(
+          eventId: 'e1',
+          actorId: 'admin',
+          participant: _rows[1],
+          role: ParticipantRole.viewer,
+        ),
+        throwsA(isA<DataFailure>()),
+      );
+      expect(await storedRole('admin'), 'admin');
+    });
+
+    test('refuses to touch the creator', () async {
+      await expectLater(
+        repo.updateParticipantRole(
+          eventId: 'e1',
+          actorId: 'admin',
+          participant: _rows[0],
+          role: ParticipantRole.viewer,
+        ),
+        throwsA(isA<DataFailure>()),
+      );
+      expect(await storedRole('owner'), 'admin');
+    });
+
+    test('refuses an editor\'s attempt to manage people', () async {
+      await expectLater(
+        repo.updateParticipantRole(
+          eventId: 'e1',
+          actorId: 'editor',
+          participant: _rows[3],
+          role: ParticipantRole.admin,
+        ),
+        throwsA(isA<DataFailure>()),
+      );
+      expect(await storedRole('viewer'), 'viewer');
+    });
+
+    test('refuses a viewer\'s attempt to promote themselves', () async {
+      await expectLater(
+        repo.updateParticipantRole(
+          eventId: 'e1',
+          actorId: 'viewer',
+          participant: _rows[3],
+          role: ParticipantRole.admin,
+        ),
+        throwsA(isA<DataFailure>()),
+      );
+      expect(await storedRole('viewer'), 'viewer');
+    });
+
+    test('a demoted admin cannot hand admin back to someone else', () async {
+      // The owner demotes the admin…
+      await repo.updateParticipantRole(
+        eventId: 'e1',
+        actorId: 'owner',
+        participant: _rows[1],
+        role: ParticipantRole.viewer,
+      );
+      expect(await storedRole('admin'), 'viewer');
+
+      // …and the demoted admin can no longer grant anything.
+      await expectLater(
+        repo.updateParticipantRole(
+          eventId: 'e1',
+          actorId: 'admin',
+          participant: _rows[3],
+          role: ParticipantRole.admin,
+        ),
+        throwsA(isA<DataFailure>()),
+      );
+      expect(await storedRole('viewer'), 'viewer');
+    });
+
+    test('reads the real role from the database, not the stale model',
+        () async {
+      // The screen still believes `viewer` is a viewer; the database says they
+      // were just promoted to editor. An admin may still change an editor, but
+      // the check must measure against 'editor', so demoting them to viewer is
+      // a genuine change…
+      await db
+          .collection('events')
+          .doc('e1')
+          .collection('participants')
+          .doc('viewer')
+          .update({'role': 'editor'});
+
+      await repo.updateParticipantRole(
+        eventId: 'e1',
+        actorId: 'admin',
+        participant: _rows[3],
+        role: ParticipantRole.viewer,
+      );
+      expect(await storedRole('viewer'), 'viewer');
+    });
+
+    test('a failed live target read never falls back to the stale row',
+        () async {
+      final firestore = _MockFirestore();
+      final events = _MockCollectionReference();
+      final event = _MockDocumentReference();
+      final participants = _MockCollectionReference();
+      final actorRow = _MockDocumentReference();
+      final targetRow = _MockDocumentReference();
+      final actorSnapshot = _MockDocumentSnapshot();
+
+      when(() => firestore.collection('events')).thenReturn(events);
+      when(() => events.doc('e1')).thenReturn(event);
+      when(() => event.collection('participants')).thenReturn(participants);
+      when(() => participants.doc('admin')).thenReturn(actorRow);
+      when(() => participants.doc('viewer')).thenReturn(targetRow);
+      when(() => actorRow.get()).thenAnswer((_) async => actorSnapshot);
+      when(() => actorSnapshot.data()).thenReturn({
+        'email': 'admin@example.com',
+        'role': 'admin',
+        'inviteStatus': 'accepted',
+      });
+      when(() => targetRow.get()).thenAnswer(
+        (_) => Future.error(
+          FirebaseException(
+            plugin: 'cloud_firestore',
+            code: 'permission-denied',
+            message: 'Missing or insufficient permissions.',
+          ),
+        ),
+      );
+
+      final repository = EventRepository(firestore: firestore);
+      final stale = _event([
+        _person('owner', ParticipantRole.admin),
+        _person('admin', ParticipantRole.admin),
+        _person('viewer', ParticipantRole.viewer),
+      ]);
+
+      await expectLater(
+        repository.updateParticipantRole(
+          eventId: 'e1',
+          actorId: 'admin',
+          participant: _person('viewer', ParticipantRole.viewer),
+          role: ParticipantRole.editor,
+          event: stale,
+        ),
+        throwsA(isA<FirebaseException>()),
+      );
+      verifyNever(() => targetRow.update({'role': 'editor'}));
+    });
+  });
+
+  group('the collaborator row menu', () {
+    /// Pumps the real editor screen for [actorId].
+    ///
+    /// [repository] defaults to none, so the screen's menus are exercised
+    /// without a backend; an end-to-end case passes a real `EventRepository`
+    /// over a fake Firestore and gets an actual write when a role is picked.
+    Future<void> pumpEditor(
+      WidgetTester tester,
+      String actorId, {
+      EventRepository? repository,
+      List<Participant>? rows,
+      Size viewportSize = const Size(900, 1400),
+    }) async {
+      final people = rows ?? _rows;
+      tester.view.physicalSize = viewportSize;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
+      final event = _event(people);
+      final router = GoRouter(
+        initialLocation: '/event/e1/edit',
+        routes: [
+          GoRoute(
+            path: '/event/e1/edit',
+            builder: (context, state) => EventEditorScreen(event: event),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentUserProvider.overrideWithValue(
+              AppUser(id: actorId, email: '$actorId@example.com'),
+            ),
+            if (repository != null)
+              eventRepositoryProvider.overrideWithValue(repository),
+            participantsProvider('e1')
+                .overrideWith((ref) => Stream.value(people)),
+            recentContactsProvider
+                .overrideWith((ref) => Stream.value(const [])),
+            circlesProvider.overrideWith((ref) => Stream.value(const [])),
+            // The preview strip ticks once a second in the app; a periodic
+            // timer in a widget test is a leak. One fixed instant is all this
+            // screen needs.
+            clockProvider.overrideWith(
+              (ref) => Stream.value(DateTime(2026, 1, 1)),
+            ),
+          ],
+          child: MaterialApp.router(
+            theme: AppTheme.build(brightness: Brightness.dark),
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // Unmount before the test ends, so nothing is still listening (and no
+      // timer is still scheduled) when the framework checks for leaks.
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+
+    testWidgets('delete stays reachable in a split-screen viewport',
+        (tester) async {
+      await pumpEditor(
+        tester,
+        'owner',
+        viewportSize: const Size(960, 540),
+      );
+
+      final actions = find.byTooltip('Countdown actions');
+      expect(actions, findsOneWidget);
+      await tester.tap(actions);
+      await tester.pumpAndSettle();
+
+      final deleteAction = find.text('Delete countdown');
+      expect(deleteAction, findsOneWidget);
+      await tester.tap(deleteAction);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Delete this countdown?'),
+        findsOneWidget,
+      );
+    });
+
+    /// Taps the ⋮ on the collaborator row whose name is [displayName].
+    ///
+    /// Every person row except the viewer's own gets a menu (the policy refuses
+    /// a self role change and self-blocking, so there is nothing to offer on
+    /// it), so the menu's index is the row's index minus any self row above it.
+    Future<void> openMenuFor(
+      WidgetTester tester,
+      String actorId,
+      String displayName,
+    ) async {
+      final visible = [
+        for (final p in _rows)
+          if (p.userId != actorId) p,
+      ];
+      final index =
+          visible.indexWhere((p) => (p.displayName ?? p.email) == displayName);
+      expect(index, isNonNegative, reason: 'no menu row named $displayName');
+      final menus = find.byTooltip('More actions');
+      expect(menus, findsNWidgets(visible.length));
+      await tester.tap(menus.at(index));
+      await tester.pumpAndSettle();
+    }
+
+    /// An editor screen backed by a real repository writing to a fake Firestore.
+    Future<(FakeFirebaseFirestore, EventRepository)> pumpLive(
+      WidgetTester tester,
+      String actorId,
+    ) async {
+      final db = FakeFirebaseFirestore();
+      await db.collection('events').doc('e1').set({
+        'title': 'Trip',
+        'createdBy': 'owner',
+        'at': Timestamp.fromDate(DateTime(2030)),
+      });
+      for (final row in _rows) {
+        await db
+            .collection('events')
+            .doc('e1')
+            .collection('participants')
+            .doc(row.userId)
+            .set({
+          'userId': row.userId,
+          'email': row.email,
+          'displayName': row.displayName,
+          'role': row.role.name,
+          'inviteStatus': row.inviteStatus.name,
+        });
+      }
+      final repo = EventRepository(firestore: db);
+      await pumpEditor(tester, actorId, repository: repo);
+      return (db, repo);
+    }
+
+    testWidgets(
+        'an ADMIN changes another collaborator\'s role and it is written',
+        (tester) async {
+      final (db, _) = await pumpLive(tester, 'admin');
+
+      await openMenuFor(tester, 'admin', 'viewer');
+      await tester.tap(find.text('Change role'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(
+          of: find.byType(BottomSheet), matching: find.text('Editor')));
+      await tester.pumpAndSettle();
+
+      final saved = await db
+          .collection('events')
+          .doc('e1')
+          .collection('participants')
+          .doc('viewer')
+          .get();
+      expect(saved.data()!['role'], 'editor',
+          reason: 'the admin\'s choice must reach Firestore');
+    });
+
+    testWidgets('an admin can promote someone to Admin', (tester) async {
+      final (db, _) = await pumpLive(tester, 'admin');
+
+      await openMenuFor(tester, 'admin', 'viewer');
+      await tester.tap(find.text('Change role'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(
+          of: find.byType(BottomSheet), matching: find.text('Admin')));
+      await tester.pumpAndSettle();
+
+      final saved = await db
+          .collection('events')
+          .doc('e1')
+          .collection('participants')
+          .doc('viewer')
+          .get();
+      expect(saved.data()!['role'], 'admin');
+    });
+
+    testWidgets('an editor cannot open Change role at all', (tester) async {
+      final (db, _) = await pumpLive(tester, 'editor');
+
+      await openMenuFor(tester, 'editor', 'viewer');
+
+      expect(find.text('Change role'), findsNothing);
+      final saved = await db
+          .collection('events')
+          .doc('e1')
+          .collection('participants')
+          .doc('viewer')
+          .get();
+      expect(saved.data()!['role'], 'viewer');
+    });
+
+    testWidgets('the CREATOR can change another admin\'s role', (tester) async {
+      final (db, _) = await pumpLive(tester, 'owner');
+
+      await openMenuFor(tester, 'owner', 'admin');
+      await tester.tap(find.text('Change role'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.descendant(
+          of: find.byType(BottomSheet), matching: find.text('Viewer')));
+      await tester.pumpAndSettle();
+
+      final saved = await db
+          .collection('events')
+          .doc('e1')
+          .collection('participants')
+          .doc('admin')
+          .get();
+      expect(saved.data()!['role'], 'viewer');
+    });
+
+    testWidgets('an admin sees Change role, Remove and Block on a collaborator',
+        (tester) async {
+      await pumpEditor(tester, 'admin');
+      await openMenuFor(tester, 'admin', 'viewer');
+
+      expect(find.text('Change role'), findsOneWidget);
+      expect(find.text('Block'), findsOneWidget);
+      expect(find.text('Remove'), findsOneWidget);
+    });
+
+    testWidgets('removing an accepted collaborator requires confirmation',
+        (tester) async {
+      final (db, _) = await pumpLive(tester, 'admin');
+
+      await openMenuFor(tester, 'admin', 'viewer');
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove this person?'), findsOneWidget);
+
+      await tester.tap(find.text('Keep'));
+      await tester.pumpAndSettle();
+      expect(
+        (await db
+                .collection('events')
+                .doc('e1')
+                .collection('participants')
+                .doc('viewer')
+                .get())
+            .exists,
+        isTrue,
+        reason: 'canceling confirmation must not remove access',
+      );
+
+      await openMenuFor(tester, 'admin', 'viewer');
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      final previousDebugPrint = debugPrint;
+      final debugMessages = <String>[];
+      debugPrint = (message, {wrapWidth}) {
+        if (message != null) debugMessages.add(message);
+      };
+      try {
+        await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
+        await tester.pumpAndSettle();
+      } finally {
+        debugPrint = previousDebugPrint;
+      }
+
+      expect(find.text('viewer was removed.'), findsOneWidget);
+      expect(debugMessages, isNot(contains('[datedawn] Remove failed: null')));
+      expect(
+        (await db
+                .collection('events')
+                .doc('e1')
+                .collection('participants')
+                .doc('viewer')
+                .get())
+            .exists,
+        isFalse,
+        reason: 'confirming must delete the participant row',
+      );
+    });
+
+    testWidgets('the Change role sheet offers Viewer, Editor and Admin',
+        (tester) async {
+      await pumpEditor(tester, 'admin');
+      await openMenuFor(tester, 'admin', 'viewer');
+      await tester.tap(find.text('Change role'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Change role for viewer'), findsOneWidget);
+      // One line per role the admin may grant — all three, since a viewer can
+      // be moved to either of the others.
+      for (final label in ['Editor', 'Admin']) {
+        expect(
+          find.descendant(
+              of: find.byType(BottomSheet), matching: find.text(label)),
+          findsOneWidget,
+          reason: '$label should be offered',
+        );
+      }
+      // The role they already hold is shown as the current selection, not as a
+      // change to make.
+      expect(
+        find.textContaining('currently have viewer access'),
+        findsOneWidget,
+      );
+      // Tapping one writes the change and closes the sheet.
+      await tester.tap(find.descendant(
+          of: find.byType(BottomSheet), matching: find.text('Editor')));
+      await tester.pumpAndSettle();
+      expect(find.text('Change role for viewer'), findsNothing);
+    });
+
+    testWidgets('an editor has no management actions', (tester) async {
+      await pumpEditor(tester, 'editor');
+      await openMenuFor(tester, 'editor', 'viewer');
+
+      expect(find.text('Change role'), findsNothing);
+      expect(find.text('Block'), findsOneWidget,
+          reason: 'blocking stays available to everyone');
+      expect(find.text('Remove'), findsNothing);
+    });
+
+    testWidgets('the creator\'s row offers no Change role', (tester) async {
+      await pumpEditor(tester, 'admin');
+      await openMenuFor(tester, 'admin', 'owner');
+
+      expect(find.text('Change role'), findsNothing);
+      expect(find.text('Block'), findsOneWidget);
+    });
+  });
+}

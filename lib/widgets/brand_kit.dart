@@ -1,0 +1,322 @@
+import 'package:flutter/material.dart';
+
+import '../core/countdown.dart';
+import '../core/models.dart';
+import '../core/theme.dart';
+
+/// Table Talk's wordmark and restaurant mark.
+class BrandMark extends StatelessWidget {
+  const BrandMark({super.key, this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.restaurant_rounded,
+              size: 19,
+              color: colors.accent,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'TABLE TALK',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2.4,
+                color: colors.muted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A small status label ("Upcoming" / "Passed") that colours itself from the
+/// event rather than from its context.
+class StatusChip extends StatelessWidget {
+  const StatusChip({super.key, required this.isPast});
+
+  final bool isPast;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          isPast ? Icons.history_rounded : Icons.calendar_today_rounded,
+          size: 13,
+          color: isPast ? colors.accent : colors.subtle,
+        ),
+        const SizedBox(width: 6),
+        Text(
+          isPast ? 'Passed' : 'Upcoming',
+          style: TextStyle(
+            fontSize: 12,
+            color: isPast ? colors.accent : colors.subtle,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Round avatar drawn entirely in Flutter: the account's initials on a colour
+/// derived from its id.
+///
+/// There is no image to load. Date Dawn launches without uploaded profile
+/// pictures — Cloud Storage requires the Blaze plan — so this is the whole
+/// avatar system: a hash, a palette and a `Text`. That also means it works
+/// offline, costs nothing, and cannot show a broken-image box.
+class UserAvatar extends StatelessWidget {
+  const UserAvatar({
+    super.key,
+    required this.initials,
+    this.seed,
+    this.photoUrl,
+    this.size = 32,
+  });
+
+  final String initials;
+
+  /// Anything stable per account — a uid or an email. Picks the colour; the
+  /// same person is the same colour on every device.
+  final String? seed;
+
+  /// A picture straight from the sign-in provider (Google), when there is one.
+  /// Never an uploaded file. Falls back to the initials tile if it will not
+  /// load, so a network failure degrades instead of leaving a gap.
+  final String? photoUrl;
+
+  final double size;
+
+  /// Muted, evenly-spaced hues. Kept low-chroma on purpose: the avatar sits on
+  /// the app's own surface and must not compete with the countdown itself.
+  static const List<Color> _palette = [
+    Color(0xFF6C8EBF),
+    Color(0xFF8E7CC3),
+    Color(0xFFC27BA0),
+    Color(0xFFCC7A6B),
+    Color(0xFFC9A227),
+    Color(0xFF7FA650),
+    Color(0xFF4FA3A5),
+    Color(0xFF7C8BA1),
+  ];
+
+  static Color tintFor(String? seed) {
+    if (seed == null || seed.isEmpty) return _palette.last;
+    var hash = 0;
+    for (final unit in seed.trim().toLowerCase().codeUnits) {
+      hash = (hash * 31 + unit) & 0x7fffffff;
+    }
+    return _palette[hash % _palette.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return ClipOval(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: (photoUrl != null && photoUrl!.isNotEmpty)
+            ? Image.network(
+                photoUrl!,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _initialsTile(colors),
+              )
+            : _initialsTile(colors),
+      ),
+    );
+  }
+
+  /// The launch avatar: a flat tint with the initials on top.
+  ///
+  /// A blank or whitespace-only `initials` falls back to a person glyph rather
+  /// than a `Text('')`. An empty string here is what produced the stray letter
+  /// tiles in the member lists: a one-character label of `" "` renders as
+  /// nothing at all, which reads as a busted avatar.
+  Widget _initialsTile(AppPalette colors) {
+    final label = initials.trim();
+    final tint = tintFor(seed ?? (label.isEmpty ? '?' : label));
+    return Container(
+      width: size,
+      height: size,
+      color: Color.alphaBlend(tint.withValues(alpha: 0.22), colors.surface2),
+      alignment: Alignment.center,
+      child: label.isEmpty
+          ? Icon(Icons.person_rounded, size: size * 0.6, color: tint)
+          : Text(
+              label,
+              style: TextStyle(
+                fontSize: size * 0.36,
+                fontWeight: FontWeight.w600,
+                height: 1,
+                color: tint,
+              ),
+            ),
+    );
+  }
+}
+
+/// A coloured pill for an invitation's state.
+///
+/// Green means answered yes, amber means still waiting, red means answered no.
+/// The point is that the owner can tell at a glance who has replied without
+/// reading a word: previously every row said `pending` in the same grey, so a
+/// settled invitation looked identical to one nobody had opened.
+class InviteStatusChip extends StatelessWidget {
+  const InviteStatusChip(
+      {super.key, required this.status, this.compact = false});
+
+  final InviteStatus status;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final (label, tint) = switch (status) {
+      InviteStatus.accepted => ('Accepted', colors.success),
+      InviteStatus.declined => ('Declined', colors.danger),
+      InviteStatus.rejected => ('Removed', colors.subtle),
+      InviteStatus.reopened => ('Reopened', colors.warning),
+      InviteStatus.pending => ('Waiting', colors.warning),
+    };
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+          horizontal: compact ? 7 : 9, vertical: compact ? 2 : 3),
+      decoration: BoxDecoration(
+        color: tint.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: tint.withValues(alpha: 0.4)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: compact ? 10.5 : 11.5,
+          fontWeight: FontWeight.w600,
+          color: tint,
+        ),
+      ),
+    );
+  }
+}
+
+/// "3 days, 4 hours" — used under the hero title and in share text.
+class RemainingSummary extends StatelessWidget {
+  const RemainingSummary({super.key, required this.target, required this.now});
+
+  final DateTime target;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final remaining = remainingUntil(target, now);
+    return Text(
+      remaining.isPast
+          ? 'It has arrived.'
+          : '${describeRemaining(remaining)} to go',
+      style: TextStyle(fontSize: 13, color: colors.muted),
+    );
+  }
+}
+
+/// An icon button that eases to the accent colour while the pointer hovers it
+/// or a finger is pressing it, then back to its resting colour.
+///
+/// This was previously red-on-hover. Red is the app's danger colour, so using
+/// it as a generic hover reaction made ordinary, harmless controls — the circle
+/// invite action, the inbox icons, back arrows — read as destructive. Hover now
+/// lifts to the accent instead, which signals "this is interactive" without
+/// implying anything will be lost. Red is reserved for actions that really do
+/// destroy or remove, and those set it in their own style.
+///
+/// The colour animates over [duration] so the change reads as a response rather
+/// than a flicker.
+class HoverTintIconButton extends StatefulWidget {
+  const HoverTintIconButton({
+    super.key,
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.iconSize = 20,
+    this.duration = const Duration(milliseconds: 140),
+    this.hoverColor,
+  });
+
+  /// Overrides the hover tint for the rare control that genuinely is
+  /// destructive, so it can opt back into red deliberately.
+  final Color? hoverColor;
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final double iconSize;
+  final Duration duration;
+
+  @override
+  State<HoverTintIconButton> createState() => _HoverTintIconButtonState();
+}
+
+class _HoverTintIconButtonState extends State<HoverTintIconButton> {
+  bool _active = false;
+
+  void _set(bool value) {
+    if (_active == value) return;
+    setState(() => _active = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final enabled = widget.onPressed != null;
+    final resting = enabled ? colors.fg : colors.subtle;
+    final hover = widget.hoverColor ?? colors.accent;
+    final color = enabled && _active ? hover : resting;
+
+    // `Listener` observes the pointer without competing for the tap, so the
+    // IconButton below still receives its own press. MouseRegion covers hover
+    // on desktop/web; Listener covers press-and-hold on touch.
+    return MouseRegion(
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      onEnter: enabled ? (_) => _set(true) : null,
+      onExit: enabled ? (_) => _set(false) : null,
+      child: Listener(
+        onPointerDown: enabled ? (_) => _set(true) : null,
+        onPointerUp: enabled ? (_) => _set(false) : null,
+        onPointerCancel: enabled ? (_) => _set(false) : null,
+        child: IconButton(
+          tooltip: widget.tooltip,
+          onPressed: widget.onPressed,
+          icon: TweenAnimationBuilder<Color?>(
+            duration: widget.duration,
+            curve: Curves.easeOut,
+            tween: ColorTween(end: color),
+            builder: (context, animated, _) => Icon(
+              widget.icon,
+              size: widget.iconSize,
+              color: animated ?? color,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

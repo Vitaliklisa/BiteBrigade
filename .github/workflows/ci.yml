@@ -1,0 +1,410 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  ANDROID_HOME: /usr/local/lib/android/sdk
+  # Pinned once here rather than repeated inside cache keys, so a version bump
+  # cannot leave one key stale and silently disable caching.
+  NDK_VERSION: 28.2.13676358
+  GRADLE_VERSION: 9.3.1
+
+# Cancel an in-progress run when a newer commit lands on the same branch.
+# Without this, pushing twice leaves the first run burning CI minutes on code
+# nobody is waiting for.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Static checks. No Android SDK, no Java, no Gradle, no release compile.
+  #
+  # These are pure Dart. They used to be serialised ahead of a full release web
+  # build in the same job, so a formatting nit paid for a cold compiler anyway.
+  # ---------------------------------------------------------------------------
+  checks:
+    name: Format, analyze, test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .flutter-version
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Matches the local command, and fails fast on formatting drift before it
+      # reaches a reviewer. This is the check that was failing before.
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+  # ---------------------------------------------------------------------------
+  # Web build. Its own job so it runs AT THE SAME TIME as the Android build
+  # rather than ahead of it on the same runner.
+  #
+  # This is the fastest end-to-end proof that the widget tree compiles on a
+  # target needing no signing key and no emulator. It also runs the pruner, so
+  # the job validates the real deploy artifact (11 MB, not 38 MB) rather than
+  # just proving the code compiles.
+  # ---------------------------------------------------------------------------
+  web:
+    name: Build web
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .flutter-version
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build and prune web
+        run: |
+          flutter build web --release
+          node scripts/prune-web-build.mjs
+
+  # ---------------------------------------------------------------------------
+  # Android release bundle.
+  #
+  # Deliberately has no `needs:` — it runs in parallel with the jobs above.
+  # Chaining it behind them serialised a 10-minute Gradle build behind checks
+  # that cannot affect whether it succeeds.
+  # ---------------------------------------------------------------------------
+  android:
+    name: Build Android bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .flutter-version
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Cache the Gradle dependency graph, the wrapper distribution, and the
+      # build-cache directory in one entry. `org.gradle.caching=true`
+      # (gradle.properties) writes task outputs into that tree, which is what
+      # lets a repeat build skip R8 rather than merely skip the download.
+      #
+      # The key now also hashes gradle.properties, so flipping a build flag
+      # invalidates the cache instead of restoring outputs produced under
+      # different settings.
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ env.GRADLE_VERSION }}-${{ hashFiles('android/**/*.gradle.kts', 'android/gradle/wrapper/gradle-wrapper.properties', 'android/gradle.properties', 'pubspec.lock') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-${{ env.GRADLE_VERSION }}-
+
+      # The runner image ships an Android SDK but NOT the NDK, and the sdkmanager
+      # download for it is ~1.5 GB — the most expensive thing in this workflow.
+      #
+      # `actions/cache` is used twice on purpose, with ONE key:
+      #
+      #   * here, to RESTORE a previously saved NDK;
+      #   * at the end of the job, to SAVE the installed one.
+      #
+      # The original version only had the restore half, placed before the install.
+      # A save path that does not exist yet stores an empty entry, so the first
+      # run cached nothing and every later run took a `cache-hit` on that empty
+      # entry — which made the guarded install skip. The NDK was never installed
+      # and the failure surfaced much later as "llvm-strip not found".
+      #
+      # The `-v2` suffix on the key matters after that incident: caches are
+      # immutable per key, so the poisoned empty entry would keep being restored
+      # forever under the old key. Bumping it guarantees a clean start, and the
+      # repair step below covers the case where an old entry is still served.
+      - name: Restore Android NDK
+        uses: actions/cache/restore@v4
+        id: ndk-cache
+        with:
+          path: /usr/local/lib/android/sdk/ndk/${{ env.NDK_VERSION }}
+          key: ndk-${{ runner.os }}-${{ env.NDK_VERSION }}-v2
+
+      # The Firebase config is deliberately NOT committed: it is gitignored, and
+      # for good reason — committing it bakes one project's identifiers into the
+      # repo and makes rotating them a code change. The Gradle google-services
+      # plugin, however, hard-fails the release build without the file, which is
+      # what broke `bundleRelease` on CI with:
+      #
+      #   File google-services.json is missing. The Google Services Plugin cannot
+      #   function without it.
+      #
+      # So the file is restored here from a repository secret holding its full
+      # JSON text. Create it with:
+      #
+      #   gh secret set GOOGLE_SERVICES_JSON < android/app/google-services.json
+      #
+      # or paste the Table Talk JSON into Settings -> Secrets and variables -> Actions.
+      #
+      # If the secret is not set, the job must not fail: the point of this build
+      # is to prove the release pipeline compiles, and a missing Firebase config
+      # is a deployment concern, not a compile error. In that case a placeholder
+      # with the app's package name and a non-production project id is written, which
+      # satisfies the google-services plugin. The artifact is unsigned anyway and
+      # can never be uploaded, so the placeholder cannot reach a store.
+      - name: Restore google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+            echo "google-services.json restored from secret ($(wc -c < android/app/google-services.json) bytes)"
+          else
+            echo "::warning title=google-services.json::GOOGLE_SERVICES_JSON secret is not set. "
+            echo "::warning::Building with a placeholder Firebase config. This bundle is unsigned "
+            echo "::warning::and must not be uploaded. Add the secret under "
+            echo "::warning::Use a Table Talk GOOGLE_SERVICES_JSON secret to build against its Firebase project."
+            printf '%s\n' \
+              '{' \
+              '  "project_info": {' \
+              '    "project_number": "000000000000",' \
+              '    "project_id": "table-talk-not-configured",' \
+              '    "storage_bucket": "table-talk-not-configured.firebasestorage.app"' \
+              '  },' \
+              '  "client": [{' \
+              '    "client_info": {' \
+              '      "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",' \
+              '      "android_client_info": { "package_name": "com.tabletalk.app" }' \
+              '    },' \
+              '    "oauth_client": [],' \
+              '    "api_key": [{ "current_key": "placeholder" }],' \
+              '    "services": { "appinvite_service": { "other_platform_oauth_client": [] } }' \
+              '  }],' \
+              '  "configuration_version": "1"' \
+              '}' > android/app/google-services.json
+            echo "google-services.json placeholder written ($(wc -c < android/app/google-services.json) bytes)"
+          fi
+          test -s android/app/google-services.json
+          python3 -m json.tool android/app/google-services.json > /dev/null
+          echo "google-services.json is present and valid JSON"
+
+      # NOTE: the NDK cache used to live here, BEFORE the install steps. That was
+      # the bug behind "llvm-strip not found".
+      #
+      # `actions/cache` saves a path at the END of the job. Caching a directory
+      # that does not exist yet means the save is empty — so the first run
+      # stored nothing, and every subsequent run got a `cache-hit` on that empty
+      # entry. `Install NDK if not cached` then skipped, because it trusted the
+      # hit, and the NDK was never installed at all.
+      #
+      # It now lives after the install, at the bottom of the job, so what gets
+      # saved is a populated NDK.
+
+      # Flutter's release step shells out to the NDK's `llvm-strip` to strip
+      # native debug symbols. Modern NDK layout (r23+):
+      #
+      #   ndk/<version>/toolchains/llvm/prebuilt/<host>/bin/llvm-strip
+      #
+      # The runner image ships an Android SDK without cmdline-tools, which is
+      # what made the strip step fail on a developer machine; installing them
+      # here (and accepting the licences) is the fix.
+      #
+      # Only cmdline-tools and platform-tools are handled here. The NDK is
+      # installed by the guarded step below, because downloading it is the
+      # expensive part and it should only happen on a restore miss.
+      - name: Ensure Android SDK tools
+        run: |
+          set -euo pipefail
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            echo "cmdline-tools absent, downloading"
+            mkdir -p "${ANDROID_HOME}/cmdline-tools"
+            curl -sSLo cmdline-tools.zip \
+              "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
+            unzip -q cmdline-tools.zip -d "${ANDROID_HOME}/cmdline-tools"
+            mv "${ANDROID_HOME}/cmdline-tools/cmdline-tools" \
+               "${ANDROID_HOME}/cmdline-tools/latest"
+            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          fi
+
+          # `repositories.cfg` must exist before the first sdkmanager run. On a
+          # freshly-provisioned runner it does not, and sdkmanager has been known
+          # to behave inconsistently (including failing to fetch the repository
+          # index) without it. An empty file is all it wants.
+          mkdir -p "$HOME/.android"
+          touch "$HOME/.android/repositories.cfg"
+
+          # Accept every licence up front. This is what allows the NDK install
+          # below to run unattended — `sdkmanager` refuses a package whose licence
+          # has not been accepted, and on a cold cache the NDK install is the
+          # first thing that needs one.
+          (yes || true) | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+
+          # Non-NDK pieces needed before Gradle runs. The NDK is deliberately kept
+          # out of this step so its 1.5 GB cost is isolated and cache-guarded.
+          "$SDKMANAGER" "platform-tools"
+
+      # The ~1.5 GB download, skipped when the restore above hit.
+      #
+      # `--no-https` is deliberately NOT used; sdkmanager requires HTTPS.
+      #
+      # `yes |` covers licence acceptance for this package specifically. The
+      # licences were already accepted in the previous step; repeating it here
+      # costs nothing and means the install does not depend on that step having
+      # run, which matters on a cold cache where this is the first real download.
+      - name: Install NDK if not cached
+        if: steps.ndk-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          echo "NDK not restored from cache — installing ${NDK_VERSION} (slow path)"
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          (yes || true) | "$SDKMANAGER" "ndk;${NDK_VERSION}"
+
+      # A cache hit is not proof the directory is usable. `actions/cache` will
+      # happily report a hit for a key saved from an empty path — which is
+      # exactly what happened here: the cache step runs BEFORE the NDK is
+      # installed, so on the very first run it saved nothing, and every later run
+      # "restored" that nothing while `Install NDK if not cached` skipped.
+      #
+      # So the hit is verified, and the install is retried if the restore was
+      # hollow. Self-healing beats a mysterious failure.
+      - name: Ensure NDK present (repair hollow cache hits)
+        run: |
+          set -euo pipefail
+          NDK_DIR="${ANDROID_HOME}/ndk/${NDK_VERSION}"
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+
+          if [ ! -d "$NDK_DIR" ]; then
+            echo "::warning::NDK ${NDK_VERSION} missing (cache hit was hollow) — installing now"
+            (yes || true) | "$SDKMANAGER" "ndk;${NDK_VERSION}"
+          fi
+
+          test -d "$NDK_DIR" || {
+            echo "::error::NDK still missing at $NDK_DIR after install"; exit 1; }
+
+          # Report what is actually on disk before asserting anything about it.
+          echo "NDK contents ($(du -sh "$NDK_DIR" | cut -f1)):"
+          ls "$NDK_DIR"
+
+          # Locate llvm-strip without guessing the host triple: the runner is
+          # linux-x86_64 today, but hardcoding that is a latent break if the
+          # image ever changes.
+          # NDK tool binaries can be symlinks (for example, llvm-strip may
+          # point to llvm-objcopy), so do not require a regular file here.
+          STRIP=$(find "$NDK_DIR" -name llvm-strip -print -quit 2>/dev/null || true)
+          if [ -z "$STRIP" ] || [ ! -x "$STRIP" ]; then
+            echo "::warning::llvm-strip missing or not executable under $NDK_DIR — repairing NDK install..."
+            rm -rf "$NDK_DIR"
+            (yes || true) | "$SDKMANAGER" "ndk;${NDK_VERSION}"
+            STRIP=$(find "$NDK_DIR" -name llvm-strip -print -quit 2>/dev/null || true)
+          fi
+          if [ -z "$STRIP" ] || [ ! -x "$STRIP" ]; then
+            echo "::error::llvm-strip is still missing or not executable under $NDK_DIR after re-install"
+            exit 1
+          fi
+          echo "NDK ready: $STRIP"
+
+      # Unsigned on purpose: this proves the release build compiles and that the
+      # Gradle config is sound. Signing happens locally, where the keystore and
+      # its passwords live — they are never uploaded to a build server.
+      #
+      # Two deliberate flag choices, both measured against the cost of the run:
+      #
+      #   * No `--no-shrink`. That flag skips R8, and running the real release
+      #     pipeline is what catches a missing keep-rule before upload rather
+      #     than in the Play Console.
+      #
+      #   * `--split-debug-info` moves DWARF symbols out of the binary into a
+      #     separate directory. The AAB gets smaller, and there is simply less
+      #     for the packaging step to carry. The symbols are uploaded as a
+      #     second artifact, because they are needed to symbolicate a stack
+      #     trace from this build.
+      #
+      # `--analyze-size` used to be here, and removing it is the single biggest
+      # saving in this job. It forces a SECOND full AOT compile in a separate
+      # build mode purely to produce a size breakdown — roughly doubling the
+      # Dart compiler time for a number the `Report bundle size` step already
+      # prints, measured from the real artifact. It is a diagnostic to run by
+      # hand when investigating bloat, not a per-commit step.
+      - name: Build app bundle
+        env:
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+        run: |
+          flutter build appbundle --release \
+            --target-platform android-arm,android-arm64,android-x64 \
+            --split-debug-info=build/symbols \
+            --dart-define=GOOGLE_SERVER_CLIENT_ID="$GOOGLE_SERVER_CLIENT_ID"
+          ls -lh build/app/outputs/bundle/release/app-release.aab
+
+      - name: Report bundle size
+        run: |
+          AAB=build/app/outputs/bundle/release/app-release.aab
+          BYTES=$(wc -c < "$AAB")
+          MB=$(awk "BEGIN { printf \"%.1f\", $BYTES/1048576 }")
+          echo "AAB size: ${MB} MB (${BYTES} bytes)"
+          {
+            echo "## Android release bundle"
+            echo ""
+            echo "| Artifact | Size |"
+            echo "| --- | --- |"
+            echo "| \`app-release.aab\` | ${MB} MB |"
+            echo ""
+            echo "_Unsigned — do not upload._"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-unsigned
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 7
+
+      # Required to symbolicate a crash from this build. Useless if it is lost —
+      # the next `flutter build` overwrites it — so it ships with the bundle.
+      - name: Upload debug symbols
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-symbols
+          path: build/symbols
+          retention-days: 7
+          if-no-files-found: warn
+
+      # The SAVE half of the NDK cache, and the reason the restore above can work
+      # at all. It must run AFTER the NDK is installed — a save of a path that
+      # does not exist yet stores an empty entry, and an empty entry still counts
+      # as a cache hit next time, which is what broke this job.
+      #
+      # `if: always()` so a later failure still banks the 1.5 GB download rather
+      # than throwing it away and paying for it again next run. Skipped when the
+      # restore already hit, since re-saving an identical key is wasted upload.
+      - name: Save Android NDK
+        if: always() && steps.ndk-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: /usr/local/lib/android/sdk/ndk/${{ env.NDK_VERSION }}
+          key: ndk-${{ runner.os }}-${{ env.NDK_VERSION }}-v2

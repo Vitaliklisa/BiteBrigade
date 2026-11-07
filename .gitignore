@@ -1,0 +1,26 @@
+.neon
+.env.local
+node_modules/
+# --- Flutter / Dart ---
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# --- Firebase: generated per developer by `flutterfire configure` ---
+# These are per-project and per-platform; regenerate rather than commit.
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+firestore-debug.log
+
+# --- Signing: never commit a keystore or its passwords ---
+android/key.properties
+*.jks
+*.keystore
+
+# --- IDE / OS ---
+.idea/
+*.iml
+.DS_Store

@@ -1,0 +1,1712 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+import '../core/circles.dart';
+import '../core/countdown.dart';
+import '../core/models.dart';
+import '../core/recent_contacts.dart';
+import '../core/theme.dart';
+import '../providers/app_providers.dart';
+import '../router.dart';
+import '../services/event_repository.dart';
+import '../widgets/block_user.dart';
+import '../widgets/brand_kit.dart';
+
+/// Create or edit one countdown.
+///
+/// Everything a new countdown needs is on this screen: a title, an optional
+/// note, the moment itself, and — once it exists — the people it is shared
+/// with. The live preview under the date pickers shows exactly what the
+/// countdown will read, so the date can be adjusted without saving first.
+class EventEditorScreen extends ConsumerStatefulWidget {
+  const EventEditorScreen({super.key, this.event});
+
+  /// `null` creates; a value edits.
+  final CountdownEvent? event;
+
+  @override
+  ConsumerState<EventEditorScreen> createState() => _EventEditorScreenState();
+}
+
+class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
+  late final TextEditingController _title;
+  late final TextEditingController _description;
+  late DateTime _at;
+  String? _error;
+  bool _busy = false;
+
+  /// Circles this countdown will be shared with. Only used when creating: an
+  /// existing countdown manages its circles from the detail screen, where the
+  /// current sharing is visible.
+  final Set<String> _selectedCircleIds = {};
+
+  /// The user's clock preference.
+  ///
+  /// Watched in `build` rather than read once: the "Time" tile and the picker
+  /// dialog it opens must always agree, and the setting can change while this
+  /// screen is open — it syncs from the account, so another device signing in to
+  /// a different format would otherwise leave the tile on the old one and the
+  /// dialog on the new one.
+
+  /// Whether the couple pre-selection has already run for this screen.
+  ///
+  /// `circlesProvider` is a stream, so on a cold start it is still empty when
+  /// `initState` runs. The listener below waits for the first real list and
+  /// ticks the couple circle then, exactly once.
+  bool _couplePreselected = false;
+
+  /// Quick jumps for the dates people actually pick — days to years ahead.
+  static const _presets = <(String, int)>[
+    ('+1 week', 7),
+    ('+1 month', 30),
+    ('+1 year', 365),
+    ('+5 years', 1826),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    final event = widget.event;
+    _title = TextEditingController(text: event?.title ?? '');
+    _description = TextEditingController(text: event?.description ?? '');
+    // Default to 30 days out at 6pm — far enough ahead to feel like a plan,
+    // close enough to be real.
+    final thirtyDaysOut = DateTime.now().add(const Duration(days: 30));
+    _at = event?.at ??
+        DateTime(
+            thirtyDaysOut.year, thirtyDaysOut.month, thirtyDaysOut.day, 18);
+
+    // Pre-tick whatever this countdown is already shared with, so editing does
+    // not silently drop a circle.
+    if (event != null) _selectedCircleIds.addAll(event.sharedWithCircleIds);
+
+    // On a NEW countdown, a couple circle is ticked from the start.
+    //
+    // That is the entire promise of a couple circle: what one of you counts
+    // down to, the other sees, with no invitation step. Leaving it unticked
+    // meant the partner got nothing unless the creator remembered to open the
+    // circle picker and select it — which made the feature behave like an
+    // ordinary circle and contradicted the copy on the Circles screen.
+    //
+    // Deliberately only `isCouple`: an ordinary friend circle must never be
+    // auto-shared, or a private plan would be broadcast to the group.
+    if (event == null) {
+      _preselectCoupleCircles(ref.read(circlesProvider).value ?? const []);
+      // Circles may not have arrived yet; catch the first real list.
+      ref.listenManual(circlesProvider, (previous, next) {
+        if (_couplePreselected) return;
+        final circles = next.value;
+        if (circles == null || circles.isEmpty) return;
+        _couplePreselected = true;
+        if (!mounted) return;
+        setState(() => _preselectCoupleCircles(circles));
+      });
+    }
+  }
+
+  /// Adds each couple circle the user belongs to into the selection.
+  void _preselectCoupleCircles(List<Circle> circles) {
+    final userId = ref.read(currentUserProvider)?.id;
+    if (userId == null) return;
+    for (final circle in circles) {
+      if (circle.isCouple && circle.contains(userId)) {
+        _selectedCircleIds.add(circle.id);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _description.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _at.isAfter(DateTime.now())
+          ? _at
+          : DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 60)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    setState(() {
+      _at =
+          DateTime(picked.year, picked.month, picked.day, _at.hour, _at.minute);
+      _error = null;
+    });
+  }
+
+  Future<void> _pickTime() async {
+    // The picker follows the clock format chosen in Settings, not the device
+    // locale.
+    //
+    // `showTimePicker` reads `MediaQuery.alwaysUse24HourFormat`, which defaults
+    // to the platform's own convention. On a device set to 12-hour — which is
+    // what the screenshot showed — a user who had picked 24-hour in Settings
+    // still got an AM/PM dial, so the composer disagreed with itself: the
+    // "Time" tile beneath it rendered `18:00` while the dialog above asked for
+    // `6:00 PM`. Pinning the MediaQuery to the app's own setting makes the two
+    // agree, and makes the choice the user already made in Settings the one
+    // that decides how they enter a time.
+    final use24Hour = ref.read(timeFormatProvider).uses24HourClock;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_at),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: use24Hour),
+        child: child!,
+      ),
+    );
+    if (picked == null) return;
+    setState(() {
+      _at = DateTime(_at.year, _at.month, _at.day, picked.hour, picked.minute);
+      _error = null;
+    });
+  }
+
+  void _applyPreset(int days) {
+    final next = DateTime.now().add(Duration(days: days));
+    setState(() {
+      _at = DateTime(next.year, next.month, next.day, _at.hour, _at.minute);
+      _error = null;
+    });
+  }
+
+  Future<void> _save() async {
+    final title = _title.text.trim();
+    if (title.isEmpty) {
+      setState(() => _error = 'Give this countdown a title.');
+      return;
+    }
+    if (!_at.isAfter(DateTime.now())) {
+      setState(() => _error = 'Pick a moment still ahead of you.');
+      return;
+    }
+
+    final user = ref.read(currentUserProvider);
+    if (user == null) {
+      setState(() => _error = 'Sign in to save countdowns.');
+      return;
+    }
+
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    final repository = ref.read(eventRepositoryProvider);
+    final existing = widget.event;
+
+    try {
+      CountdownEvent? created;
+      CreateEventResult? createResult;
+      var selectedCoupleCircle = false;
+      if (existing == null) {
+        final availableCircles =
+            ref.read(circlesProvider).value ?? const <Circle>[];
+        selectedCoupleCircle = availableCircles.any((circle) =>
+            circle.isCouple && _selectedCircleIds.contains(circle.id));
+        // Members of every circle being shared with, minus the creator. Passing
+        // these is what actually sends the invitations: attaching a countdown to
+        // a non-couple circle used to make it visible to the group while never
+        // asking anyone to join, so the invitee had nothing in their inbox and
+        // no `participants` row to accept.
+        final invitees = await repository.circleInvitees(
+          circleIds: _selectedCircleIds,
+          excludingUserId: user.id,
+        );
+        createResult = await repository.createEvent(
+          userId: user.id,
+          email: user.email,
+          title: title,
+          description: _description.text,
+          at: _at,
+          displayName: user.displayName,
+          photoUrl: user.photoUrl,
+          // Circles ticked in the composer: a couple circle shares silently,
+          // any other circle's members get an invitation to accept.
+          autoShareCircleIds: _selectedCircleIds.toList(),
+          circles: ref.read(circlesProvider).value ?? const [],
+          invitationRecipients: invitees,
+        );
+        created = createResult.event;
+      } else {
+        await repository.updateEvent(
+          event: existing,
+          userId: user.id,
+          title: title,
+          description: _description.text,
+          at: _at,
+        );
+        // Sharing is a separate write: `updateEvent` deliberately touches only
+        // the fields the rules allow in one diff, and circle membership is its
+        // own permission decision.
+        await repository.setEventCircles(
+          event: existing,
+          userId: user.id,
+          circleIds: _selectedCircleIds.toList(),
+        );
+      }
+      if (!mounted) return;
+      var message = existing == null ? 'Countdown created.' : 'Changes saved.';
+      var duration = const Duration(seconds: 4);
+      if (existing == null && selectedCoupleCircle && createResult != null) {
+        final result = createResult;
+        final partnerName = result.partnerName ?? 'your partner';
+        final displayPartnerName =
+            partnerName == 'your partner' ? 'Your partner' : partnerName;
+        if (result.autoShareError != null) {
+          message = 'Countdown created, but $partnerName was not added. '
+              'Invite them manually from the countdown.';
+          duration = const Duration(seconds: 8);
+        } else if (result.autoShared.isNotEmpty) {
+          message = 'Countdown created. $displayPartnerName was added.';
+        } else {
+          message = 'Countdown created, but no partner was added. '
+              'Invite them manually.';
+        }
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), duration: duration),
+      );
+      if (created != null) {
+        // A brand-new countdown is pinned as the hero and the creator is taken
+        // straight back to the home screen, where the thing they just made is
+        // already counting down. `go` (rather than `pop`) resets the stack, so
+        // Back never bounces into the now-stale composer and the freshly
+        // created countdown is visible without an extra tap.
+        ref.read(selectedEventIdProvider.notifier).set(created.id);
+        context.go(Routes.home);
+      } else {
+        context.pop();
+      }
+    } on DataFailure catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } catch (e) {
+      // A raw Firebase exception is not a sentence. `[cloud_firestore/…] Missing
+      // or insufficient permissions.` tells the person nothing they can act on,
+      // and the two cases that actually happen here deserve their own words:
+      // the security rules refusing the write, and the network being away.
+      if (mounted) setState(() => _error = _saveError(e));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _delete() async {
+    final existing = widget.event;
+    final user = ref.read(currentUserProvider);
+    if (existing == null || user == null) return;
+
+    setState(() => _busy = true);
+    try {
+      await ref
+          .read(eventRepositoryProvider)
+          .deleteEvent(event: existing, userId: user.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Countdown deleted.')),
+      );
+      // Forget the pin and refresh the feed, then land on a clean home rather
+      // than popping back onto the now-deleted countdown's own screen.
+      ref.invalidate(eventsProvider);
+      ref.read(selectedEventIdProvider.notifier).set(null);
+      context.go(Routes.home);
+    } on DataFailure catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _confirmDeleteCountdown() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete this countdown?'),
+        content: const Text('The countdown cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Keep'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: dialogContext.colors.danger,
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) await _delete();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final editing = widget.event != null;
+    final user = ref.watch(currentUserProvider);
+    final timeFormat = ref.watch(timeFormatProvider);
+    final canEdit = widget.event?.canEdit(user?.id) ?? true;
+
+    // Every write path needs an account: a countdown is owned by its creator in
+    // Firestore, and security rules require a uid. Gate here rather than letting
+    // someone fill in a form they cannot save.
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: HoverTintIconButton(
+            icon: Icons.arrow_back_rounded,
+            onPressed: () => context.pop(),
+          ),
+          title: Text(editing ? 'Edit countdown' : 'New countdown'),
+        ),
+        body: _SignInPrompt(onSignIn: () => context.push(Routes.login)),
+      );
+    }
+    return Scaffold(
+      appBar: AppBar(
+        leading: HoverTintIconButton(
+          icon: Icons.arrow_back_rounded,
+          onPressed: () => context.pop(),
+        ),
+        title: Text(editing ? 'Edit countdown' : 'New countdown'),
+        actions: [
+          if (editing && (widget.event?.canManage(user.id) ?? false))
+            PopupMenuButton<String>(
+              tooltip: 'Countdown actions',
+              enabled: !_busy,
+              onSelected: (value) {
+                if (value == 'delete') _confirmDeleteCountdown();
+              },
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete countdown'),
+                ),
+              ],
+            ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
+          children: [
+            const _Label('Title'),
+            TextField(
+              controller: _title,
+              enabled: canEdit,
+              maxLength: 80,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                hintText: 'Wedding, launch, reunion',
+                counterText: '',
+              ),
+            ),
+            const SizedBox(height: 18),
+            const _Label('Description'),
+            TextField(
+              controller: _description,
+              enabled: canEdit,
+              maxLines: 3,
+              maxLength: 280,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                hintText: 'A short note about the day',
+                counterStyle: TextStyle(fontSize: 11),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _Label('When'),
+                Wrap(
+                  spacing: 6,
+                  children: [
+                    for (final (label, days) in _presets)
+                      _PresetChip(
+                        label: label,
+                        onTap: canEdit ? () => _applyPreset(days) : null,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _MomentTile(
+                    icon: Icons.calendar_today_rounded,
+                    label: 'Date',
+                    value: DateFormat('EEE, MMM d, yyyy').format(_at),
+                    onTap: canEdit ? _pickDate : null,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _MomentTile(
+                    icon: Icons.schedule_rounded,
+                    label: 'Time',
+                    value: formatClock(_at, format: timeFormat),
+                    onTap: canEdit ? _pickTime : null,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            _PreviewStrip(at: _at),
+            const SizedBox(height: 22),
+            _CirclePicker(
+              selected: _selectedCircleIds,
+              onToggle: (circleId, on) => setState(() {
+                if (on) {
+                  _selectedCircleIds.add(circleId);
+                } else {
+                  _selectedCircleIds.remove(circleId);
+                }
+              }),
+            ),
+            if (editing) ...[
+              const SizedBox(height: 28),
+              Divider(color: colors.border),
+              const SizedBox(height: 20),
+              _Collaborators(event: widget.event!),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: 18),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.error_outline_rounded,
+                      size: 17, color: colors.danger),
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: Text(_error!,
+                        style: TextStyle(fontSize: 13.5, color: colors.danger)),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 26),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: (_busy || !canEdit) ? null : _save,
+                    icon: const Icon(Icons.check_rounded, size: 20),
+                    label: Text(editing ? 'Save changes' : 'Create countdown'),
+                  ),
+                ),
+              ],
+            ),
+            if (!canEdit) ...[
+              const SizedBox(height: 14),
+              Text(
+                'You can view this countdown but not change it.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5, color: colors.subtle),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Label extends StatelessWidget {
+  const _Label(this.text);
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(left: 2, bottom: 8),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w500,
+            color: context.colors.muted,
+          ),
+        ),
+      );
+}
+
+class _PresetChip extends StatelessWidget {
+  const _PresetChip({required this.label, this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: colors.border),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: onTap == null ? colors.subtle : colors.muted,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MomentTile extends StatelessWidget {
+  const _MomentTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: colors.border),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 13, color: colors.subtle),
+                  const SizedBox(width: 6),
+                  Text(
+                    label.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w600,
+                      color: colors.subtle,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 7),
+              Text(
+                value,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Live preview of what this date actually counts down to.
+class _PreviewStrip extends ConsumerWidget {
+  const _PreviewStrip({required this.at});
+
+  final DateTime at;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final now = ref.watch(clockProvider).value ?? DateTime.now();
+    final remaining = remainingUntil(at, now);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: colors.surface2,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            remaining.isPast
+                ? Icons.warning_amber_rounded
+                : Icons.hourglass_bottom_rounded,
+            size: 16,
+            color: remaining.isPast ? colors.danger : colors.accent,
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Text(
+              remaining.isPast
+                  ? 'Choose a future date to see the countdown.'
+                  : 'Counting down ${describeRemaining(remaining)}',
+              style: TextStyle(fontSize: 13, color: colors.muted),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Invite people, and see who is already on the countdown.
+class _Collaborators extends ConsumerStatefulWidget {
+  const _Collaborators({required this.event});
+
+  final CountdownEvent event;
+
+  @override
+  ConsumerState<_Collaborators> createState() => _CollaboratorsState();
+}
+
+class _CollaboratorsState extends ConsumerState<_Collaborators> {
+  final _email = TextEditingController();
+  final _emailFocus = FocusNode();
+  ParticipantRole _role = ParticipantRole.viewer;
+  bool _inviting = false;
+
+  /// What has been typed into the invite field.
+  ///
+  /// Kept in state so the suggestions under the field are recomputed on every
+  /// keystroke, which is what makes it behave like a search box rather than
+  /// something that only reacts on submit.
+  String _query = '';
+
+  /// Set when an invitation is refused — most visibly when someone tries to
+  /// invite their own address. Rendered as red text under the field.
+  String? _inviteError;
+
+  @override
+  void initState() {
+    super.initState();
+    _email.addListener(_onQueryChanged);
+    _emailFocus.addListener(_onQueryChanged);
+  }
+
+  void _onQueryChanged() {
+    final next = _email.text.trim();
+    if (next == _query) {
+      if (mounted) setState(() {});
+      return;
+    }
+    setState(() => _query = next);
+  }
+
+  @override
+  void dispose() {
+    _email.removeListener(_onQueryChanged);
+    _emailFocus.removeListener(_onQueryChanged);
+    _emailFocus.dispose();
+    _email.dispose();
+    super.dispose();
+  }
+
+  /// Fills the field from a suggestion.
+  ///
+  /// Deliberately does not send the invitation: picking a person should still
+  /// let the role be chosen first. It drops the address in and leaves send a tap
+  /// away — the same two steps as before, just without the typing.
+  void _applySuggestion(RecentContact contact) {
+    _email.text = contact.email;
+    _email.selection = TextSelection.collapsed(offset: contact.email.length);
+    setState(() {
+      _query = contact.email;
+      _inviteError = null;
+    });
+  }
+
+  /// The people to offer under the field: everyone this user has invited before,
+  /// narrowed to what has been typed and never including someone already on the
+  /// countdown.
+  ///
+  /// Ordering is the repository's — most recently invited first — so the person
+  /// added to the last countdown is the first row offered on this one.
+  List<RecentContact> _suggestions(List<RecentContact> contacts) {
+    final already = <String>{
+      for (final p in widget.event.participants)
+        if (!p.isCircle) p.email.trim().toLowerCase(),
+      for (final p in (ref.read(participantsProvider(widget.event.id)).value ??
+          const <Participant>[]))
+        if (!p.isCircle) p.email.trim().toLowerCase(),
+    };
+    final seen = <String>{};
+    return contacts
+        .where((c) => c.matches(_query))
+        .where((c) => !already.contains(c.email.toLowerCase()))
+        .where((c) => seen.add(c.email.toLowerCase()))
+        .take(5)
+        .toList();
+  }
+
+  Future<void> _invite() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    final email = _email.text.trim();
+    if (email.isEmpty) return;
+
+    setState(() {
+      _inviting = true;
+      _inviteError = null;
+    });
+    try {
+      final failure = await runAction(
+        context,
+        () => ref.read(eventRepositoryProvider).inviteByEmail(
+              event: widget.event,
+              inviterId: user.id,
+              inviterEmail: user.email,
+              email: email,
+              role: _role,
+            ),
+        successMessage: 'Invitation sent to $email.',
+      );
+      if (failure == null) {
+        _email.clear();
+      } else if (mounted) {
+        setState(() => _inviteError = failure);
+      }
+    } finally {
+      if (mounted) setState(() => _inviting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final participants =
+        ref.watch(participantsProvider(widget.event.id)).value ??
+            widget.event.participants;
+    // Live rows, so the menu and the role policy read the roles as they are
+    // now — not as they were when this screen was opened. That is what makes a
+    // role change by another admin take effect here without a reload.
+    final event = widget.event.copyWith(participants: participants);
+    final canManage = event.canManage(ref.watch(currentUserProvider)?.id);
+
+    // People invited before, so the address typed last time is offered again.
+    // Ordered most-recently-invited first by the repository.
+    final contactsAsync = ref.watch(recentContactsProvider);
+    final contacts = contactsAsync.value ?? const <RecentContact>[];
+    final suggestions = _suggestions(contacts);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.people_alt_outlined, size: 18, color: colors.muted),
+            const SizedBox(width: 9),
+            const Text(
+              'Collaborators',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          canManage
+              ? 'Anyone you invite can follow this countdown on their own devices.'
+              : 'People following this countdown.',
+          style: TextStyle(fontSize: 12.5, color: colors.subtle),
+        ),
+        if (canManage) ...[
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _email,
+                  focusNode: _emailFocus,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => _invite(),
+                  decoration:
+                      const InputDecoration(hintText: 'name@example.com'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              _RoleDropdown(
+                value: _role,
+                onChanged: (role) => setState(() => _role = role),
+              ),
+              const SizedBox(width: 8),
+              IconButton.filled(
+                onPressed: _inviting ? null : _invite,
+                icon: const Icon(Icons.person_add_alt_1_rounded, size: 19),
+              ),
+            ],
+          ),
+          if (contactsAsync.hasError) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Recent contacts could not load. Check your connection or '
+              'Firestore rules.',
+              style: TextStyle(fontSize: 12.5, color: colors.danger),
+            ),
+          ],
+          // The suggestions drop out of the way the moment there is nothing to
+          // offer, so the field reads as a plain input until it has something to
+          // say — the way a search box should behave.
+          if (suggestions.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                color: colors.surface2,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: colors.border),
+              ),
+              child: Column(
+                children: [
+                  for (var i = 0; i < suggestions.length; i++) ...[
+                    if (i > 0) Divider(height: 1, color: colors.border),
+                    _SuggestionRow(
+                      contact: suggestions[i],
+                      onTap: () => _applySuggestion(suggestions[i]),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+          if (_inviteError != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.error_outline_rounded,
+                    size: 16, color: colors.danger),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _inviteError!,
+                    style: TextStyle(fontSize: 13, color: colors.danger),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+        const SizedBox(height: 16),
+        if (participants.isEmpty)
+          Text(
+            'No one else yet.',
+            style: TextStyle(fontSize: 13, color: colors.subtle),
+          )
+        else
+          for (final participant in participants)
+            // Long-press on touch, secondary-click on desktop opens the
+            // block sheet. A person you share a countdown with is the first
+            // place you would want to block someone, so block lives on the row
+            // rather than in a menu hidden away in Settings.
+            GestureDetector(
+              onLongPress: participant.isCircle
+                  ? null
+                  : () => _blockUser(participant, event.id),
+              onSecondaryTap: participant.isCircle
+                  ? null
+                  : () => _blockUser(participant, event.id),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: colors.border),
+                  ),
+                  child: Row(
+                    children: [
+                      // A circle row is not a person: it has no email and no name,
+                      // so it gets a group icon rather than a nameless "U" avatar
+                      // that identified nobody.
+                      if (participant.isCircle)
+                        Container(
+                          width: 30,
+                          height: 30,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: colors.accentSoft,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.groups_outlined,
+                              size: 16, color: colors.accent),
+                        )
+                      else
+                        UserAvatar(
+                          initials: participant.initials,
+                          seed: participant.userId,
+                          photoUrl: participant.photoUrl,
+                          size: 30,
+                        ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              participant.isCircle
+                                  ? 'Shared with ${participant.circleName ?? 'a circle'}'
+                                  : (participant.displayName?.isNotEmpty == true
+                                      ? participant.displayName!
+                                      : participant.email),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(height: 2),
+                            if (!participant.isCircle &&
+                                participant.displayName?.isNotEmpty == true)
+                              Text(
+                                participant.email,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 11.5, color: colors.subtle),
+                              ),
+                            if (!participant.isCircle)
+                              const SizedBox(height: 5),
+                            if (!participant.isCircle)
+                              Row(
+                                children: [
+                                  Text(
+                                    _roleLabel(participant.role),
+                                    style: TextStyle(
+                                        fontSize: 11.5, color: colors.subtle),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  InviteStatusChip(
+                                      status: participant.inviteStatus,
+                                      compact: true),
+                                ],
+                              ),
+                          ],
+                        ),
+                      ),
+                      // A circle row has no answer to give and nothing to
+                      // remove — the share is managed in the composer.
+                      if (canManage &&
+                          !participant.isCircle &&
+                          participant.userId != widget.event.createdBy) ...[
+                        // Someone who has not answered can be removed outright.
+                        // Someone who declined said no but is still on the list on
+                        // purpose, and the useful action for them is to ask again
+                        // rather than to erase them.
+                        if (participant.inviteStatus.isAwaitingAnswer)
+                          IconButton(
+                            tooltip: 'Remove',
+                            iconSize: 18,
+                            color: colors.subtle,
+                            onPressed: () => _remove(participant),
+                            icon: const Icon(Icons.close_rounded),
+                          )
+                        else if (participant.inviteStatus ==
+                            InviteStatus.declined)
+                          IconButton(
+                            tooltip: 'Invite again',
+                            iconSize: 18,
+                            color: colors.warning,
+                            onPressed: () => _inviteAgain(participant),
+                            icon: const Icon(Icons.refresh_rounded),
+                          ),
+                      ],
+                      // The row menu. Blocking stays on every person row,
+                      // whether or not the viewer manages this countdown:
+                      // Google Play's UGC policy is about anyone being able to
+                      // stop contact with anyone, and it used to live only on
+                      // the long-press, which nobody discovers. "Change role"
+                      // and "Remove" are management actions and appear only
+                      // where the role policy allows them.
+                      if (!participant.isCircle &&
+                          participant.userId !=
+                              ref.read(currentUserProvider)?.id)
+                        PopupMenuButton<String>(
+                          tooltip: 'More actions',
+                          iconSize: 18,
+                          icon: Icon(Icons.more_vert_rounded,
+                              size: 18, color: colors.subtle),
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'role':
+                                _changeRole(event, participant);
+                              case 'block':
+                                _blockUser(participant, event.id);
+                              case 'remove':
+                                _remove(participant);
+                            }
+                          },
+                          itemBuilder: (context) {
+                            final me = ref.read(currentUserProvider)?.id;
+                            // The live participant list is the authority for
+                            // what this viewer may do; `canManage` below comes
+                            // from it, and so does the role policy.
+                            final assignable = event.assignableRolesFor(
+                              actorId: me,
+                              target: participant,
+                            );
+                            // Remove is a management action, for any collaborator
+                            // that is not the creator — not only for a row still
+                            // awaiting an answer. It used to appear only on
+                            // pending rows, so an accepted collaborator (the
+                            // person you actually want to remove) had no
+                            // removal action at all. The repository re-checks
+                            // all of this against Firestore before deleting.
+                            final canRemove = canManage &&
+                                participant.userId != event.createdBy &&
+                                participant.userId != me &&
+                                !participant.isCircle;
+                            return [
+                              if (assignable.isNotEmpty)
+                                const PopupMenuItem(
+                                  value: 'role',
+                                  child: _MenuAction(
+                                    icon: Icons.manage_accounts_outlined,
+                                    label: 'Change role',
+                                  ),
+                                ),
+                              if (canRemove)
+                                const PopupMenuItem(
+                                  value: 'remove',
+                                  child: _MenuAction(
+                                    icon: Icons.person_remove_outlined,
+                                    label: 'Remove',
+                                    destructive: true,
+                                  ),
+                                ),
+                              const PopupMenuItem(
+                                value: 'block',
+                                child: _MenuAction(
+                                  icon: Icons.block_rounded,
+                                  label: 'Block',
+                                  destructive: true,
+                                ),
+                              ),
+                            ];
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      ],
+    );
+  }
+
+  /// "Change role" — the sheet behind the row menu.
+  ///
+  /// Only the roles the viewer may actually grant are offered, so an option
+  /// that would be refused is never a choice. The repository re-checks with
+  /// the same policy before it writes, and the security rules check it again.
+  Future<void> _changeRole(
+      CountdownEvent event, Participant participant) async {
+    final me = ref.read(currentUserProvider);
+    if (me == null) return;
+    final assignable = event.assignableRolesFor(
+      actorId: me.id,
+      target: participant,
+    );
+    if (assignable.isEmpty) return;
+
+    final chosen = await showModalBottomSheet<ParticipantRole>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => _RoleSheet(
+        participant: participant,
+        roles: assignable,
+        topRole: event.roleFor(me.id),
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    if (chosen == participant.role) return;
+
+    final who = participant.displayName?.trim().isNotEmpty == true
+        ? participant.displayName!.trim()
+        : participant.email;
+
+    // The event is passed in so the policy is evaluated on the list the user
+    // is looking at. The repository re-reads BOTH rows (the actor's authority
+    // and the target's current role) from Firestore before deciding, so a
+    // snapshot that is missing the actor's row — or older than a role granted
+    // elsewhere — cannot refuse a legitimate change.
+    await runAction(
+      context,
+      () => ref.read(eventRepositoryProvider).updateParticipantRole(
+            eventId: event.id,
+            actorId: me.id,
+            participant: participant,
+            role: chosen,
+            event: event,
+          ),
+      successMessage: '$who is now ${chosen.label.toLowerCase()}.',
+    );
+  }
+
+  Future<void> _blockUser(Participant participant, String eventId) async {
+    final me = ref.read(currentUserProvider);
+    if (me == null || participant.userId == me.id) return;
+    final blocked = await showBlockUserSheet(
+      context,
+      participant: participant,
+      eventId: eventId,
+    );
+    if (!blocked || !mounted) return;
+    // The block removed them from this countdown, so the list refreshes on its
+    // own; this only confirms it happened.
+  }
+
+  Future<void> _remove(Participant participant) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final confirmed = await _confirmRemove(participant);
+    if (!confirmed || !mounted) return;
+
+    // Remove means remove: drop the participant row, so they lose access and
+    // stop appearing in the list. This used to only rewrite the role to
+    // `viewer` under a tooltip that said "Remove", which left the person on the
+    // countdown — the button did not do what it said.
+    final who = participant.displayName?.trim().isNotEmpty == true
+        ? participant.displayName!.trim()
+        : participant.email;
+    final failure = await runAction(
+      context,
+      () => ref.read(eventRepositoryProvider).removeParticipant(
+            eventId: widget.event.id,
+            actorId: user.id,
+            userId: participant.userId,
+          ),
+      successMessage: '$who was removed.',
+    );
+    // `runAction` shows the reason for every failure it maps; this only makes
+    // sure a removal that silently did nothing is never mistaken for success.
+    if (failure != null) {
+      debugPrint('[datedawn] Remove failed: $failure');
+    }
+  }
+
+  /// Asks someone who already declined to take another look.
+  Future<void> _inviteAgain(Participant participant) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null || participant.email.isEmpty) return;
+    await runAction(
+      context,
+      () => ref.read(eventRepositoryProvider).reopenInvitation(
+            eventId: widget.event.id,
+            userId: participant.userId,
+            inviteeEmail: participant.email,
+            eventTitle: widget.event.title,
+            inviterId: user.id,
+          ),
+      successMessage: 'Asked ${participant.email} again.',
+    );
+  }
+
+  Future<bool> _confirmRemove(Participant participant) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Remove this person?'),
+        content: Text(
+            '${participant.email} will lose access to this countdown and will no '
+            'longer see it in their list.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Keep'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: dialogContext.colors.danger,
+              minimumSize: const Size(88, 42),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  String _roleLabel(ParticipantRole role) => role.label;
+}
+
+/// One row in the invite field's suggestion list.
+///
+/// Shows the avatar and the name or address of someone already invited before,
+/// so the second invitation to the same person is a single tap instead of typing
+/// their address out again.
+class _SuggestionRow extends StatelessWidget {
+  const _SuggestionRow({required this.contact, required this.onTap});
+
+  final RecentContact contact;
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final text = Theme.of(context).textTheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              UserAvatar(
+                initials: contact.initials,
+                seed:
+                    contact.userId.isNotEmpty ? contact.userId : contact.email,
+                photoUrl: contact.photoUrl,
+                size: 30,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      contact.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.fg,
+                      ),
+                    ),
+                    if (contact.label != contact.email)
+                      Text(
+                        contact.email,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          color: colors.muted,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.north_east_rounded,
+                size: 16,
+                color: colors.muted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One row inside a [PopupMenuButton].
+///
+/// A shared shape rather than three inline `Row`s, so the icons line up and a
+/// destructive action reads as one everywhere in the menu.
+class _MenuAction extends StatelessWidget {
+  const _MenuAction({
+    required this.icon,
+    required this.label,
+    this.destructive = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool destructive;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = destructive ? context.colors.danger : null;
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 10),
+        Text(label, style: color == null ? null : TextStyle(color: color)),
+      ],
+    );
+  }
+}
+
+/// The "Change role" sheet.
+///
+/// Lists only the roles this viewer may grant ([roles]); the person's current
+/// role is shown as the selection so the sheet opens on the truth rather than
+/// looking like a fresh choice. Each option says what it means, because
+/// "Editor" alone does not tell anyone what an editor can do.
+class _RoleSheet extends StatelessWidget {
+  const _RoleSheet({
+    required this.participant,
+    required this.roles,
+    required this.topRole,
+  });
+
+  final Participant participant;
+  final List<ParticipantRole> roles;
+
+  /// The viewer's own role, so the sheet can say why some roles are missing
+  /// rather than silently offering two of three.
+  final ParticipantRole topRole;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final who = participant.displayName?.trim().isNotEmpty == true
+        ? participant.displayName!.trim()
+        : participant.email;
+    // Admin > editor > viewer, most powerful first.
+    final ordered = [...roles]
+      ..sort((a, b) => b.authorityRank.compareTo(a.authorityRank));
+    final withheld = ParticipantRole.values
+        .where((role) => !roles.contains(role))
+        .toList()
+      ..sort((a, b) => b.authorityRank.compareTo(a.authorityRank));
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Change role for $who',
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'This changes what they can do on this countdown from now on. '
+              'They currently have ${participant.role.label.toLowerCase()} '
+              'access.',
+              style: TextStyle(fontSize: 13, height: 1.5, color: colors.muted),
+            ),
+            const SizedBox(height: 14),
+            for (final role in ordered)
+              _RoleOption(
+                role: role,
+                selected: role == participant.role,
+                onTap: role == participant.role
+                    ? null
+                    : () => Navigator.of(context).pop(role),
+              ),
+            if (withheld.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                '${withheld.map((r) => r.label).join(' and ')} cannot be '
+                'assigned by you — you are ${topRole.label.toLowerCase()}.',
+                style: TextStyle(fontSize: 11.5, color: colors.subtle),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RoleOption extends StatelessWidget {
+  const _RoleOption({
+    required this.role,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final ParticipantRole role;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: selected ? colors.accentSoft : colors.surface,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected ? colors.accent : colors.border,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        role.label,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        role.description,
+                        style: TextStyle(
+                            fontSize: 12.5, height: 1.4, color: colors.muted),
+                      ),
+                    ],
+                  ),
+                ),
+                if (selected) ...[
+                  const SizedBox(width: 10),
+                  Icon(Icons.check_circle_rounded,
+                      size: 18, color: colors.accent),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoleDropdown extends StatelessWidget {
+  const _RoleDropdown({required this.value, required this.onChanged});
+
+  final ParticipantRole value;
+  final ValueChanged<ParticipantRole> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colors.border),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<ParticipantRole>(
+          value: value,
+          isDense: true,
+          dropdownColor: colors.surface2,
+          borderRadius: BorderRadius.circular(10),
+          style: TextStyle(fontSize: 13.5, color: colors.fg),
+          icon: Icon(Icons.expand_more_rounded, size: 18, color: colors.subtle),
+          onChanged: (role) {
+            if (role != null) onChanged(role);
+          },
+          // Roles come from the enum, so this selector and the "Change role"
+          // sheet can never drift into two different sets of names.
+          items: [
+            for (final role in ParticipantRole.values)
+              DropdownMenuItem(value: role, child: Text(role.label)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shown when someone reaches the editor without an account.
+///
+/// The app deliberately lets a visitor browse and try the countdown, but a
+/// countdown is owned by its creator in Firestore, so saving needs a uid.
+class _SignInPrompt extends StatelessWidget {
+  const _SignInPrompt({required this.onSignIn});
+
+  final VoidCallback onSignIn;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.lock_outline_rounded,
+                    size: 24, color: colors.accent),
+              ),
+              const SizedBox(height: 22),
+              Text(
+                'Sign in to save it',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Countdowns live in your account, so they follow you to every '
+                'device and can be shared with other people.',
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(fontSize: 14, height: 1.5, color: colors.muted),
+              ),
+              const SizedBox(height: 26),
+              FilledButton(onPressed: onSignIn, child: const Text('Sign in')),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Ticks the circles this countdown is shared with.
+///
+/// Renders nothing when the user has no circles — an empty picker would just be
+/// noise on the screen of someone who has not set any up yet.
+class _CirclePicker extends ConsumerWidget {
+  const _CirclePicker({required this.selected, required this.onToggle});
+
+  final Set<String> selected;
+  final void Function(String circleId, bool selected) onToggle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final circles = ref.watch(circlesProvider).value ?? const <Circle>[];
+    if (circles.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.groups_outlined, size: 16, color: colors.muted),
+            const SizedBox(width: 9),
+            const Text(
+              'Share with',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'A couple circle shares instantly. Other circles get an invitation.',
+          style: TextStyle(fontSize: 12, color: colors.subtle),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final circle in circles)
+              GestureDetector(
+                onTap: () => onToggle(circle.id, !selected.contains(circle.id)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: selected.contains(circle.id)
+                        ? colors.accentSoft
+                        : colors.surface,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(
+                      color: selected.contains(circle.id)
+                          ? colors.accent
+                          : colors.border,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        circle.emoji ?? (circle.isCouple ? '💞' : '👥'),
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        circle.name,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: selected.contains(circle.id)
+                              ? colors.accent
+                              : colors.fg,
+                        ),
+                      ),
+                      if (selected.contains(circle.id)) ...[
+                        const SizedBox(width: 7),
+                        Icon(Icons.check_rounded,
+                            size: 14, color: colors.accent),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Turns a raw save failure into something the person can act on.
+///
+/// Firebase's own text is developer-facing — `[cloud_firestore/permission-denied]
+/// Missing or insufficient permissions.` — and showing it verbatim made a
+/// security-rules rejection look like an app crash. The two failures that
+/// actually occur here are a refused write and a dead connection, so each gets a
+/// plain sentence and a next step.
+String _saveError(Object error) {
+  final text = error.toString();
+  if (text.contains('permission-denied')) {
+    return 'Firestore refused the save. If this keeps happening, the deployed '
+        'security rules are older than the app — run '
+        '`firebase deploy --only firestore:rules`.';
+  }
+  if (text.contains('unavailable') ||
+      text.contains('network') ||
+      text.contains('Failed to fetch')) {
+    return 'Could not reach Firestore. Check your connection and try again.';
+  }
+  return 'Could not save. Please try again.';
+}

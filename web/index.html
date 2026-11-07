@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Make restaurant decisions together with rooms, crews, and group voting.">
+  <meta name="theme-color" content="#0E1113">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Table Talk">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon: the Table Talk table setting mark. -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/svg+xml" href="icons/table-talk-mark.svg"/>
+
+  <title>Table Talk</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+  <!--
+    Flutter ships four renderers and, left to itself, the build stages all of
+    them so the loader can pick one at runtime. That is ~31 MB of WebAssembly
+    for an app that needs exactly one, which is the difference between a web
+    build that loads instantly and one that spends seconds downloading a
+    renderer it will never run.
+
+    Pinning it here removes the choice. `canvaskit` is the right one for Table
+    Dawn: it is the renderer Flutter supports everywhere and it is what the
+    app's gradients, blurs and the confetti burst were drawn against. The
+    `--wasm` renderers (skwasm) and the `webparagraph` variant are Chromium-only
+    experiments and are not staged any more.
+
+    `renderer: canvaskit` must match `--web-renderer canvaskit` on the build
+    command; see the README's build section.
+  -->
+  <script>
+    window.flutterConfiguration = {
+      renderer: 'canvaskit',
+      // The loading indicator is our own, so Flutter does not need to inject
+      // its spinner — one less script in the boot path.
+      canvasKitBaseUrl: 'canvaskit/',
+    };
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

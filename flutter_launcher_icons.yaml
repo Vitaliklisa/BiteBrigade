@@ -1,0 +1,28 @@
+# App icon generation for Android and iOS.
+#
+#   node scripts/generate-flutter-icons.mjs   # writes assets/icon/*
+#   dart run flutter_launcher_icons           # applies them natively
+#
+# The source art is generated from code (the same clock mark as the web
+# favicon) so the palette stays in one place. See scripts/generate-flutter-icons.mjs.
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+
+  # Both point at the generated PNGs.
+  image_path: "assets/icon/icon.png"
+
+  # Android adaptive icons: the foreground is the mark alone, the background is
+  # the flat canvas colour. Together they give the parallax/mask behaviour
+  # Android 8+ expects, instead of a letterboxed square.
+  adaptive_icon_background: "assets/icon/icon-background.png"
+  adaptive_icon_foreground: "assets/icon/icon-foreground.png"
+  adaptive_icon_monochrome: "assets/icon/icon-foreground.png"
+
+  # iOS icons must be opaque — App Store review rejects an alpha channel.
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#0E1113"
+    theme_color: "#0E1113"

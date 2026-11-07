@@ -1,0 +1,29 @@
+# Native splash screens for Android and iOS.
+#
+#   node scripts/generate-flutter-icons.mjs   # writes assets/splash/*
+#   dart run flutter_native_splash:create     # applies them natively
+#
+# The splash canvas is the app's own dark background, so launching the app does
+# not flash white before the first frame — the single most jarring launch bug on
+# a dark-themed app.
+flutter_native_splash:
+  color: "#0E1113"
+  image: assets/splash/splash.png
+
+  # Android 12+ draws its own splash from a small icon on a flat background.
+  android_12:
+    color: "#0E1113"
+    image: assets/splash/splash.png
+    icon_background_color: "#0E1113"
+
+  # Dark-mode splash: same canvas, so the two are intentionally identical.
+  color_dark: "#0E1113"
+  image_dark: assets/splash/splash-dark.png
+
+  android: true
+  ios: true
+  web: false
+
+  # Keep the launch screen visible until the first frame is ready, so the user
+  # never sees an empty canvas mid-initialisation.
+  fullscreen: false

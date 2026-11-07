@@ -1,0 +1,283 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../core/routes.dart';
+import '../core/theme.dart';
+import '../providers/app_providers.dart';
+import '../providers/room_providers.dart';
+import '../router.dart';
+import '../screens/policy_screen.dart';
+import '../services/auth_service.dart';
+import 'brand_kit.dart';
+
+class AppNavigationShell extends ConsumerWidget {
+  const AppNavigationShell({
+    required this.location,
+    required this.child,
+    super.key,
+  });
+
+  final String location;
+  final Widget child;
+
+  static const _destinations = <(String, String, IconData)>[
+    ('Home', Routes.home, Icons.hourglass_bottom_rounded),
+    ('Invitations', Routes.invitations, Icons.mail_outline_rounded),
+    ('Crews', Routes.crews, Icons.groups_outlined),
+    ('Notifications', Routes.notifications, Icons.notifications_none_rounded),
+    ('Settings', Routes.settings, Icons.settings_outlined),
+    ('Support', Routes.support, Icons.help_outline_rounded),
+  ];
+
+  /// Destinations shown in the mobile bottom bar.
+  ///
+  /// The bottom bar holds five items comfortably and six does not — the labels
+  /// start to truncate. Support is a rarely-used destination, so on a phone it
+  /// stays reachable from Settings and from the login screen rather than
+  /// crowding the bar everyone taps every day. On desktop the sidebar has the
+  /// room and shows all six.
+  static const _bottomBarCount = 5;
+
+  int get _selectedIndex {
+    for (var i = 1; i < _destinations.length; i++) {
+      if (location == _destinations[i].$2 ||
+          location.startsWith('${_destinations[i].$2}/')) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
+  void _goTo(BuildContext context, int index) {
+    final destination = _destinations[index].$2;
+    if (location != destination) context.go(destination);
+  }
+
+  static const _shellChildKey = ValueKey('app_navigation_shell_child_key');
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    final unreadCount = (ref.watch(appNotificationsProvider).value ?? const [])
+        .where((notification) => !notification.isRead)
+        .length;
+    final invitationCount =
+        (ref.watch(roomInvitationsProvider).value ?? const []).length +
+            (ref.watch(crewInvitationsProvider).value ?? const []).length;
+    // A legal page opened from Settings/Support is drawn as a layer over the
+    // shell rather than pushed as a Flutter route. Inside this `ShellRoute` a
+    // sibling-route `push` is ignored outright — the tap changed nothing — and
+    // `go` alone replaced the whole stack, so Back had nowhere to return to.
+    // As a layer it covers the sidebar and the bottom bar (as a policy page
+    // should) and its own Back goes through `closeLegalPage`.
+    final legal = ref.watch(legalDocumentProvider);
+    final isDesktop = MediaQuery.sizeOf(context).width >= 900;
+
+    final keyedChild = KeyedSubtree(
+      key: _shellChildKey,
+      child: child,
+    );
+
+    final destination = _buildShell(
+      context,
+      user,
+      desktop: isDesktop,
+      keyedChild: keyedChild,
+      unreadCount: unreadCount,
+      invitationCount: invitationCount,
+    );
+    if (legal == null) return destination;
+
+    // The policy sits in an `Offstage` sibling rather than a `Stack`: it is
+    // the only visible thing, and nothing underneath it stays laid out,
+    // focusable, or tappable. A SharedAxis transition slides it in and out
+    // (`pop` when closing), so opening a legal page still feels like moving
+    // forward to a page, not like something appearing over one.
+    return Stack(
+      children: [
+        Offstage(offstage: true, child: destination),
+        Positioned.fill(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchOutCurve: Curves.easeIn,
+            switchInCurve: Curves.easeOut,
+            transitionBuilder: (child, animation) => SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.06, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: PolicyScreen(
+              key: ValueKey(legal),
+              isPrivacy: legal == LegalDocument.privacy,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShell(
+    BuildContext context,
+    AppUser? user, {
+    required bool desktop,
+    required Widget keyedChild,
+    required int unreadCount,
+    required int invitationCount,
+  }) {
+    if (!desktop) {
+      return Scaffold(
+        body: keyedChild,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) => _goTo(context, index),
+          destinations: [
+            for (var index = 0; index < _bottomBarCount; index++)
+              NavigationDestination(
+                icon: _navigationIcon(
+                  _destinations[index].$3,
+                  index == 1 ? invitationCount : 0,
+                  index == 3 ? unreadCount : 0,
+                ),
+                label: _destinations[index].$1,
+              ),
+          ],
+        ),
+      );
+    }
+
+    final colors = context.colors;
+    return Scaffold(
+      body: Row(
+        children: [
+          Container(
+            width: 248,
+            decoration: BoxDecoration(
+              color: colors.surface,
+              border: Border(right: BorderSide(color: colors.border)),
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(24, 20, 20, 28),
+                    child: BrandMark(),
+                  ),
+                  for (var i = 0; i < _destinations.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 3),
+                      child: _SidebarDestination(
+                        label: _destinations[i].$1,
+                        icon: _destinations[i].$3,
+                        badgeCount: i == 1
+                            ? invitationCount
+                            : (i == 3 ? unreadCount : 0),
+                        selected: _selectedIndex == i,
+                        onTap: () => _goTo(context, i),
+                      ),
+                    ),
+                  const Spacer(),
+                  if (user != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
+                      child: Row(
+                        children: [
+                          UserAvatar(
+                            initials: user.initials,
+                            seed: user.id,
+                            photoUrl: user.photoUrl,
+                            size: 34,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              user.displayName?.trim().isNotEmpty == true
+                                  ? user.displayName!
+                                  : user.email,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: colors.muted,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(child: keyedChild),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _navigationIcon(IconData icon, int invitationCount, int unreadCount) {
+  final badgeCount = invitationCount > 0 ? invitationCount : unreadCount;
+  return Badge(
+    isLabelVisible: badgeCount > 0,
+    label: Text('$badgeCount'),
+    child: Icon(icon),
+  );
+}
+
+class _SidebarDestination extends StatelessWidget {
+  const _SidebarDestination({
+    required this.label,
+    required this.icon,
+    required this.badgeCount,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final int badgeCount;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: selected ? colors.accentSoft : Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: ListTile(
+        dense: true,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        // Without this, `ListTile` paints its default hover overlay over the
+        // whole row, which turns the label and icon red on desktop — the same
+        // wrong signal the top-bar icons used to give. The overlay is pinned to
+        // the accent so a hovered destination reads as "this is where you are
+        // going", not "this is about to be destroyed".
+        hoverColor: colors.accent.withValues(alpha: 0.08),
+        leading: Badge(
+          isLabelVisible: badgeCount > 0,
+          label: Text('$badgeCount'),
+          child: Icon(
+            icon,
+            size: 20,
+            color: selected ? colors.accent : colors.muted,
+          ),
+        ),
+        title: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13.5,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            color: selected ? colors.accent : colors.muted,
+          ),
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+}

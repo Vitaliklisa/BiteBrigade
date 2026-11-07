@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand canvas dark, matching the canvas color in src/styles.css, so there
+         is no white flash between the launch icon and the app's own background. -->
+    <color name="ic_launcher_background">#0b0b0a</color>
+</resources>
