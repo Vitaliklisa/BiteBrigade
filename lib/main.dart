@@ -10,6 +10,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'core/theme.dart';
 import 'firebase_config.dart';
+import 'firebase_options.dart';
 import 'providers/app_providers.dart';
 import 'router.dart';
 import 'services/auth_service.dart';

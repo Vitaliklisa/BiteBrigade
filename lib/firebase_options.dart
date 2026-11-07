@@ -47,29 +47,27 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA3nS579jUK46wfNtUsYq4qFui8bBiRsws',
-    appId: '1:255395342604:web:225f0e20966a0c39f10129',
-    messagingSenderId: '255395342604',
-    projectId: 'datedawn',
-    authDomain: 'datedawn.firebaseapp.com',
-    storageBucket: 'datedawn.firebasestorage.app',
-    measurementId: 'G-GF48EGQGFF',
+    apiKey: 'AIzaSyD6HkGrd4sXwoZDIWIMtBKIVA8xGIvaq74',
+    appId: '1:132942595592:web:6a94dcf0283b0553d833bd',
+    messagingSenderId: '132942595592',
+    projectId: 'bitebrigade',
+    authDomain: 'bitebrigade.firebaseapp.com',
+    storageBucket: 'bitebrigade.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCi6xFv-bW3lj5v0hkf4vMyxSvc6eeJ6Wo',
-    appId: '1:255395342604:android:5f4ad705bcbfa62cf10129',
-    messagingSenderId: '255395342604',
-    projectId: 'datedawn',
-    storageBucket: 'datedawn.firebasestorage.app',
+    apiKey: 'AIzaSyAERhWK6LvnyVCBFcX-AOM-5sioQTbhGIU',
+    appId: '1:132942595592:android:9ed770887b5854c0d833bd',
+    messagingSenderId: '132942595592',
+    projectId: 'bitebrigade',
+    storageBucket: 'bitebrigade.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCKeDdWuopUS2lSBZENz8kuUwqSNo6E_3g',
-    appId: '1:255395342604:ios:fd2cccaa18e03ca7f10129',
-    messagingSenderId: '255395342604',
-    projectId: 'datedawn',
-    storageBucket: 'datedawn.firebasestorage.app',
+    apiKey: 'AIzaSyD6U5p_qP7Rp_m4a_L7nzaGR8SrcnZYkRw',
+    appId: '1:132942595592:ios:8e0780772729d3d3d833bd',
+    messagingSenderId: '132942595592',
+    projectId: 'bitebrigade',
+    storageBucket: 'bitebrigade.firebasestorage.app',
     iosBundleId: 'com.tabletalk.app',
   );
 }
