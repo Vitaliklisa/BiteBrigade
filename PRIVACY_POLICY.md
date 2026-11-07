@@ -44,7 +44,7 @@ guarantee absolute security.
 Information remains in the configured Firebase project until deleted by the
 user or service operator. You can stop using the app at any time. To ask about
 access, correction, or deletion of information, contact
-[datedawnsupport@gmail.com](mailto:datedawnsupport@gmail.com). Requests may
+[bitebrigadesupport@gmail.com](mailto:bitebrigadesupport@gmail.com). Requests may
 require identity verification and are handled subject to applicable law.
 
 ## Children
@@ -55,4 +55,4 @@ where they live. Do not use the service if you are below that age.
 ## Changes and contact
 
 Material changes will be reflected in the published policy. For privacy
-questions or requests, email [datedawnsupport@gmail.com](mailto:datedawnsupport@gmail.com).
+questions or requests, email [bitebrigadesupport@gmail.com](mailto:bitebrigadesupport@gmail.com).

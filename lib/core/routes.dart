@@ -21,7 +21,7 @@ import 'package:go_router/go_router.dart';
 /// One constant on purpose: it is quoted in the policy text, the support
 /// screen, the FAQ answers and the store forms, and when it only lived in
 /// `support_screen.dart` the policy copy silently kept the old address.
-const supportEmailAddress = 'datedawnsupport@gmail.com';
+const supportEmailAddress = 'bitebrigadesupport@gmail.com';
 
 class Routes {
   const Routes._();
