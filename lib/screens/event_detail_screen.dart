@@ -105,7 +105,7 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
                 Icon(Icons.search_off_rounded, size: 34, color: colors.subtle),
                 const SizedBox(height: 16),
                 const Text(
-                  'This countdown is no longer available.',
+                  'This meal plan is no longer available.',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15),
                 ),
@@ -170,7 +170,7 @@ class _EventDetailScreenState extends ConsumerState<EventDetailScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                arrived ? 'ARRIVED' : 'COUNTING DOWN',
+                arrived ? 'READY TO GATHER' : 'COMING UP',
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: arrived ? colors.accent : colors.subtle,
                     ),

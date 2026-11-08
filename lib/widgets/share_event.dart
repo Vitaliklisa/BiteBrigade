@@ -4,7 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import '../core/models.dart';
 import '../services/event_repository.dart';
 
-/// Shares a countdown as plain text.
+/// Shares a meal plan as plain text.
 ///
 /// This lives in its own file rather than on a screen so the detail screen, the
 /// actions sheet and the home screen can all use it without importing each

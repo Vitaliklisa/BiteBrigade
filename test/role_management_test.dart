@@ -561,18 +561,18 @@ void main() {
         viewportSize: const Size(960, 540),
       );
 
-      final actions = find.byTooltip('Countdown actions');
+      final actions = find.byTooltip('Meal plan actions');
       expect(actions, findsOneWidget);
       await tester.tap(actions);
       await tester.pumpAndSettle();
 
-      final deleteAction = find.text('Delete countdown');
+      final deleteAction = find.text('Delete meal plan');
       expect(deleteAction, findsOneWidget);
       await tester.tap(deleteAction);
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Delete this countdown?'),
+        find.text('Delete this meal plan?'),
         findsOneWidget,
       );
     });

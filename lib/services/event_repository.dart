@@ -1131,10 +1131,10 @@ class EventRepository {
         await _notify(
           userId: userId,
           title:
-              'You were removed from "${eventTitle?.isNotEmpty == true ? eventTitle : 'a countdown'}"',
+              'You were removed from "${eventTitle?.isNotEmpty == true ? eventTitle : 'a meal plan'}"',
           body: isCreator
-              ? 'The owner removed you from this countdown.'
-              : '$actorLabel removed you from this countdown.',
+              ? 'The owner removed you from this meal plan.'
+              : '$actorLabel removed you from this meal plan.',
           kind: NotificationKind.system,
         );
       } catch (error, stackTrace) {
@@ -1874,7 +1874,7 @@ class EventRepository {
     if (name != null && name.isNotEmpty) return name;
     final email = member.email.trim();
     if (email.isNotEmpty) return email.split('@').first;
-    return 'your partner';
+    return 'the other person';
   }
 
   Future<List<String>> _addCoupleMembers({
@@ -2684,11 +2684,11 @@ class EventRepository {
       await _notify(
         userId: invitation.invitedBy,
         title: invitation.isCouple
-            ? '$who accepted your partner invitation'
+            ? '$who joined your two-person group'
             : '$who joined “${invitation.circleName}”',
         body: invitation.isCouple
-            ? 'Your countdowns now share with each other automatically.'
-            : 'You can now share countdowns with this circle in one tap.',
+            ? 'You can now share meal plans with each other automatically.'
+            : 'You can now share meal plans with this group in one tap.',
         kind: NotificationKind.circle,
       );
     }
@@ -2723,11 +2723,11 @@ class EventRepository {
     await _notify(
       userId: invitation.invitedBy,
       title: invitation.isCouple
-          ? '$who declined your partner invitation'
+          ? '$who declined your two-person group invitation'
           : '$who declined your invitation to “${invitation.circleName}”',
       body: invitation.isCouple
-          ? 'Nothing was shared. Their countdowns stay private.'
-          : 'They are not part of this circle.',
+          ? 'Nothing was shared. Their meal plans stay private.'
+          : 'They are not part of this group.',
       kind: NotificationKind.circle,
     );
   }

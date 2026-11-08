@@ -55,7 +55,7 @@ class CrewsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Create a crew for friends, family, your team, or your favorite plus-one.',
+                            'Bring friends, family, or teammates together to plan your next meal.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: context.colors.muted,
@@ -91,7 +91,7 @@ class CrewsScreen extends ConsumerWidget {
                               ),
                               child: Center(
                                 child: Text(
-                                  crew.emoji ?? (crew.isCouple ? '♡' : '✦'),
+                                  crew.emoji ?? (crew.isCouple ? '🍽️' : '✦'),
                                   style: TextStyle(
                                     color: context.colors.accent,
                                     fontSize: 24,
@@ -106,6 +106,8 @@ class CrewsScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     crew.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -114,7 +116,9 @@ class CrewsScreen extends ConsumerWidget {
                                   const SizedBox(height: 4),
                                   Text(
                                     '${crew.memberIds.length} ${crew.memberIds.length == 1 ? 'member' : 'members'}'
-                                    '${crew.isCouple ? ' · couple crew' : ''}',
+                                    '${crew.isCouple ? ' · two-person crew' : ''}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       color: context.colors.muted,
                                       fontSize: 12,
@@ -200,12 +204,16 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
             padding: const EdgeInsets.all(22),
             children: [
               Text(
-                'Make it a regular thing.',
+                'Gather your crew.',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'Invite your people once, then include the whole crew whenever you plan a meal.',
+                'Invite everyone once, then plan meals together whenever you are ready to eat.',
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: context.colors.muted, height: 1.45),
               ),
               const SizedBox(height: 24),
@@ -242,11 +250,15 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
                 value: _isCouple,
                 onChanged: (value) => setState(() => _isCouple = value),
                 contentPadding: EdgeInsets.zero,
-                title: const Text('This is us — a couple'),
-                subtitle: const Text(
-                  'Your decisions will be shared automatically, and the crew is just the two of you.',
+                title: const Text(
+                  'Just the two of us',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                secondary: const Icon(Icons.favorite_border_rounded),
+                subtitle: const Text(
+                  'Share meal plans with each other automatically.',
+                ),
+                secondary: const Icon(Icons.restaurant_menu_rounded),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
@@ -423,7 +435,7 @@ class CrewDetailScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     Text(
-                      crew.emoji ?? (crew.isCouple ? '♡' : '✦'),
+                      crew.emoji ?? (crew.isCouple ? '🍽️' : '✦'),
                       style: TextStyle(
                         fontSize: 36,
                         color: context.colors.accent,
@@ -435,7 +447,9 @@ class CrewDetailScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            crew.isCouple ? 'Couple crew' : 'Standing crew',
+                            crew.isCouple ? 'Two-person crew' : 'Standing crew',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
@@ -444,8 +458,10 @@ class CrewDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 5),
                           Text(
                             crew.isCouple
-                                ? 'New decisions are shared with each other automatically.'
-                                : 'Share decisions with this crew in one tap.',
+                                ? 'Meal plans are shared automatically with each other.'
+                                : 'Share meal plans with this crew whenever you plan together.',
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: context.colors.muted,
                               height: 1.4,

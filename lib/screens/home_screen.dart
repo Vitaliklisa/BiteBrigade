@@ -161,11 +161,17 @@ class _EmptyHome extends ConsumerWidget {
               size: 26, color: colors.accent),
         ),
         const SizedBox(height: 22),
-        Text('Name a day.', style: Theme.of(context).textTheme.headlineLarge),
+        Text(
+          'Plan a meal.',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
         const SizedBox(height: 12),
         Text(
-          'Start a dinner decision, add restaurant options, and invite your '
-          'group to vote.',
+          'Choose where to eat, invite your crew, and decide together.',
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 15, height: 1.5, color: colors.muted),
         ),
         const SizedBox(height: 28),
@@ -179,7 +185,7 @@ class _EmptyHome extends ConsumerWidget {
           icon: const Icon(Icons.add_rounded, size: 20),
           // Signed out, this leads to the editor's sign-in prompt rather than a
           // form that cannot be saved — so the label says as much.
-          label: Text(user == null ? 'Get started' : 'Create countdown'),
+          label: Text(user == null ? 'Get started' : 'Create a meal plan'),
         ),
       ],
     );
@@ -196,7 +202,7 @@ class _ErrorCard extends StatelessWidget {
     final colors = context.colors;
     final message = error is DataFailure
         ? (error as DataFailure).message
-        : 'Could not reach your countdowns. Pull down to try again.';
+        : 'Could not load your meal plans. Pull down to try again.';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -240,14 +246,21 @@ class _GuestCard extends StatelessWidget {
             children: [
               Icon(Icons.sync_rounded, size: 18, color: colors.accent),
               const SizedBox(width: 10),
-              const Text('Keep them everywhere',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              const Expanded(
+                child: Text(
+                  'Keep your meal plans in sync',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Sign in to sync your countdowns across phone, tablet and web — and to '
-            'share them with the people counting down with you.',
+            'Sign in to keep meal plans in sync across devices and decide where to eat with your crew.',
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 13, height: 1.45, color: colors.muted),
           ),
           const SizedBox(height: 14),
@@ -348,7 +361,7 @@ class _HeroHome extends ConsumerWidget {
                   if (others.isNotEmpty) ...[
                     const SizedBox(height: 34),
                     Text(
-                      'OTHER COUNTDOWNS',
+                      'UPCOMING PLANS',
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                     const SizedBox(height: 12),
@@ -408,7 +421,7 @@ class _HeroHome extends ConsumerWidget {
                                         '${Routes.eventDetail}/${featured.id}'),
                                     icon: const Icon(Icons.tune_rounded,
                                         size: 18),
-                                    label: const Text('Open countdown'),
+                                    label: const Text('Open meal plan'),
                                   ),
                                 ),
                               ],
@@ -430,7 +443,7 @@ class _HeroHome extends ConsumerWidget {
                             if (others.isNotEmpty) ...[
                               const SizedBox(height: 32),
                               Text(
-                                'OTHER COUNTDOWNS',
+                                'UPCOMING PLANS',
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
                               const SizedBox(height: 12),
@@ -468,7 +481,7 @@ class _HeroHome extends ConsumerWidget {
             child: FilledButton.icon(
               onPressed: () => context.push(Routes.newEvent),
               icon: const Icon(Icons.add_rounded, size: 20),
-              label: const Text('New countdown'),
+              label: const Text('New meal plan'),
             ),
           ),
         ),
@@ -510,7 +523,7 @@ class _FeaturedContent extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              arrived ? 'ARRIVED' : 'COUNTING DOWN',
+              arrived ? 'READY TO GATHER' : 'COMING UP',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: arrived ? colors.accent : colors.subtle,
                   ),
@@ -518,7 +531,12 @@ class _FeaturedContent extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        Text(featured.title, style: Theme.of(context).textTheme.headlineLarge),
+        Text(
+          featured.title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
         if (featured.description.isNotEmpty) ...[
           const SizedBox(height: 8),
           Text(

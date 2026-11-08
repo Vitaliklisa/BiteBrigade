@@ -72,17 +72,17 @@ void main() {
       (tester) async {
     await _pumpHome(tester, userId: 'creator');
 
-    expect(find.text('Delete countdown').hitTestable(), findsOneWidget);
+    expect(find.text('Delete meal plan').hitTestable(), findsOneWidget);
 
     final sheetColumn = find
         .ancestor(
-          of: find.text('Delete countdown'),
+          of: find.text('Delete meal plan'),
           matching: find.byType(Column),
         )
         .last;
     final sheetSafeArea = find
         .ancestor(
-          of: find.text('Delete countdown'),
+          of: find.text('Delete meal plan'),
           matching: find.byType(SafeArea),
         )
         .first;
@@ -99,13 +99,13 @@ void main() {
       (tester) async {
     await _pumpHome(tester, userId: 'viewer');
 
-    expect(find.text('Delete countdown').hitTestable(), findsOneWidget);
-    await tester.tap(find.text('Delete countdown'));
+    expect(find.text('Delete meal plan').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Delete meal plan'));
     await tester.pump();
 
-    expect(find.text('Delete this countdown?'), findsNothing);
+    expect(find.text('Delete this meal plan?'), findsNothing);
     expect(
-      find.text('Only the owner can delete this countdown.'),
+      find.text('Only the owner can delete this meal plan.'),
       findsOneWidget,
     );
   });

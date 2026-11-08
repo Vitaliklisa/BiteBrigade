@@ -141,7 +141,7 @@ class _EventActionsSheet extends ConsumerWidget {
             const SizedBox(height: 6),
             _Action(
               icon: Icons.delete_outline_rounded,
-              label: 'Delete countdown',
+              label: 'Delete meal plan',
               destructive: true,
               onTap: () async {
                 final messenger = ScaffoldMessenger.of(
@@ -152,7 +152,7 @@ class _EventActionsSheet extends ConsumerWidget {
                   messenger.showSnackBar(
                     const SnackBar(
                       content: Text(
-                        'Only the owner can delete this countdown.',
+                        'Only the owner can delete this meal plan.',
                       ),
                     ),
                   );
@@ -170,7 +170,7 @@ class _EventActionsSheet extends ConsumerWidget {
                         userId: user.id,
                       );
                   messenger.showSnackBar(
-                    const SnackBar(content: Text('Countdown deleted.')),
+                    const SnackBar(content: Text('Meal plan deleted.')),
                   );
                   ref.invalidate(eventsProvider);
                   ref.read(selectedEventIdProvider.notifier).set(null);
@@ -196,8 +196,8 @@ class _EventActionsSheet extends ConsumerWidget {
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete this countdown?'),
-        content: const Text('The countdown cannot be undone.'),
+        title: const Text('Delete this meal plan?'),
+        content: const Text('This meal plan cannot be recovered.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),

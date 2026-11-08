@@ -6,11 +6,10 @@ import '../core/models.dart';
 import '../core/theme.dart';
 import '../providers/app_providers.dart';
 
-/// One inbox for countdown and circle invitations.
+/// One inbox for meal-plan and group invitations.
 ///
-/// They are different objects with different consequences — a countdown invite
-/// adds you to one event, a standard circle invite adds you to a standing
-/// group, and a couple invite joins automatically.
+/// A meal-plan invite adds you to one plan, a group invite adds you to a
+/// standing crew, and a two-person group invite joins automatically.
 class InvitationsInbox extends ConsumerWidget {
   const InvitationsInbox({super.key, this.showWhenEmpty = false});
 
@@ -99,8 +98,9 @@ class _EmptyInbox extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Invitations people send you will appear here. Countdown and standard '
-          'circle invitations need your response; couple circles join automatically.',
+          'Meal-plan and crew invitations will appear here. Most need your response; two-person groups are added automatically.',
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 13, height: 1.5, color: colors.muted),
         ),
@@ -164,13 +164,19 @@ class _InviteShell extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(title,
-              style:
-                  const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 5),
-          Text(body,
-              style:
-                  TextStyle(fontSize: 13, height: 1.45, color: colors.muted)),
+          Text(
+            body,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 13, height: 1.45, color: colors.muted),
+          ),
           const SizedBox(height: 16),
           if (automaticStatus != null)
             if (busy)
@@ -185,9 +191,13 @@ class _InviteShell extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    automaticStatus!,
-                    style: TextStyle(fontSize: 13, color: colors.muted),
+                  Expanded(
+                    child: Text(
+                      automaticStatus!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: colors.muted),
+                    ),
                   ),
                 ],
               )
@@ -289,9 +299,9 @@ class _EventInviteCardState extends ConsumerState<_EventInviteCard> {
     setState(() => _busy = true);
     final confirmed = await _confirm(
       context,
-      title: 'Join “${widget.invite.eventTitle}”?',
+      title: 'Join this meal plan?',
       body:
-          'It will appear in your list and you will get its countdown on this device.',
+          'It will appear in your list so the date and details are easy to find.',
       action: 'Join',
     );
     if (!confirmed) {
@@ -368,11 +378,11 @@ class _EventInviteCardState extends ConsumerState<_EventInviteCard> {
   Widget build(BuildContext context) {
     final invite = widget.invite;
     return _InviteShell(
-      eyebrow: 'Countdown invitation',
+      eyebrow: 'Meal-plan invitation',
       title:
-          invite.eventTitle.isEmpty ? 'A countdown' : '“${invite.eventTitle}”',
+          invite.eventTitle.isEmpty ? 'A meal plan' : '“${invite.eventTitle}”',
       body:
-          'You have been invited to follow this countdown. Accepting adds it to '
+          'You have been invited to join this meal plan. Accepting adds it to '
           'your list as ${_roleLabel(invite.role).toLowerCase()}.',
       acceptLabel: 'Accept',
       busy: _busy,
@@ -482,19 +492,19 @@ class _CircleInviteCardState extends ConsumerState<_CircleInviteCard> {
         (invitedBy != null && invitedBy.isNotEmpty) ? invitedBy : 'Someone';
 
     return _InviteShell(
-      eyebrow: invite.isCouple ? 'Partner invitation' : 'Circle invitation',
+      eyebrow:
+          invite.isCouple ? 'Two-person group invitation' : 'Crew invitation',
       title: invite.isCouple
-          ? "You're being added to $from's circle"
+          ? "You're being added to $from's crew"
           : "$from invited you to “${invite.circleName}”",
       body: invite.isCouple
-          ? 'You will be added automatically. Countdown events shared with '
-              '“${invite.circleName}” in the future will appear in your list.'
-          : 'Joining “${invite.circleName}” means the countdowns they share with this '
-              'circle will show up in your list.',
-      acceptLabel: invite.isCouple ? 'Become partners' : 'Join circle',
+          ? 'You will be added automatically. Future meal plans shared with '
+              '“${invite.circleName}” will appear in your list.'
+          : 'Join “${invite.circleName}” to see the meal plans this crew shares with you.',
+      acceptLabel: 'Join crew',
       busy: _busy,
       automaticStatus: invite.isCouple
-          ? invite.joinError ?? 'Automatic join could not be completed.'
+          ? invite.joinError ?? 'We could not add you automatically.'
           : null,
       onRetry: invite.isCouple ? _accept : null,
       onAccept: invite.isCouple ? null : _accept,

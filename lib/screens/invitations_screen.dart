@@ -9,9 +9,9 @@ import '../widgets/invitations_inbox.dart';
 
 /// Everything waiting on your answer, in one place.
 ///
-/// Countdown invitations and circle invitations arrive through different
-/// documents but land in the same list, because from the user's side there is
-/// only ever one question: do I want this or not?
+/// Meal-plan and group invitations arrive through different documents but land
+/// in the same list, because from the user's side there is only ever one
+/// question: do I want to join?
 class InvitationsScreen extends ConsumerWidget {
   const InvitationsScreen({super.key});
 
@@ -35,8 +35,9 @@ class InvitationsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Nothing is shared with you until you accept. Declining tells '
-                  'the person who invited you, so they are not left guessing.',
+                  'Join a meal plan to help choose where to eat, or join a crew to plan meals together. If you decline, the person who invited you will know.',
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       fontSize: 13.5, height: 1.5, color: colors.muted),
                 ),

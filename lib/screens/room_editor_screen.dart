@@ -296,13 +296,13 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                         _SectionHeading(
                           title: 'Share with a crew',
                           detail: crews.any((crew) => crew.isCouple)
-                              ? 'Couple crews are shared automatically.'
+                              ? 'Two-person crews share plans automatically.'
                               : 'Crew members can vote without another invite.',
                         ),
                         const SizedBox(height: 10),
                         if (crews.isEmpty)
                           Text(
-                            'Create a crew first to share decisions with a standing group.',
+                            'Create a crew first to plan meals with a group.',
                             style: TextStyle(color: context.colors.muted),
                           )
                         else

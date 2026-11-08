@@ -110,7 +110,7 @@ void main() {
       await tester.tap(find.text('Accept'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Join “Trip”?'), findsOneWidget);
+      expect(find.text('Join this meal plan?'), findsOneWidget);
       await tester.tap(find.text('Join'));
       await _pumpUntil(tester, find.text('Feed: Trip'));
 

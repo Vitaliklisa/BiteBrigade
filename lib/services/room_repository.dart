@@ -787,7 +787,7 @@ class RoomRepository {
       throw const RoomFailure('Only the crew owner can invite people.');
     }
     if (crew.isCouple && crew.memberIds.length >= 2) {
-      throw const RoomFailure('A couple crew can have two members.');
+      throw const RoomFailure('A two-person crew can have two members.');
     }
     final email = inviteeEmail.trim().toLowerCase();
     if (email.isEmpty || !email.contains('@')) {

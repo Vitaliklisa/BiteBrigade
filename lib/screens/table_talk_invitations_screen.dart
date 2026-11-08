@@ -260,6 +260,8 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
                 Expanded(
                   child: Text(
                     widget.invitation.crewName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -268,7 +270,9 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
                 ),
                 if (widget.invitation.isCouple)
                   Text(
-                    'COUPLE',
+                    'TWO-PERSON',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: colors.accent,
                       fontSize: 10,
@@ -281,8 +285,10 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
             const SizedBox(height: 8),
             Text(
               widget.invitation.isCouple
-                  ? 'Join this couple crew to share future decisions automatically.'
-                  : 'Join this crew to receive and shape future dinner decisions.',
+                  ? 'Join this two-person crew to share future meal plans automatically.'
+                  : 'Join this crew to receive and shape future meal plans.',
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(color: colors.muted, height: 1.4),
             ),
             const SizedBox(height: 16),

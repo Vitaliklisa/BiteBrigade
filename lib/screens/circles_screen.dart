@@ -25,7 +25,7 @@ class CirclesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Circles'),
+        title: const Text('Groups'),
       ),
       floatingActionButton: user == null
           ? null
@@ -34,7 +34,7 @@ class CirclesScreen extends ConsumerWidget {
               foregroundColor: colors.accentFg,
               onPressed: () => _openCreateSheet(context, ref),
               icon: const Icon(Icons.group_add_outlined, size: 20),
-              label: const Text('New circle'),
+              label: const Text('New group'),
             ),
       body: user == null
           ? _SignInPrompt(onSignIn: () => context.push(Routes.login))
@@ -42,14 +42,14 @@ class CirclesScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 96),
               children: [
                 Text(
-                  'Groups you count down with',
+                  'Groups you plan meals with',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Invite someone to a circle once, then share any countdown with '
-                  'the whole group in a single tap. A couple circle shares '
-                  'automatically — anything one of you creates, the other sees.',
+                  'Invite people once, then share meal plans with your whole group in a tap. Two-person groups can share plans automatically.',
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                       fontSize: 13.5, height: 1.5, color: colors.muted),
                 ),
@@ -66,7 +66,7 @@ class CirclesScreen extends ConsumerWidget {
                     ),
                   ),
                   error: (_, __) => Text(
-                    'Could not load your circles. Pull down to retry.',
+                    'Could not load your groups. Pull down to retry.',
                     style: TextStyle(fontSize: 13, color: colors.danger),
                   ),
                   data: (items) {
@@ -107,14 +107,15 @@ class _NoCircles extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'No circles yet',
+          'No groups yet',
           style: TextStyle(
               fontSize: 15, fontWeight: FontWeight.w600, color: colors.fg),
         ),
         const SizedBox(height: 8),
         Text(
-          'Create one for the people you count down with — a partner, family, or '
-          'the friends you take a trip with every year.',
+          'Bring friends, family, or teammates together to decide where to eat.',
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 13.5, height: 1.5, color: colors.muted),
         ),
@@ -153,7 +154,7 @@ class _CircleCard extends ConsumerWidget {
           Row(
             children: [
               Text(
-                circle.emoji ?? (circle.isCouple ? '💞' : '👥'),
+                circle.emoji ?? (circle.isCouple ? '🍽️' : '👥'),
                 style: const TextStyle(fontSize: 20),
               ),
               const SizedBox(width: 12),
@@ -163,6 +164,8 @@ class _CircleCard extends ConsumerWidget {
                   children: [
                     Text(
                       circle.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontSize: 15, fontWeight: FontWeight.w600),
                     ),
@@ -279,7 +282,7 @@ class _CircleCard extends ConsumerWidget {
                 );
               },
               icon: const Icon(Icons.logout_rounded, size: 16),
-              label: const Text('Leave circle', style: TextStyle(fontSize: 13)),
+              label: const Text('Leave group', style: TextStyle(fontSize: 13)),
             )
           else
             TextButton.icon(
@@ -304,8 +307,7 @@ class _CircleCard extends ConsumerWidget {
                 );
               },
               icon: const Icon(Icons.delete_outline_rounded, size: 16),
-              label:
-                  const Text('Delete circle', style: TextStyle(fontSize: 13)),
+              label: const Text('Delete group', style: TextStyle(fontSize: 13)),
             ),
         ],
       ),
@@ -327,7 +329,7 @@ class _KickOutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Tooltip(
-      message: 'Remove from circle',
+      message: 'Remove from group',
       child: InkWell(
         borderRadius: BorderRadius.circular(999),
         onTap: () async {
@@ -336,7 +338,7 @@ class _KickOutButton extends StatelessWidget {
             builder: (dialogContext) => AlertDialog(
               title: Text('Remove $label?'),
               content: const Text(
-                'They will stop seeing countdowns shared with this circle. '
+                'They will stop seeing meal plans shared with this group. '
                 'Nothing they created is deleted.',
               ),
               actions: [
@@ -373,7 +375,7 @@ Future<bool> _confirmLeaveCircle(BuildContext context, String name) async {
     builder: (dialogContext) => AlertDialog(
       title: Text('Leave “$name”?'),
       content: const Text(
-        'Countdowns shared with this circle will no longer appear for you. '
+        'Meal plans shared with this group will no longer appear for you. '
         'You can be invited back.',
       ),
       actions: [
@@ -395,14 +397,14 @@ Future<bool> _confirmLeaveCircle(BuildContext context, String name) async {
   return result ?? false;
 }
 
-/// Confirms removing a circle, spelling out that the countdowns survive.
+/// Confirms removing a group, spelling out that its meal plans remain.
 Future<bool> _confirmDeleteCircle(BuildContext context, String name) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: Text('Delete “$name”?'),
       content: const Text(
-        'The group goes away. Countdowns shared with it are kept and stay yours — '
+        'The group goes away. Meal plans shared with it are kept and stay yours — '
         'they are just no longer shared with these people.',
       ),
       actions: [
@@ -476,7 +478,7 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'New circle',
+              'New group',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
@@ -503,21 +505,24 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
                 ),
                 child: Row(
                   children: [
-                    const Text('💞', style: TextStyle(fontSize: 18)),
+                    const Text('🍽️', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'This is us — a couple',
+                            'Just the two of us',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Countdowns are shared with your partner automatically, '
-                            'with no invitation to accept.',
+                            'Meal plans are shared automatically with each other.',
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,
                               height: 1.35,
@@ -552,12 +557,12 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
                               name: name,
                               ownerName: user.displayName,
                               ownerPhotoUrl: user.photoUrl,
-                              emoji: _isCouple ? '💞' : null,
+                              emoji: _isCouple ? '🍽️' : null,
                               isCouple: _isCouple,
                             ),
                         successMessage: _isCouple
-                            ? 'Created. Invite your partner next.'
-                            : 'Circle created.',
+                            ? 'Created. Invite someone to share meal plans automatically.'
+                            : 'Group created.',
                       );
                       if (mounted) {
                         navigator.pop();
@@ -630,7 +635,7 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
           children: [
             Text(
               circle.isCouple
-                  ? 'Invite your partner'
+                  ? 'Invite to your two-person group'
                   : 'Invite to “${circle.name}”',
               style: Theme.of(context).textTheme.titleMedium,
             ),
@@ -639,10 +644,12 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
               circle.isCouple
                   ? 'If they already have an account, they will be added '
                       'automatically. Otherwise, they will be added when they '
-                      'sign in. Future countdowns shared with this circle '
-                      'will appear automatically.'
+                      'sign in. Meal plans shared with this group will appear '
+                      'automatically.'
                   : 'They will get an invitation to accept or decline. After they '
-                      'join, you can share countdowns with this circle in one tap.',
+                      'join, you can share meal plans with this group in one tap.',
+              maxLines: 5,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 13, height: 1.5, color: colors.muted),
             ),
             const SizedBox(height: 18),
@@ -776,7 +783,7 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
                               inviterName: user.displayName,
                             ),
                         successMessage: circle.isCouple
-                            ? 'Your partner will be added automatically.'
+                            ? 'They will be added automatically.'
                             : 'Invitation sent to $email.',
                       );
                       if (failure != null) {
@@ -818,12 +825,12 @@ class _SignInPrompt extends StatelessWidget {
             Icon(Icons.groups_outlined, size: 32, color: colors.accent),
             const SizedBox(height: 18),
             Text(
-              'Sign in to use circles',
+              'Sign in to use groups',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Circles invite people by email, so they need an account to be '
+              'Groups invite people by email, so they need an account to be '
               'invited to.',
               textAlign: TextAlign.center,
               style:

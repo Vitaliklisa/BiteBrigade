@@ -54,6 +54,8 @@ class SettingsScreen extends ConsumerWidget {
                           user.displayName?.isNotEmpty == true
                               ? user.displayName!
                               : 'Table Talk user',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w600),
                         ),
@@ -75,7 +77,9 @@ class SettingsScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      '$eventCount ${eventCount == 1 ? 'countdown' : 'countdowns'}',
+                      '$eventCount ${eventCount == 1 ? 'meal plan' : 'meal plans'}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 11.5, color: colors.muted),
                     ),
                   ),
@@ -99,8 +103,9 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Sign in to sync your countdowns across every device and share '
-                    'them with other people.',
+                    'Sign in to sync meal plans across devices and plan with friends, family, and crews.',
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                         fontSize: 13, height: 1.45, color: colors.muted),
                   ),
@@ -123,8 +128,9 @@ class SettingsScreen extends ConsumerWidget {
           Text('TIME', style: Theme.of(context).textTheme.labelSmall),
           const SizedBox(height: 6),
           Text(
-            'How clock times are written. Your countdowns are stored as exact '
-            'moments either way — this only changes how they read.',
+            'Choose how meal times are shown. Your plans keep the exact time either way.',
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 13, height: 1.45, color: colors.muted),
           ),
           const SizedBox(height: 12),

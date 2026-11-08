@@ -184,7 +184,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
   Future<void> _save() async {
     final title = _title.text.trim();
     if (title.isEmpty) {
-      setState(() => _error = 'Give this countdown a title.');
+      setState(() => _error = 'Give this meal plan a title.');
       return;
     }
     if (!_at.isAfter(DateTime.now())) {
@@ -194,7 +194,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
 
     final user = ref.read(currentUserProvider);
     if (user == null) {
-      setState(() => _error = 'Sign in to save countdowns.');
+      setState(() => _error = 'Sign in to save meal plans.');
       return;
     }
 
@@ -257,21 +257,22 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
         );
       }
       if (!mounted) return;
-      var message = existing == null ? 'Countdown created.' : 'Changes saved.';
+      var message = existing == null ? 'Meal plan created.' : 'Changes saved.';
       var duration = const Duration(seconds: 4);
       if (existing == null && selectedCoupleCircle && createResult != null) {
         final result = createResult;
-        final partnerName = result.partnerName ?? 'your partner';
-        final displayPartnerName =
-            partnerName == 'your partner' ? 'Your partner' : partnerName;
+        final partnerName = result.partnerName ?? 'the other person';
+        final displayPartnerName = partnerName == 'the other person'
+            ? 'The other person'
+            : partnerName;
         if (result.autoShareError != null) {
-          message = 'Countdown created, but $partnerName was not added. '
-              'Invite them manually from the countdown.';
+          message = 'Meal plan created, but $partnerName was not added. '
+              'Invite them manually from the plan.';
           duration = const Duration(seconds: 8);
         } else if (result.autoShared.isNotEmpty) {
-          message = 'Countdown created. $displayPartnerName was added.';
+          message = 'Meal plan created. $displayPartnerName was added.';
         } else {
-          message = 'Countdown created, but no partner was added. '
+          message = 'Meal plan created, but no one was added. '
               'Invite them manually.';
         }
       }
@@ -315,7 +316,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
           .deleteEvent(event: existing, userId: user.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Countdown deleted.')),
+        const SnackBar(content: Text('Meal plan deleted.')),
       );
       // Forget the pin and refresh the feed, then land on a clean home rather
       // than popping back onto the now-deleted countdown's own screen.
@@ -333,8 +334,8 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete this countdown?'),
-        content: const Text('The countdown cannot be undone.'),
+        title: const Text('Delete this meal plan?'),
+        content: const Text('This meal plan cannot be recovered.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -371,7 +372,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
             icon: Icons.arrow_back_rounded,
             onPressed: () => context.pop(),
           ),
-          title: Text(editing ? 'Edit countdown' : 'New countdown'),
+          title: Text(editing ? 'Edit meal plan' : 'New meal plan'),
         ),
         body: _SignInPrompt(onSignIn: () => context.push(Routes.login)),
       );
@@ -382,11 +383,11 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
           icon: Icons.arrow_back_rounded,
           onPressed: () => context.pop(),
         ),
-        title: Text(editing ? 'Edit countdown' : 'New countdown'),
+        title: Text(editing ? 'Edit meal plan' : 'New meal plan'),
         actions: [
           if (editing && (widget.event?.canManage(user.id) ?? false))
             PopupMenuButton<String>(
-              tooltip: 'Countdown actions',
+              tooltip: 'Meal plan actions',
               enabled: !_busy,
               onSelected: (value) {
                 if (value == 'delete') _confirmDeleteCountdown();
@@ -394,7 +395,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
               itemBuilder: (context) => const [
                 PopupMenuItem(
                   value: 'delete',
-                  child: Text('Delete countdown'),
+                  child: Text('Delete meal plan'),
                 ),
               ],
             ),
@@ -411,7 +412,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
               maxLength: 80,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                hintText: 'Wedding, launch, reunion',
+                hintText: 'Friday dinner, team lunch, family brunch',
                 counterText: '',
               ),
             ),
@@ -424,7 +425,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
               maxLength: 280,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                hintText: 'A short note about the day',
+                hintText: 'Add a note about the meal, place, or plan',
                 counterStyle: TextStyle(fontSize: 11),
               ),
             ),
@@ -508,7 +509,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
                   child: FilledButton.icon(
                     onPressed: (_busy || !canEdit) ? null : _save,
                     icon: const Icon(Icons.check_rounded, size: 20),
-                    label: Text(editing ? 'Save changes' : 'Create countdown'),
+                    label: Text(editing ? 'Save changes' : 'Create meal plan'),
                   ),
                 ),
               ],
@@ -516,7 +517,7 @@ class _EventEditorScreenState extends ConsumerState<EventEditorScreen> {
             if (!canEdit) ...[
               const SizedBox(height: 14),
               Text(
-                'You can view this countdown but not change it.',
+                'You can view this meal plan but not change it.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12.5, color: colors.subtle),
               ),
@@ -672,8 +673,8 @@ class _PreviewStrip extends ConsumerWidget {
           Expanded(
             child: Text(
               remaining.isPast
-                  ? 'Choose a future date to see the countdown.'
-                  : 'Counting down ${describeRemaining(remaining)}',
+                  ? 'Choose a future meal time to see the plan.'
+                  : 'Time until your meal: ${describeRemaining(remaining)}',
               style: TextStyle(fontSize: 13, color: colors.muted),
             ),
           ),
@@ -683,7 +684,7 @@ class _PreviewStrip extends ConsumerWidget {
   }
 }
 
-/// Invite people, and see who is already on the countdown.
+/// Invite people, and see who is already part of the meal plan.
 class _Collaborators extends ConsumerStatefulWidget {
   const _Collaborators({required this.event});
 
@@ -838,8 +839,8 @@ class _CollaboratorsState extends ConsumerState<_Collaborators> {
         const SizedBox(height: 6),
         Text(
           canManage
-              ? 'Anyone you invite can follow this countdown on their own devices.'
-              : 'People following this countdown.',
+              ? 'Anyone you invite can see this meal plan on their own devices.'
+              : 'People with access to this meal plan.',
           style: TextStyle(fontSize: 12.5, color: colors.subtle),
         ),
         if (canManage) ...[
@@ -1582,8 +1583,8 @@ class _SignInPrompt extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Countdowns live in your account, so they follow you to every '
-                'device and can be shared with other people.',
+                'Meal plans live in your account, so they follow you to every '
+                'device and can be shared with your crew.',
                 textAlign: TextAlign.center,
                 style:
                     TextStyle(fontSize: 14, height: 1.5, color: colors.muted),
@@ -1629,7 +1630,7 @@ class _CirclePicker extends ConsumerWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'A couple circle shares instantly. Other circles get an invitation.',
+          'Two-person groups share meal plans automatically. Other groups get an invitation.',
           style: TextStyle(fontSize: 12, color: colors.subtle),
         ),
         const SizedBox(height: 12),
@@ -1659,7 +1660,7 @@ class _CirclePicker extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        circle.emoji ?? (circle.isCouple ? '💞' : '👥'),
+                        circle.emoji ?? (circle.isCouple ? '🍽️' : '👥'),
                         style: const TextStyle(fontSize: 14),
                       ),
                       const SizedBox(width: 8),

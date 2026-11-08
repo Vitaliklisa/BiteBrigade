@@ -87,7 +87,7 @@ void main() {
     expect(notifications.docs.single.data()['title'],
         'You were removed from "Summer trip"');
     expect(notifications.docs.single.data()['body'],
-        'Alex removed you from this countdown.');
+        'Alex removed you from this meal plan.');
     expect(notifications.docs.single.data()['type'], 'system');
   });
 

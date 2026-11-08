@@ -131,7 +131,7 @@ void main() {
     );
 
     expect(
-      find.text('Countdown created. Partner was added.'),
+      find.text('Meal plan created. Partner was added.'),
       findsOneWidget,
     );
   });
@@ -167,12 +167,12 @@ void main() {
 
     expect(
       find.text(
-        'Countdown created, but Partner was not added. '
-        'Invite them manually from the countdown.',
+        'Meal plan created, but Partner was not added. '
+        'Invite them manually from the plan.',
       ),
       findsOneWidget,
     );
-    expect(find.text('Countdown created. Partner was added.'), findsNothing);
+    expect(find.text('Meal plan created. Partner was added.'), findsNothing);
   });
 
   testWidgets('create editor explains a selected couple with no partner',
@@ -187,7 +187,7 @@ void main() {
 
     expect(
       find.text(
-        'Countdown created, but no partner was added. Invite them manually.',
+        'Meal plan created, but no one was added. Invite them manually.',
       ),
       findsOneWidget,
     );
@@ -247,10 +247,10 @@ Future<void> _createCountdownInEditor(
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextField).first, 'Anniversary');
   await tester.scrollUntilVisible(
-    find.text('Create countdown'),
+    find.text('Create meal plan'),
     300,
     scrollable: find.byType(Scrollable).last,
   );
-  await tester.tap(find.text('Create countdown'));
+  await tester.tap(find.text('Create meal plan'));
   await tester.pumpAndSettle();
 }
