@@ -20,11 +20,6 @@
     {
       "collectionGroup": "participants",
       "queryScope": "COLLECTION_GROUP",
-      "fields": [{ "fieldPath": "userId", "order": "ASCENDING" }]
-    },
-    {
-      "collectionGroup": "participants",
-      "queryScope": "COLLECTION_GROUP",
       "fields": [
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "inviteStatus", "order": "ASCENDING" }
