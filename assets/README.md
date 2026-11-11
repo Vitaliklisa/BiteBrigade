@@ -1,6 +1,6 @@
 # Assets
 
-Table Talk's generated launcher icons, adaptive icon layers, web icons, and
+Bite Brigade's generated launcher icons, adaptive icon layers, web icons, and
 splash images are created by `scripts/generate-flutter-icons.mjs`.
 
 To regenerate the source images and apply them to the native projects:

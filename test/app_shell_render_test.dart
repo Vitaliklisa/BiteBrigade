@@ -1,7 +1,7 @@
 // Reproduces the grey content pane in a widget test.
 //
 // Every existing router test pumps `MaterialApp.router` directly, which skips
-// `DateDawnApp`'s `builder` — the ColoredBox that paints the whole shell. This
+// `BiteBrigadeApp`'s `builder` — the ColoredBox that paints the whole shell. This
 // one pumps the real app widget, so the wrapper is exercised, and asserts that
 // the content pane is not left empty.
 import 'package:table_talk/main.dart';
@@ -35,14 +35,14 @@ void main() {
           authServiceProvider
               .overrideWithValue(_TestAuthService(Stream.value(null))),
         ],
-        child: const TableTalkApp(),
+        child: const BiteBrigadeApp(),
       ),
     );
     await tester.pumpAndSettle();
 
     // The login screen is a top-level route OUTSIDE the ShellRoute, so the
     // navigation sidebar must not be on screen with it.
-    expect(find.text('Welcome to Table Talk'), findsOneWidget,
+    expect(find.text('Welcome to Bite Brigade'), findsOneWidget,
         reason: 'login content should be visible');
 
     // The sidebar belongs to AppNavigationShell, which only mounts inside the

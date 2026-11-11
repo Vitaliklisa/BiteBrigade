@@ -1,14 +1,14 @@
-# Table Talk Privacy Policy
+# Bite Brigade Privacy Policy
 
 Last updated: November 7, 2026
 
-This draft describes information handled by Table Talk, a restaurant decision
+This draft describes information handled by Bite Brigade, a restaurant decision
 app. Before public release, the service operator should verify this policy
 against the production configuration and applicable law.
 
 ## Information handled
 
-When you use Table Talk, the configured Firebase project may store:
+When you use Bite Brigade, the configured Firebase project may store:
 
 - Account identifiers, email address, and display name from sign-in.
 - Rooms, meal times, descriptions, restaurant options and details, and notes
@@ -28,7 +28,7 @@ decisions, collect votes, show in-app updates, and protect the service.
 
 Room information is available to the creator and accepted participants.
 Information in a room shared with a crew is also available to that crew's
-members. Invitation email addresses are used to address invitations. Table Talk
+members. Invitation email addresses are used to address invitations. Bite Brigade
 does not make room content public by default.
 
 ## Storage and service providers
@@ -49,7 +49,7 @@ require identity verification and are handled subject to applicable law.
 
 ## Children
 
-Table Talk is not intended for children under 13 or the minimum age required
+Bite Brigade is not intended for children under 13 or the minimum age required
 where they live. Do not use the service if you are below that age.
 
 ## Changes and contact

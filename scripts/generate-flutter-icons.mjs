@@ -4,7 +4,7 @@
  *
  *   node scripts/generate-flutter-icons.mjs
  *
- * Why code instead of checked-in PNGs: the mark must match the Table Talk brand
+ * Why code instead of checked-in PNGs: the mark must match the Bite Brigade brand
  * (dark canvas, cream plate, teal ring) across Android adaptive icons,
  * iOS AppIcon sets, the web PWA icons and the splash screens. Keeping it as
  * one source means a palette change re-propagates everywhere in a single run

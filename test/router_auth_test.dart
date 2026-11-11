@@ -36,7 +36,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome to Table Talk'), findsOneWidget);
+    expect(find.text('Welcome to Bite Brigade'), findsOneWidget);
     expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
     expect(find.text('Continue as guest'), findsNothing);
   }

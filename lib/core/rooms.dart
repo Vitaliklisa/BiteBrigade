@@ -298,7 +298,7 @@ class RoomInvitation {
       status: _string(data['status'], 'pending'),
       createdAt: _date(data['createdAt']),
       expiresAt: _date(data['expiresAt']),
-      roomTitle: _string(data['roomTitle'], 'A Table Talk decision'),
+      roomTitle: _string(data['roomTitle'], 'A Bite Brigade decision'),
     );
   }
 }

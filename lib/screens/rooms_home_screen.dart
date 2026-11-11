@@ -94,52 +94,71 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
                   sliver: SliverToBoxAdapter(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'THE TABLE IS YOURS',
-                                style: TextStyle(
-                                  color: context.colors.accent,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 2,
-                                ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final compact = constraints.maxWidth < 640;
+                        final hero = Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'THE TABLE IS YOURS',
+                              softWrap: true,
+                              style: TextStyle(
+                                color: context.colors.accent,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 2,
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'Where are we\\ngoing?',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .displaySmall
-                                    ?.copyWith(
-                                      fontSize: 42,
-                                      height: 1.03,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Where are we\ngoing?',
+                              softWrap: true,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displaySmall
+                                  ?.copyWith(
+                                    fontSize: 42,
+                                    height: 1.03,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Good meals start with a group decision.',
+                              softWrap: true,
+                              style: TextStyle(
+                                color: context.colors.muted,
+                                fontSize: 15,
                               ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'Good meals start with a group decision.',
-                                style: TextStyle(
-                                  color: context.colors.muted,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        FilledButton.icon(
+                            ),
+                          ],
+                        );
+                        final createButton = FilledButton.icon(
                           onPressed: () => context.push(Routes.newRoom),
                           icon: const Icon(Icons.add_rounded),
                           label: const Text('New decision'),
-                        ),
-                      ],
+                        );
+
+                        if (compact) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              hero,
+                              const SizedBox(height: 16),
+                              createButton,
+                            ],
+                          );
+                        }
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: hero),
+                            const SizedBox(width: 12),
+                            createButton,
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),

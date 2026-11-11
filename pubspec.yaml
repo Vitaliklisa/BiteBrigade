@@ -1,5 +1,5 @@
 name: table_talk
-description: "Table Talk — make dinner decisions together. Flutter + Firebase for Android, iOS and web."
+description: "Bite Brigade — make dinner decisions together. Flutter + Firebase for Android, iOS and web."
 publish_to: "none"
 version: 1.0.0+1
 
@@ -15,7 +15,7 @@ dependencies:
     sdk: flutter
 
   # Firebase - the whole free-tier backend: auth + shared data.
-  # No Firebase Storage dependency: the Table Talk experience needs no uploads.
+  # No Firebase Storage dependency: the Bite Brigade experience needs no uploads.
   firebase_core: ^4.15.0
   firebase_auth: ^6.7.0
   cloud_firestore: ^6.10.0

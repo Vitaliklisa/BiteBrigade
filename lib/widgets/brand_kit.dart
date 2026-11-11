@@ -4,7 +4,7 @@ import '../core/countdown.dart';
 import '../core/models.dart';
 import '../core/theme.dart';
 
-/// Table Talk's wordmark and restaurant mark.
+/// Bite Brigade's wordmark and restaurant mark.
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, this.onTap});
 
@@ -27,13 +27,18 @@ class BrandMark extends StatelessWidget {
               color: colors.accent,
             ),
             const SizedBox(width: 8),
-            Text(
-              'TABLE TALK',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 2.4,
-                color: colors.muted,
+            Flexible(
+              child: Text(
+                'BITE BRIGADE',
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 2.4,
+                  color: colors.muted,
+                ),
               ),
             ),
           ],

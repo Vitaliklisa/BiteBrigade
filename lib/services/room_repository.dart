@@ -159,24 +159,29 @@ class RoomRepository {
       .map((snapshot) =>
           snapshot.docs.map(CrewMember.fromDoc).toList(growable: false));
 
-  Stream<List<RoomInvitation>> watchRoomInvitations(String email) =>
-      _invitations
-          .where('inviteeEmail', isEqualTo: email.trim().toLowerCase())
-          .where('status', isEqualTo: 'pending')
-          .snapshots()
-          .map((snapshot) => snapshot.docs
-              .where((doc) => doc.data()['roomId'] is String)
-              .map(RoomInvitation.fromDoc)
-              .toList(growable: false));
+  Stream<List<RoomInvitation>> watchRoomInvitations(String email) {
+    final normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail.isEmpty) return Stream.value(const []);
+    return _invitations
+        .where('inviteeEmail', isEqualTo: normalizedEmail)
+        .where('status', isEqualTo: 'pending')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .where((doc) => doc.data()['roomId'] is String)
+            .map(RoomInvitation.fromDoc)
+            .toList(growable: false));
+  }
 
-  Stream<List<CrewInvitation>> watchCrewInvitations(String email) =>
-      _crewInvitations
-          .where('inviteeEmail', isEqualTo: email.trim().toLowerCase())
-          .where('status', isEqualTo: 'pending')
-          .snapshots()
-          .map((snapshot) => snapshot.docs
-              .map(CrewInvitation.fromDoc)
-              .toList(growable: false));
+  Stream<List<CrewInvitation>> watchCrewInvitations(String email) {
+    final normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail.isEmpty) return Stream.value(const []);
+    return _crewInvitations
+        .where('inviteeEmail', isEqualTo: normalizedEmail)
+        .where('status', isEqualTo: 'pending')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map(CrewInvitation.fromDoc).toList(growable: false));
+  }
 
   Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> watchInbox(
     String userId,

@@ -169,7 +169,7 @@ jobs:
       #
       #   gh secret set GOOGLE_SERVICES_JSON < android/app/google-services.json
       #
-      # or paste the Table Talk JSON into Settings -> Secrets and variables -> Actions.
+      # or paste the Bite Brigade JSON into Settings -> Secrets and variables -> Actions.
       #
       # If the secret is not set, the job must not fail: the point of this build
       # is to prove the release pipeline compiles, and a missing Firebase config
@@ -188,7 +188,7 @@ jobs:
             echo "::warning title=google-services.json::GOOGLE_SERVICES_JSON secret is not set. "
             echo "::warning::Building with a placeholder Firebase config. This bundle is unsigned "
             echo "::warning::and must not be uploaded. Add the secret under "
-            echo "::warning::Use a Table Talk GOOGLE_SERVICES_JSON secret to build against its Firebase project."
+            echo "::warning::Use a Bite Brigade GOOGLE_SERVICES_JSON secret to build against its Firebase project."
             printf '%s\n' \
               '{' \
               '  "project_info": {' \

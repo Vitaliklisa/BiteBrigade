@@ -1,9 +1,9 @@
-# Table Talk
+# Bite Brigade
 
 Make a dinner decision together. Create a room, add restaurant options, invite
 friends or a crew, vote, and reveal the group's pick.
 
-Table Talk is a Flutter app for Android, iOS, and web. It uses Firebase
+Bite Brigade is a Flutter app for Android, iOS, and web. It uses Firebase
 Authentication and Cloud Firestore for accounts and shared data.
 
 ## Features
@@ -23,18 +23,18 @@ still identifies the original `datedawn` project. The app deliberately refuses
 to start Firebase while that inherited configuration is present. **Do not
 deploy these Firestore rules or use this copy with the Date Dawn project.**
 
-Create a separate Firebase project for Table Talk, enable Authentication
+Create a separate Firebase project for Bite Brigade, enable Authentication
 (Email/Password and Google if desired) and Cloud Firestore, then configure the
 Flutter and Firebase CLI tools:
 
 ```sh
-flutterfire configure --project=your-table-talk-project-id
+flutterfire configure --project=your-bite-brigade-project-id
 firebase use --add
 node scripts/check-backend.mjs
 ```
 
-Replace `your-table-talk-project-id` with the project ID you created. In the
-`firebase use --add` prompt, select that same Table Talk project.
+Replace `your-bite-brigade-project-id` with the project ID you created. In the
+`firebase use --add` prompt, select that same Bite Brigade project.
 FlutterFire should generate platform settings for `lib/firebase_options.dart`
 and the native Android/iOS configuration. The app checks that those platform
 settings agree and are not the inherited Date Dawn project. The backend check is
@@ -89,6 +89,6 @@ crew membership changes.
 - `rules_test/` — emulator-backed authorization tests.
 - `PRIVACY_POLICY.md` and `docs/privacy.html` — privacy policy sources.
 
-The privacy and support pages are drafts for Table Talk. Before public release,
+The privacy and support pages are drafts for Bite Brigade. Before public release,
 publish the policy at a stable URL and verify the contact details and legal
 requirements for the service operator and its users.

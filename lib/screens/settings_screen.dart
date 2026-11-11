@@ -53,7 +53,7 @@ class SettingsScreen extends ConsumerWidget {
                         Text(
                           user.displayName?.isNotEmpty == true
                               ? user.displayName!
-                              : 'Table Talk user',
+                              : 'Bite Brigade user',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

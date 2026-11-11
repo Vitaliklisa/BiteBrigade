@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens for Table Talk.
+/// Design tokens for Bite Brigade.
 ///
 /// Ported from the web app's Tailwind theme (`src/styles.css`): a near-black
 /// canvas, a warm cream foreground and a single teal accent that carries every

@@ -7,17 +7,26 @@ rules_version = '2';
 //
 //   firebase deploy --only firestore:rules
 //
-// Shape:
-//   events/{eventId}
-//     ...fields..., deletedAt?
-//     participants/{userId}   email, role, inviteStatus, joinedAt
-//     notes/{noteId}          userId, text, createdAt, updatedAt
-//   invitations/{inviteId}    eventId, invitedBy, inviteeEmail, role, status,
-//                             createdAt, expiresAt, eventTitle
-//   users/{userId}            email, displayName, themeMode  (profile + settings)
-//     blocked/{blockedId}    email, displayName?, blockedAt, active  (private)
+// Main data shape:
+//   rooms/{roomId}             createdBy, participantIds, status, ...
+//     options/{optionId}
+//     participants/{userId}
+//     votes/{userId}
+//     notes/{noteId}
+//   invitations/{inviteId}    roomId, invitedBy, inviteeEmail, role, status,
+//                             createdAt, expiresAt, roomTitle
+//   crews/{crewId}             ownerId, memberIds, name, isCouple, ...
+//     members/{userId}
+//     sharedRooms/{roomId}
+//   crew_invitations/{id}      crewId, invitedBy, inviteeEmail, status, ...
+//   users/{userId}             email, displayName, themeMode
+//     blocked/{blockedId}
 //     recent_contacts/{id}
 //     notifications/{id}
+//
+// The older events/circles paths below remain for accounts and documents made
+// by earlier app versions. Invitation reads are limited to the sender or the
+// verified recipient email; writes are scoped to the invitation flow.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -1025,7 +1034,10 @@ service cloud.firestore {
       // An invitation is readable by the person who sent it and the person it
       // is addressed to ------------------ nobody else.
       allow read: if signedIn()
-        && (resource.data.invitedBy == uid() || resource.data.inviteeEmail == myEmail());
+        && (
+          resource.data.get('invitedBy', '') == uid()
+          || resource.data.get('inviteeEmail', '') == myEmail()
+        );
 
       allow create: if signedIn()
         && request.resource.data.invitedBy == uid()
@@ -1198,7 +1210,7 @@ service cloud.firestore {
     // One-way feedback: "your friend joined" / "your friend declined". Only the
     // recipient reads them, and only the responder's own action creates one, so
     // a user cannot forge an answer on someone else's behalf.
-    // ---------- Table Talk rooms ----------
+    // ---------- Bite Brigade rooms ----------
     match /rooms/{roomId} {
       allow get, list: if signedIn()
         && (
@@ -1461,7 +1473,7 @@ service cloud.firestore {
       }
     }
 
-    // ---------- Table Talk crews ----------
+    // ---------- Bite Brigade crews ----------
     match /crews/{crewId} {
       allow get, list: if signedIn()
         && uid() in resource.data.get('memberIds', []);

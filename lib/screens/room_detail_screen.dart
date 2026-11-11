@@ -217,11 +217,11 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
         .first;
     final uri = Uri.https('calendar.google.com', '/calendar/render', {
       'action': 'TEMPLATE',
-      'text': 'Table Talk · ${room.name}',
+      'text': 'Bite Brigade · ${room.name}',
       'dates': '${stamp(start)}/${stamp(end)}',
       if (winner?.address?.isNotEmpty == true) 'location': winner!.address!,
       'details': winner == null
-          ? 'Decision made with Table Talk.'
+          ? 'Decision made with Bite Brigade.'
           : 'We picked ${winner.title}.',
     });
     await _openUrl(uri.toString());

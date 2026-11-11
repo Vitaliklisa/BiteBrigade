@@ -1,15 +1,15 @@
-# Table Talk — Android
+# Bite Brigade — Android
 
-Table Talk is a Flutter app. Android uses the same Dart screens and Firestore
+Bite Brigade is a Flutter app. Android uses the same Dart screens and Firestore
 repository as iOS and web.
 
 ## App identity
 
 - Android application ID: `com.tabletalk.app`
 - iOS bundle ID: `com.tabletalk.app`
-- Display name: `Table Talk`
+- Display name: `Bite Brigade`
 
-These are new identifiers for this copy. Register them for Table Talk before
+These are new identifiers for this copy. Register them for Bite Brigade before
 publishing; do not use the inherited Date Dawn Firebase configuration.
 
 ## Configure Firebase
@@ -19,7 +19,7 @@ support and create a Cloud Firestore database. Then run FlutterFire
 configuration for the new project:
 
 ```powershell
-flutterfire configure --project=your-table-talk-project-id
+flutterfire configure --project=your-bite-brigade-project-id
 ```
 
 Replace the example project ID with the one you created. Register the Android

@@ -20,7 +20,7 @@ import 'screens/room_vote_screen.dart';
 import 'screens/rooms_home_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/support_screen.dart';
-import 'screens/table_talk_invitations_screen.dart';
+import 'screens/bite_brigade_invitations_screen.dart';
 import 'widgets/app_navigation_shell.dart';
 
 /// Route names, kept in one place so navigation calls never use raw strings.
@@ -143,7 +143,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: Routes.invitations,
             name: 'invitations',
-            builder: (context, state) => const TableTalkInvitationsScreen(),
+            builder: (context, state) => const BiteBrigadeInvitationsScreen(),
           ),
           GoRoute(
             path: Routes.crews,

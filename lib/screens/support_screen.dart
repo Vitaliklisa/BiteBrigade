@@ -72,7 +72,7 @@ class SupportScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Table Talk is an independent app. Email is the fastest way to '
+            'Bite Brigade is an independent app. Email is the fastest way to '
             'reach the person who builds it — there is no support desk in '
             'between. We usually reply $responseTime.',
             style: TextStyle(fontSize: 13.5, height: 1.55, color: colors.muted),
@@ -100,14 +100,14 @@ class SupportScreen extends StatelessWidget {
           ),
           const _Faq(
             question: 'How do I delete my account and my data?',
-            answer: 'Email us from the address you signed up with and ask about '
+            answer:
+                'Email us from the address you signed up with and ask about '
                 'deleting your account or information. Requests are handled '
                 'subject to identity verification and applicable law.',
           ),
           const _Faq(
             question: 'Who can see my room?',
-            answer:
-                'The room creator and accepted participants can see its '
+            answer: 'The room creator and accepted participants can see its '
                 'details. Rooms shared with a crew are also visible to that '
                 'crew’s members.',
           ),

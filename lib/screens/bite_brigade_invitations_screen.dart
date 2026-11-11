@@ -9,8 +9,8 @@ import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../widgets/room_widgets.dart';
 
-class TableTalkInvitationsScreen extends ConsumerWidget {
-  const TableTalkInvitationsScreen({super.key});
+class BiteBrigadeInvitationsScreen extends ConsumerWidget {
+  const BiteBrigadeInvitationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

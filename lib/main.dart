@@ -10,7 +10,6 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'core/theme.dart';
 import 'firebase_config.dart';
-import 'firebase_options.dart';
 import 'providers/app_providers.dart';
 import 'router.dart';
 import 'services/auth_service.dart';
@@ -22,7 +21,7 @@ Future<void> main() async {
   // The launch path is: Android window (launch_background) -> Flutter engine ->
   // Dart `main` -> first frame, at which point the engine removes the splash.
   // When the app "hangs on the splash", the cause is one of those stages, and
-  // these lines make it unambiguous which: filter logcat for `table-talk` to see
+  // these lines make it unambiguous which: filter logcat for `bite-brigade` to see
   // exactly how far Dart got. Compiled out of release builds entirely.
   _trace('main() entered');
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,17 +71,17 @@ Future<void> main() async {
   }
 
   _trace('calling runApp');
-  runApp(const ProviderScope(child: TableTalkApp()));
+  runApp(const ProviderScope(child: BiteBrigadeApp()));
   _trace('runApp returned (Dart frame scheduled)');
 }
 
 /// Launch breadcrumb. No-op in release builds, where `kDebugMode` is false and
 /// the whole call is tree-shaken away.
 void _trace(String message) {
-  if (kDebugMode) debugPrint('[table-talk] $message');
+  if (kDebugMode) debugPrint('[bite-brigade] $message');
 }
 
-/// Shown until a dedicated Table Talk Firebase project is configured.
+/// Shown until a dedicated Bite Brigade Firebase project is configured.
 class _MissingConfigApp extends StatelessWidget {
   const _MissingConfigApp();
 
@@ -103,7 +102,7 @@ class _MissingConfigApp extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Firebase is not configured for Table Talk yet',
+                    'Firebase is not configured for Bite Brigade yet',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -113,8 +112,8 @@ class _MissingConfigApp extends StatelessWidget {
                   const SizedBox(height: 14),
                   Text(
                     'This copy must use its own Firebase project, not the '
-                    'Date Dawn project. Create a Firebase project for Table '
-                    'Talk, then run this from the project root and rebuild:',
+                    'Date Dawn project. Create a Firebase project for Bite '
+                    'Brigade, then run this from the project root and rebuild:',
                     style: TextStyle(
                         fontSize: 14, height: 1.5, color: palette.muted),
                   ),
@@ -128,7 +127,7 @@ class _MissingConfigApp extends StatelessWidget {
                       border: Border.all(color: palette.border),
                     ),
                     child: const SelectableText(
-                      'flutterfire configure --project=your-table-talk-project-id',
+                      'flutterfire configure --project=your-bite-brigade-project-id',
                       style: TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 13,
@@ -153,8 +152,8 @@ class _MissingConfigApp extends StatelessWidget {
   }
 }
 
-class TableTalkApp extends ConsumerWidget {
-  const TableTalkApp({super.key});
+class BiteBrigadeApp extends ConsumerWidget {
+  const BiteBrigadeApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -162,7 +161,7 @@ class TableTalkApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'Table Talk',
+      title: 'Bite Brigade',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.build(brightness: Brightness.light),
       darkTheme: AppTheme.build(brightness: Brightness.dark),

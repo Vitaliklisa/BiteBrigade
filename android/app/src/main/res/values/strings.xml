@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Table Talk</string>
-    <string name="title_activity_main">Table Talk</string>
+    <string name="app_name">Bite Brigade</string>
+    <string name="title_activity_main">Bite Brigade</string>
     <string name="package_name">com.tabletalk.app</string>
     <string name="custom_url_scheme">com.tabletalk.app</string>
 </resources>

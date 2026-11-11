@@ -46,7 +46,7 @@ class PolicyScreen extends StatelessWidget {
             const _Section(
               title: '1. Introduction & Data Controller',
               body:
-                  'Table Talk ("we", "our", or "us") explains here how information is handled when you use the app. For privacy questions or requests, contact: $supportEmailAddress',
+                  'Bite Brigade ("we", "our", or "us") explains here how information is handled when you use the app. For privacy questions or requests, contact: $supportEmailAddress',
             ),
             const _Section(
               title: '2. Information We Collect',
@@ -66,7 +66,7 @@ class PolicyScreen extends StatelessWidget {
             const _Section(
               title: '5. Storage & Security',
               body:
-                  'The app uses Firebase Authentication and Cloud Firestore. Data is transmitted over encrypted connections and access is governed by the Firestore security rules deployed for the configured Table Talk project. No system can guarantee absolute security.',
+                  'The app uses Firebase Authentication and Cloud Firestore. Data is transmitted over encrypted connections and access is governed by the Firestore security rules deployed for the configured Bite Brigade project. No system can guarantee absolute security.',
             ),
             const _Section(
                 title: '6. Retention & Requests',
@@ -75,18 +75,18 @@ class PolicyScreen extends StatelessWidget {
             const _Section(
               title: '7. Children',
               body:
-                  'Table Talk is not intended for children under 13. Do not use the service if you are below the minimum age required where you live.',
+                  'Bite Brigade is not intended for children under 13. Do not use the service if you are below the minimum age required where you live.',
             ),
           ] else ...[
             const _Section(
               title: '1. Acceptance of Terms',
               body:
-                  'By using Table Talk, you agree to these terms. If you do not agree, do not use the app.',
+                  'By using Bite Brigade, you agree to these terms. If you do not agree, do not use the app.',
             ),
             const _Section(
               title: '2. Use of the Service',
               body:
-                  'Table Talk helps people organize restaurant decisions. Use it lawfully and respectfully. Do not misuse invitations, submit harmful or unlawful content, interfere with the service, or attempt to bypass access controls.',
+                  'Bite Brigade helps people organize restaurant decisions. Use it lawfully and respectfully. Do not misuse invitations, submit harmful or unlawful content, interfere with the service, or attempt to bypass access controls.',
             ),
             const _Section(
               title: '3. User Content & Ownership',

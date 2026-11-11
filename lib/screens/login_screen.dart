@@ -117,7 +117,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     Text(
                       _creating
                           ? 'Create your account'
-                          : 'Welcome to Table Talk',
+                          : 'Welcome to Bite Brigade',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 10),
