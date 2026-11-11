@@ -10,14 +10,6 @@
       ]
     },
     {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "deletedAt", "order": "ASCENDING" },
-        { "fieldPath": "__name__", "order": "ASCENDING" }
-      ]
-    },
-    {
       "collectionGroup": "participants",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
