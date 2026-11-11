@@ -192,15 +192,6 @@ service cloud.firestore {
     // document THROWS, which Firestore reports as "Missing or insufficient
     // permissions". That one expression is why an invitee could not accept, and
     // why admins intermittently could not change roles.
-    // Firestore is not lazy in ternaries OR `&&`, so a `get()` on a document
-    // that might not exist is ALWAYS an error. The fix is to stop asking for the
-    // role of a row that may be absent: `hasMyRole()` answers "is my role one of
-    // these?" with the existence check and the read in one place, and returns
-    // false (not an error) when there is no row.
-    //
-    // It still cannot avoid the `get()` syntactically, so the RULE that calls it
-    // always sits behind a guard that has already proven existence — see
-    // `isAdmin`/`isEditor`, which path-directly on `exists()`.
     function myRole(eventId) {
       return myRoleDocument(eventId);
     }
@@ -208,16 +199,6 @@ service cloud.firestore {
     // Only for an existing participant row.
     function myRoleDocument(eventId) {
       return get(/databases/$(database)/documents/events/$(eventId)/participants/$(uid())).data.get('role', '');
-    }
-
-    // "Is my role in `roles`?" — existence-safe.
-    //
-    // Uses `exists()` as the VALUE being compared rather than as a guard, so no
-    // `get()` is ever attempted for a missing row: the expression short-circuits
-    // by construction because there is only one read and it is inside the
-    // comparison that `exists()` gates at the call site.
-    function hasMyRole(eventId, roles) {
-      return isParticipant(eventId) && myRoleDocument(eventId) in roles;
     }
 
     function isAdmin(eventId) {
