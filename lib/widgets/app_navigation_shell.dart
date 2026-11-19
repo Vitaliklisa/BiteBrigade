@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../router.dart';
@@ -21,13 +22,13 @@ class AppNavigationShell extends ConsumerWidget {
   final String location;
   final Widget child;
 
-  static const _destinations = <(String, String, IconData)>[
-    ('Home', Routes.home, Icons.hourglass_bottom_rounded),
-    ('Invitations', Routes.invitations, Icons.mail_outline_rounded),
-    ('Crews', Routes.crews, Icons.groups_outlined),
-    ('Notifications', Routes.notifications, Icons.notifications_none_rounded),
-    ('Settings', Routes.settings, Icons.settings_outlined),
-    ('Support', Routes.support, Icons.help_outline_rounded),
+  static const _destinations = <(String, IconData)>[
+    (Routes.home, Icons.hourglass_bottom_rounded),
+    (Routes.invitations, Icons.mail_outline_rounded),
+    (Routes.crews, Icons.groups_outlined),
+    (Routes.notifications, Icons.notifications_none_rounded),
+    (Routes.settings, Icons.settings_outlined),
+    (Routes.support, Icons.help_outline_rounded),
   ];
 
   /// Destinations shown in the mobile bottom bar.
@@ -41,8 +42,8 @@ class AppNavigationShell extends ConsumerWidget {
 
   int get _selectedIndex {
     for (var i = 1; i < _destinations.length; i++) {
-      if (location == _destinations[i].$2 ||
-          location.startsWith('${_destinations[i].$2}/')) {
+      if (location == _destinations[i].$1 ||
+          location.startsWith('${_destinations[i].$1}/')) {
         return i;
       }
     }
@@ -50,8 +51,20 @@ class AppNavigationShell extends ConsumerWidget {
   }
 
   void _goTo(BuildContext context, int index) {
-    final destination = _destinations[index].$2;
+    final destination = _destinations[index].$1;
     if (location != destination) context.go(destination);
+  }
+
+  String _destinationLabel(BuildContext context, int index) {
+    final l10n = context.l10n;
+    return switch (index) {
+      0 => l10n.navHome,
+      1 => l10n.navInvitations,
+      2 => l10n.navCrews,
+      3 => l10n.navNotifications,
+      4 => l10n.settings,
+      _ => l10n.navSupport,
+    };
   }
 
   static const _shellChildKey = ValueKey('app_navigation_shell_child_key');
@@ -137,11 +150,11 @@ class AppNavigationShell extends ConsumerWidget {
             for (var index = 0; index < _bottomBarCount; index++)
               NavigationDestination(
                 icon: _navigationIcon(
-                  _destinations[index].$3,
+                  _destinations[index].$2,
                   index == 1 ? invitationCount : 0,
                   index == 3 ? unreadCount : 0,
                 ),
-                label: _destinations[index].$1,
+                label: _destinationLabel(context, index),
               ),
           ],
         ),
@@ -171,8 +184,8 @@ class AppNavigationShell extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 3),
                       child: _SidebarDestination(
-                        label: _destinations[i].$1,
-                        icon: _destinations[i].$3,
+                        label: _destinationLabel(context, i),
+                        icon: _destinations[i].$2,
                         badgeCount: i == 1
                             ? invitationCount
                             : (i == 3 ? unreadCount : 0),

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/models.dart';
 import '../core/theme.dart';
+import '../l10n/generated/app_localizations.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../router.dart';
 import '../services/event_repository.dart';
@@ -60,6 +62,7 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -68,20 +71,18 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Block $_who?',
+              l10n.blockUserTitle(_who),
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 10),
             Text(
-              'You will stop seeing each other. They are removed from every '
-              'countdown you share, invitations between you are cancelled, and '
-              'they cannot invite you again. They are not told.',
+              l10n.blockUserExplanation,
               style:
                   TextStyle(fontSize: 13.5, height: 1.5, color: colors.muted),
             ),
             const SizedBox(height: 10),
             Text(
-              'You can undo this any time in Settings → Blocked people.',
+              l10n.blockUndoTip,
               style:
                   TextStyle(fontSize: 12.5, height: 1.45, color: colors.subtle),
             ),
@@ -99,12 +100,12 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.block_rounded, size: 18),
-              label: Text(_busy ? 'Blocking…' : 'Block'),
+              label: Text(_busy ? l10n.blocking : l10n.block),
             ),
             const SizedBox(height: 8),
             OutlinedButton(
               onPressed: _busy ? null : () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
           ],
         ),
@@ -116,6 +117,7 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
     final me = ref.read(currentUserProvider);
     if (me == null) return;
     setState(() => _busy = true);
+    final l10n = context.l10n;
     // Resolve the messenger from the ROOT context, before the sheet is popped.
     //
     // The sheet is a modal route; `ScaffoldMessenger.of(context)` captured from
@@ -144,7 +146,7 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
       if (mounted) setState(() => _busy = false);
       messenger.showSnackBar(
         SnackBar(
-          content: Text(_blockFailureMessage(error)),
+          content: Text(_blockFailureMessage(error, l10n)),
           duration: const Duration(seconds: 6),
         ),
       );
@@ -165,9 +167,9 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
     Navigator.of(context).pop(true);
     messenger.showSnackBar(
       SnackBar(
-        content: Text('$_who is blocked.'),
+        content: Text(l10n.personBlocked(_who)),
         action: SnackBarAction(
-          label: 'Undo',
+          label: l10n.undo,
           onPressed: () {
             unawaited(
               _undoBlock(
@@ -177,7 +179,8 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
                 userId: me.id,
                 targetUid: widget.participant.userId,
                 eventId: widget.eventId,
-                who: _who,
+                successMessage: l10n.personUnblocked(_who),
+                errorMessage: l10n.blockUndoFailed,
               ),
             );
           },
@@ -193,7 +196,8 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
     required String userId,
     required String targetUid,
     required String eventId,
-    required String who,
+    required String successMessage,
+    required String errorMessage,
   }) async {
     try {
       await repository.unblockUser(userId: userId, targetUid: targetUid);
@@ -203,17 +207,14 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
       container.invalidate(participantsProvider(eventId));
       messenger.showSnackBar(
         SnackBar(
-          content: Text(
-            '$who is unblocked. Countdown access was not restored.',
-          ),
+          content: Text(successMessage),
         ),
       );
     } catch (error, stackTrace) {
       debugPrint('[datedawn] Could not undo block for $targetUid: $error');
       debugPrintStack(stackTrace: stackTrace);
       messenger.showSnackBar(
-        const SnackBar(
-            content: Text('Could not undo block. Please try again.')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
@@ -225,14 +226,13 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
   /// appear for an unrelated cleanup refusal. A permission error on the block
   /// row means the session is not what the rules expect (a signed-out tab, an
   /// account switch), and that is what is said.
-  String _blockFailureMessage(Object error) {
+  String _blockFailureMessage(Object error, AppLocalizations l10n) {
     return switch (error) {
-      DataFailure(:final message) => message,
+      DataFailure() => l10n.blockSaveError(_who),
       FirebaseException(code: 'permission-denied') =>
-        'Your block could not be saved. Sign in again and retry.',
-      FirebaseException(code: 'unavailable') =>
-        'No connection. Check your network and try again.',
-      _ => 'Could not block $_who. Please try again.',
+        l10n.blockSavePermissionError,
+      FirebaseException(code: 'unavailable') => l10n.blockSaveNetworkError,
+      _ => l10n.blockSaveError(_who),
     };
   }
 }

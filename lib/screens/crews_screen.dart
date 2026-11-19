@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../widgets/brand_kit.dart';
@@ -16,12 +17,13 @@ class CrewsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final crews = ref.watch(crewsProvider);
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your crews'),
+        title: Text(l10n.yourCrews),
         actions: [
           IconButton(
-            tooltip: 'Create a crew',
+            tooltip: l10n.createCrew,
             onPressed: () => context.push(Routes.newCrew),
             icon: const Icon(Icons.add_rounded),
           ),
@@ -32,9 +34,10 @@ class CrewsScreen extends ConsumerWidget {
           constraints: const BoxConstraints(maxWidth: 850),
           child: crews.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => _CrewError(
-              message: 'Your crews could not be loaded: $error',
-            ),
+            error: (error, _) {
+              debugPrint('Could not load crews: $error');
+              return _CrewError(message: l10n.couldNotLoadCrews);
+            },
             data: (items) => items.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.all(24),
@@ -49,13 +52,13 @@ class CrewsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 14),
                           Text(
-                            'Good things are better shared.',
+                            l10n.goodThingsShared,
                             style: Theme.of(context).textTheme.titleLarge,
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Bring friends, family, or teammates together to plan your next meal.',
+                            l10n.bringPeopleTogether,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: context.colors.muted,
@@ -66,7 +69,7 @@ class CrewsScreen extends ConsumerWidget {
                           FilledButton.icon(
                             onPressed: () => context.push(Routes.newCrew),
                             icon: const Icon(Icons.add_rounded),
-                            label: const Text('Create a crew'),
+                            label: Text(l10n.createCrew),
                           ),
                         ],
                       ),
@@ -115,8 +118,8 @@ class CrewsScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '${crew.memberIds.length} ${crew.memberIds.length == 1 ? 'member' : 'members'}'
-                                    '${crew.isCouple ? ' · two-person crew' : ''}',
+                                    '${l10n.membersCount(crew.memberIds.length)}'
+                                    '${crew.isCouple ? ' · ${l10n.twoPersonCrew}' : ''}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -167,7 +170,7 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
     if (user == null) return;
     if (_name.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Give your crew a name.')),
+        SnackBar(content: Text(context.l10n.crewNameRequired)),
       );
       return;
     }
@@ -183,9 +186,10 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
           );
       if (mounted) context.go('${Routes.crew}/$id');
     } catch (error) {
+      debugPrint('Could not create crew: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not create this crew: $error')),
+          SnackBar(content: Text(context.l10n.couldNotCreateCrew)),
         );
       }
     } finally {
@@ -196,7 +200,7 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create a crew')),
+      appBar: AppBar(title: Text(context.l10n.createCrew)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
@@ -204,14 +208,14 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
             padding: const EdgeInsets.all(22),
             children: [
               Text(
-                'Gather your crew.',
+                context.l10n.gatherYourCrew,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'Invite everyone once, then plan meals together whenever you are ready to eat.',
+                context.l10n.inviteEveryoneOnce,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: context.colors.muted, height: 1.45),
@@ -225,8 +229,8 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
                       controller: _emoji,
                       textAlign: TextAlign.center,
                       maxLength: 2,
-                      decoration: const InputDecoration(
-                        labelText: 'Mark',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.mark,
                         counterText: '',
                       ),
                     ),
@@ -237,9 +241,9 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
                       controller: _name,
                       maxLength: 60,
                       textCapitalization: TextCapitalization.words,
-                      decoration: const InputDecoration(
-                        labelText: 'Crew name',
-                        hintText: 'Friday regulars',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.crewName,
+                        hintText: context.l10n.crewNameHint,
                       ),
                     ),
                   ),
@@ -250,14 +254,12 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
                 value: _isCouple,
                 onChanged: (value) => setState(() => _isCouple = value),
                 contentPadding: EdgeInsets.zero,
-                title: const Text(
-                  'Just the two of us',
+                title: Text(
+                  context.l10n.twoPersonCrewTitle,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: const Text(
-                  'Share meal plans with each other automatically.',
-                ),
+                subtitle: Text(context.l10n.twoPersonCrewDescription),
                 secondary: const Icon(Icons.restaurant_menu_rounded),
               ),
               const SizedBox(height: 24),
@@ -270,7 +272,7 @@ class _CrewEditorScreenState extends ConsumerState<CrewEditorScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.groups_rounded),
-                label: const Text('Create crew'),
+                label: Text(context.l10n.createCrew),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -307,13 +309,14 @@ class CrewDetailScreen extends ConsumerWidget {
           );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Crew invitation sent.')),
+          SnackBar(content: Text(context.l10n.crewInvitationSent)),
         );
       }
     } catch (error) {
+      debugPrint('Could not send crew invitation: $error');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not send this invitation: $error')),
+          SnackBar(content: Text(context.l10n.couldNotSendCrewInvitation)),
         );
       }
     }
@@ -337,9 +340,10 @@ class CrewDetailScreen extends ConsumerWidget {
             name: name,
           );
     } catch (error) {
+      debugPrint('Could not rename crew: $error');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not rename this crew: $error')),
+          SnackBar(content: Text(context.l10n.couldNotRenameCrew)),
         );
       }
     }
@@ -354,17 +358,16 @@ class CrewDetailScreen extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Leave ${crew.name}?'),
-        content: const Text(
-            'You will stop seeing new decisions shared with this crew.'),
+        title: Text(context.l10n.leaveNamedCrew(crew.name)),
+        content: Text(context.l10n.leaveCrewDescription),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Stay'),
+            child: Text(context.l10n.stay),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Leave crew'),
+            child: Text(context.l10n.leaveCrew),
           ),
         ],
       ),
@@ -377,9 +380,10 @@ class CrewDetailScreen extends ConsumerWidget {
           );
       if (context.mounted) context.go(Routes.crews);
     } catch (error) {
+      debugPrint('Could not leave crew: $error');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not leave this crew: $error')),
+          SnackBar(content: Text(context.l10n.couldNotLeaveCrew)),
         );
       }
     }
@@ -387,6 +391,7 @@ class CrewDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final user = ref.watch(currentUserProvider);
     final crews = ref.watch(crewsProvider);
     final crew = crews.value?.where((item) => item.id == crewId).firstOrNull;
@@ -398,11 +403,10 @@ class CrewDetailScreen extends ConsumerWidget {
     }
     if (crews.hasError || crew == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Crew')),
+        appBar: AppBar(title: Text(l10n.crew)),
         body: _CrewError(
-          message: crews.hasError
-              ? 'Could not load this crew: ${crews.error}'
-              : 'This crew is no longer available.',
+          message:
+              crews.hasError ? l10n.couldNotLoadCrew : l10n.crewUnavailable,
         ),
       );
     }
@@ -419,8 +423,11 @@ class CrewDetailScreen extends ConsumerWidget {
                   _rename(context, ref, crew, user!.id);
                 }
               },
-              itemBuilder: (context) => const [
-                PopupMenuItem(value: 'rename', child: Text('Rename crew')),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'rename',
+                  child: Text(l10n.renameCrew),
+                ),
               ],
             ),
         ],
@@ -447,7 +454,9 @@ class CrewDetailScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            crew.isCouple ? 'Two-person crew' : 'Standing crew',
+                            crew.isCouple
+                                ? l10n.twoPersonCrew
+                                : l10n.standingCrew,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -458,8 +467,8 @@ class CrewDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 5),
                           Text(
                             crew.isCouple
-                                ? 'Meal plans are shared automatically with each other.'
-                                : 'Share meal plans with this crew whenever you plan together.',
+                                ? l10n.mealPlansSharedAutomatically
+                                : l10n.sharePlansWithCrew,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -478,7 +487,7 @@ class CrewDetailScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      'Members',
+                      l10n.members,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
@@ -486,7 +495,7 @@ class CrewDetailScreen extends ConsumerWidget {
                     FilledButton.icon(
                       onPressed: () => _invite(context, ref, crew, user!.id),
                       icon: const Icon(Icons.person_add_alt_1_rounded),
-                      label: const Text('Invite'),
+                      label: Text(l10n.invite),
                     ),
                 ],
               ),
@@ -498,8 +507,10 @@ class CrewDetailScreen extends ConsumerWidget {
                     child: CircularProgressIndicator(),
                   ),
                 ),
-                error: (error, _) =>
-                    _CrewError(message: 'Could not load members: $error'),
+                error: (error, _) {
+                  debugPrint('Could not load crew members: $error');
+                  return _CrewError(message: l10n.couldNotLoadCrewMembers);
+                },
                 data: (members) => Column(
                   children: [
                     for (final member in members)
@@ -545,7 +556,7 @@ class CrewDetailScreen extends ConsumerWidget {
                               ),
                               if (member.isOwner)
                                 Text(
-                                  'OWNER',
+                                  l10n.owner,
                                   style: TextStyle(
                                     color: context.colors.accent,
                                     fontSize: 10,
@@ -565,7 +576,7 @@ class CrewDetailScreen extends ConsumerWidget {
                 OutlinedButton.icon(
                   onPressed: () => _leave(context, ref, crew, user!.id),
                   icon: const Icon(Icons.exit_to_app_rounded),
-                  label: const Text('Leave this crew'),
+                  label: Text(l10n.leaveThisCrew),
                 ),
               ],
             ],
@@ -594,24 +605,24 @@ class _InviteCrewDialogState extends State<_InviteCrewDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Invite to your crew'),
+        title: Text(context.l10n.inviteToYourCrew),
         content: TextField(
           controller: _email,
           keyboardType: TextInputType.emailAddress,
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Email address',
-            hintText: 'friend@example.com',
+          decoration: InputDecoration(
+            labelText: context.l10n.emailAddress,
+            hintText: context.l10n.emailHint,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, _email.text.trim()),
-            child: const Text('Send invitation'),
+            child: Text(context.l10n.sendInvitation),
           ),
         ],
       );
@@ -637,7 +648,7 @@ class _RenameCrewDialogState extends State<_RenameCrewDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text('Rename crew'),
+        title: Text(context.l10n.renameCrew),
         content: TextField(
           controller: _name,
           autofocus: true,
@@ -647,11 +658,11 @@ class _RenameCrewDialogState extends State<_RenameCrewDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, _name.text.trim()),
-            child: const Text('Save'),
+            child: Text(context.l10n.save),
           ),
         ],
       );

@@ -40,5 +40,677 @@
   "termsOfService": "Conditions d’utilisation",
   "helpAndSupport": "Aide et assistance",
   "signedOut": "Déconnexion effectuée.",
-  "signOut": "Se déconnecter"
+  "signOut": "Se déconnecter",
+  "homeTitle": "Organisez un repas.",
+  "homeDescription": "Choisissez où manger, invitez votre groupe et décidez ensemble.",
+  "getStarted": "Commencer",
+  "createMealPlan": "Créer un plan de repas",
+  "keepMealPlansSynced": "Gardez vos plans de repas synchronisés",
+  "syncMealPlansDescription": "Connectez-vous pour synchroniser vos plans entre vos appareils et choisir où manger avec votre groupe.",
+  "couldNotLoadMealPlans": "Impossible de charger vos plans de repas. Tirez vers le bas pour réessayer.",
+  "options": "Options",
+  "open": "Ouvrir",
+  "openMealPlan": "Ouvrir le plan de repas",
+  "upcomingPlans": "REPAS À VENIR",
+  "newMealPlan": "Nouveau plan de repas",
+  "readyToGather": "À TABLE !",
+  "comingUp": "À VENIR",
+  "years": "Années",
+  "months": "Mois",
+  "days": "Jours",
+  "hours": "Heures",
+  "minutesRemaining": "{minutes} min · {seconds} s restantes",
+  "@minutesRemaining": {
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "seconds": {"type": "int"}
+    }
+  },
+  "navHome": "Accueil",
+  "navInvitations": "Invitations",
+  "navCrews": "Groupes",
+  "navNotifications": "Notifications",
+  "navSupport": "Assistance",
+  "tableIsYours": "À VOUS DE CHOISIR",
+  "whereAreWeGoing": "Où allons-nous ?",
+  "groupDecisionDescription": "Un bon repas commence par une décision collective.",
+  "newDecision": "Nouvelle décision",
+  "decisionsCouldNotLoad": "Impossible de charger vos décisions.",
+  "yourTable": "Votre table",
+  "noDecisions": "Aucune décision à prendre",
+  "noDecisionsDescription": "Réunissez vos proches et laissez chacun choisir l’endroit.",
+  "startDecision": "Commencer une décision",
+  "roomOpen": "OUVERTE",
+  "roomDecided": "CHOISIE",
+  "roomCancelled": "ANNULÉE",
+  "votesProgress": "{votesCast} vote(s) sur {participantCount}",
+  "@votesProgress": {
+    "placeholders": {
+      "votesCast": {"type": "int"},
+      "participantCount": {"type": "int"}
+    }
+  },
+  "createAccountHeading": "Créer votre compte",
+  "welcomeHeading": "Bienvenue sur Bite Brigade",
+  "createAccountDescription": "Décidez ensemble où dîner, sur tous vos appareils.",
+  "welcomeDescription": "Compte à rebours avant les moments qui comptent, sur mobile, tablette et web.",
+  "name": "Nom",
+  "nameHint": "Alex Martin",
+  "nameRequired": "Comment souhaitez-vous que l’on vous appelle ?",
+  "email": "E-mail",
+  "emailHint": "vous@example.com",
+  "emailRequired": "Saisissez votre adresse e-mail.",
+  "emailInvalid": "Cette adresse e-mail ne semble pas valide.",
+  "password": "Mot de passe",
+  "passwordRequired": "Saisissez votre mot de passe.",
+  "passwordTooShort": "Utilisez au moins 6 caractères.",
+  "forgotPassword": "Mot de passe oublié ?",
+  "signInServiceUnavailable": "Impossible de joindre le service de connexion. Vérifiez votre connexion Internet.",
+  "createAccountAction": "Créer un compte",
+  "or": "OU",
+  "continueWithGoogle": "Continuer avec Google",
+  "alreadyHaveAccount": "Vous avez déjà un compte ?",
+  "newHere": "Nouveau ici ?",
+  "createOne": "En créer un",
+  "signInTrouble": "Un problème de connexion ? Obtenir de l’aide",
+  "accountCreated": "Compte créé.",
+  "welcomeBack": "Ravi de vous revoir.",
+  "signedInWithGoogle": "Connexion avec Google réussie.",
+  "enterEmailForReset": "Saisissez d’abord votre e-mail, puis touchez « Mot de passe oublié ».",
+  "resetLinkSent": "Lien de réinitialisation envoyé à {email}.",
+  "@resetLinkSent": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "notificationsTitle": "Notifications",
+  "markAllRead": "Tout marquer comme lu",
+  "moreOptions": "Plus d’options",
+  "noReadMessages": "Aucun message lu à supprimer.",
+  "deleteReadMessages": "Supprimer les messages lus",
+  "deletedReadMessages": "Messages lus supprimés.",
+  "signInFirst": "Connectez-vous d’abord",
+  "notificationsAccountOnly": "Les notifications sont associées à votre compte.",
+  "couldNotLoad": "Chargement impossible",
+  "checkConnectionRetry": "Vérifiez votre connexion et réessayez.",
+  "nothingYet": "Rien pour le moment",
+  "notificationsEmpty": "Les nouveautés concernant vos repas ou vos invitations apparaîtront ici.",
+  "liveNotificationsUnavailable": "Impossible de charger les notifications en direct.",
+  "inbox": "BOÎTE DE RÉCEPTION",
+  "invitationResponses": "RÉPONSES AUX INVITATIONS",
+  "invitationResponsesUnavailable": "Impossible de charger les réponses aux invitations.",
+  "circles": "Cercles",
+  "editDecision": "Modifier la décision",
+  "setDecisionScene": "Présentez le projet, nous nous occupons des votes.",
+  "keepDecisionUpdated": "Gardez le plan à jour.",
+  "decisionEditorDescription": "Nommez l’occasion, choisissez une heure et ajoutez des lieux que chacun pourra choisir.",
+  "decisionName": "Nom de la décision",
+  "decisionNameHint": "Dîner vendredi",
+  "decisionNameRequired": "Donnez un nom à votre décision.",
+  "optionalContext": "Quelques précisions (facultatif)",
+  "decisionContextHint": "Dîner d’anniversaire, déjeuner d’équipe…",
+  "decisionTime": "Heure de la décision",
+  "shortlist": "Sélection",
+  "addTwoPlaces": "Ajoutez au moins deux lieux.",
+  "shortlistLocked": "Le vote a commencé : la sélection est verrouillée.",
+  "addRestaurant": "Ajouter un restaurant",
+  "shareWithCrew": "Partager avec un groupe",
+  "twoPersonCrewSharing": "Les groupes de deux partagent automatiquement leurs plans.",
+  "crewMembersCanVote": "Les membres du groupe peuvent voter sans autre invitation.",
+  "createCrewFirst": "Créez d’abord un groupe pour planifier des repas ensemble.",
+  "inviteByEmailOptional": "Inviter des personnes par e-mail (facultatif)",
+  "inviteEmailsHint": "alex@example.com, sam@example.com",
+  "createDecision": "Créer la décision",
+  "saveChanges": "Enregistrer les modifications",
+  "restaurantNumber": "Restaurant {number}",
+  "@restaurantNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "restaurantExample": "p. ex. Les Nouilles du Nord",
+  "addName": "Ajoutez un nom.",
+  "removeRestaurant": "Supprimer le restaurant",
+  "addressOptional": "Adresse (facultatif)",
+  "websiteOptional": "Site web (facultatif)",
+  "couldNotSaveDecision": "Impossible d’enregistrer cette décision.",
+  "castYourVote": "Votez",
+  "swipeMode": "Balayer",
+  "listMode": "Liste",
+  "swipeRightToPick": "Balayez à droite pour choisir, à gauche pour passer.",
+  "yourCurrentPick": "Votre choix actuel : {title}",
+  "@yourCurrentPick": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "pass": "Passer",
+  "vote": "Voter",
+  "youVotedFor": "Vous avez voté pour {title}.",
+  "@youVotedFor": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "backToDecision": "Retour à la décision",
+  "yesLetsGo": "OUI, ON Y VA",
+  "maybeNextTime": "UNE AUTRE FOIS",
+  "onTheMenu": "AU MENU",
+  "rightToVoteLeftToPass": "À droite pour voter · à gauche pour passer",
+  "yourVote": "Votre vote",
+  "decisionUnavailable": "Cette décision n’est plus disponible.",
+  "acceptInvitationBeforeVote": "Acceptez l’invitation avant de voter.",
+  "restaurantsUnavailable": "Impossible de charger les restaurants.",
+  "noRestaurantsYet": "Il n’y a pas encore de restaurants à choisir.",
+  "always": "toujours",
+  "couldNotLoadRoom": "Impossible de charger cette décision. Vérifiez votre connexion et réessayez.",
+  "voteCouldNotSave": "Impossible d’enregistrer votre vote. Vérifiez votre connexion et réessayez.",
+  "eventUnavailable": "Ce plan de repas n’est plus disponible.",
+  "share": "Partager",
+  "edit": "Modifier",
+  "viewDetails": "Voir les détails",
+  "sharedWith": "PARTAGÉ AVEC",
+  "notes": "NOTES",
+  "notesEmpty": "Rien pour le moment. Laissez un mot aux personnes qui préparent ce repas avec vous.",
+  "addNote": "Ajouter une note",
+  "dayHasCome": "LE GRAND JOUR EST ARRIVÉ",
+  "arrivalWithoutDescription": "{title} est arrivé — profitez de chaque instant.",
+  "@arrivalWithoutDescription": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "arrivalWithDescription": "{title} est arrivé — {description}",
+  "@arrivalWithDescription": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "description": {"type": "String"}
+    }
+  },
+  "passed": "Terminé",
+  "countingDown": "Compte à rebours",
+  "duplicateYearLater": "Dupliquer un an plus tard",
+  "duplicateEventSuccess": "Copie créée — ouvrez-la pour modifier la date.",
+  "deleteMealPlan": "Supprimer le plan de repas",
+  "deleteOwnerOnly": "Seul le propriétaire peut supprimer ce plan de repas.",
+  "mealPlanDeleted": "Plan de repas supprimé.",
+  "couldNotDelete": "Suppression impossible. Réessayez.",
+  "deleteMealPlanConfirm": "Supprimer ce plan de repas ?",
+  "mealPlanCannotRecover": "Ce plan de repas ne pourra pas être récupéré.",
+  "keep": "Conserver",
+  "delete": "Supprimer",
+  "cancelDecisionConfirm": "Annuler cette décision ?",
+  "roomKeptInHistory": "La salle restera dans l’historique.",
+  "keepIt": "Conserver",
+  "cancelDecision": "Annuler la décision",
+  "couldNotRevealWinner": "Impossible de révéler le résultat.",
+  "couldNotAddNote": "Impossible d’ajouter votre note.",
+  "couldNotDuplicateDecision": "Impossible de dupliquer cette décision.",
+  "couldNotCancelDecision": "Impossible d’annuler cette décision.",
+  "linkCouldNotOpen": "Impossible d’ouvrir ce lien.",
+  "mapsCouldNotOpen": "Impossible d’ouvrir Maps.",
+  "decision": "Décision",
+  "duplicateForAnotherDay": "Dupliquer pour un autre jour",
+  "swipeToVote": "Balayez pour voter",
+  "noRestaurantsAdded": "Aucun restaurant n’a encore été ajouté.",
+  "aroundTable": "Autour de la table",
+  "couldNotLoadGroup": "Impossible de charger le groupe.",
+  "couldNotLoadNotes": "Impossible de charger les notes.",
+  "theGroupDecision": "LA DÉCISION DU GROUPE",
+  "weAreGoingTo": "NOUS IRONS CHEZ",
+  "tableStillOpen": "Le choix est encore ouvert",
+  "openInMaps": "Ouvrir dans Maps",
+  "addToCalendar": "Ajouter au calendrier",
+  "website": "Site web",
+  "votesCount": "{count, plural, one{{count} vote} other{{count} votes}}",
+  "@votesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "currentVote": "Votre vote actuel",
+  "voteForOption": "Voter pour {title}",
+  "@voteForOption": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "openInMapsTooltip": "Ouvrir dans Maps",
+  "openWebsiteTooltip": "Ouvrir le site web",
+  "guest": "Invité",
+  "calendarEventTitle": "Bite Brigade · {roomName}",
+  "@calendarEventTitle": {
+    "placeholders": {
+      "roomName": {"type": "String"}
+    }
+  },
+  "calendarDecisionMade": "Décision prise avec Bite Brigade.",
+  "calendarWinnerPicked": "Nous avons choisi {title}.",
+  "@calendarWinnerPicked": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "back": "Retour",
+  "nobodyBlocked": "Personne n’est bloqué",
+  "blockPeopleHowTo": "Pour bloquer quelqu’un, ouvrez un plan de repas partagé avec cette personne, touchez le menu ⋮ sur sa ligne, puis Bloquer.",
+  "blockedPeopleCannotInvite": "Ces personnes ne peuvent pas vous inviter et vous ne partagez aucun plan de repas avec elles.",
+  "notToldTheyAreBlocked": "Elles ne sont pas informées du blocage.",
+  "blockedListLoadError": "Impossible de charger votre liste de personnes bloquées",
+  "blockedListPermissionError": "Votre compte ne peut pas consulter cette liste. Si le problème persiste, mettez l’application à jour.",
+  "tryAgain": "Réessayer",
+  "blockUserTitle": "Bloquer {name} ?",
+  "@blockUserTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "blockUserExplanation": "Vous ne verrez plus le contenu de l’autre personne. Elle sera retirée de vos plans de repas partagés, vos invitations seront annulées et elle ne pourra plus vous inviter. Elle ne sera pas informée.",
+  "blockUndoTip": "Vous pouvez annuler ce blocage à tout moment dans Réglages → Personnes bloquées.",
+  "blocking": "Blocage…",
+  "block": "Bloquer",
+  "undo": "Annuler",
+  "personBlocked": "{name} est bloqué.",
+  "@personBlocked": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "blockUndoFailed": "Impossible d’annuler le blocage. Réessayez.",
+  "blockSavePermissionError": "Impossible d’enregistrer le blocage. Reconnectez-vous et réessayez.",
+  "blockSaveNetworkError": "Aucune connexion. Vérifiez votre réseau et réessayez.",
+  "blockSaveError": "Impossible de bloquer {name}. Réessayez.",
+  "@blockSaveError": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "personUnblocked": "{name} n’est plus bloqué. L’accès aux plans de repas n’a pas été rétabli.",
+  "@personUnblocked": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+    },
+    "weReadEveryMessage": "Nous lisons chaque message",
+    "supportIntroduction": "Bite Brigade est une application indépendante. Le moyen le plus rapide de joindre son développeur est par e-mail ; il n’y a pas d’équipe d’assistance intermédiaire. Nous répondons généralement {responseTime}.",
+    "@supportIntroduction": {
+      "placeholders": {
+        "responseTime": {"type": "String"}
+      }
+    },
+    "supportResponseTime": "sous 2 jours ouvrés",
+    "commonQuestions": "Questions fréquentes",
+    "faqMissingPlansQuestion": "Je me suis connecté, mais mes salles de repas ont disparu.",
+    "faqMissingPlansAnswer": "Vérifiez que vous êtes connecté au compte invité dans ces salles. Pour une salle partagée avec un groupe, vérifiez que vous en êtes toujours membre.",
+    "faqInviteeQuestion": "Une personne invitée ne voit pas la salle.",
+    "faqInviteeAnswer": "Demandez-lui de se connecter avec l’adresse e-mail qui a reçu l’invitation, puis de l’accepter dans l’écran Invitations.",
+    "faqDeleteAccountQuestion": "Comment supprimer mon compte et mes données ?",
+    "faqDeleteAccountAnswer": "Écrivez-nous depuis l’adresse utilisée lors de l’inscription pour demander la suppression de votre compte ou de vos informations. Toute demande est soumise à une vérification d’identité et au droit applicable.",
+    "faqWhoSeesRoomQuestion": "Qui peut voir ma salle ?",
+    "faqWhoSeesRoomAnswer": "Le créateur de la salle et les personnes ayant accepté l’invitation peuvent en voir les détails. Les membres d’un groupe voient aussi les salles partagées avec celui-ci.",
+    "faqDataQuestion": "Vendez-vous mes données ou affichez-vous des publicités ?",
+    "faqDataAnswer": "Les informations des salles sont conservées dans le projet Firebase configuré et partagées avec les participants ou le groupe que vous choisissez. Consultez la politique de confidentialité pour en savoir plus.",
+    "supportContactNote": "Les remboursements, questions de facturation et rapports de plantage sont traités à la même adresse. En cas de problème, indiquez-nous votre appareil et ce que vous faisiez : c’est l’information la plus utile.",
+    "emailSupport": "Contacter l’assistance par e-mail",
+    "supportEmailCopied": "{email} copié",
+    "@supportEmailCopied": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "openMail": "Ouvrir la messagerie",
+    "linkCopiedClipboard": "Lien copié dans le presse-papiers.",
+    "nothingWaitingForYou": "Aucune invitation pour le moment.",
+    "invitationsEmptyDescription": "Les invitations aux plans de repas et aux groupes apparaîtront ici. La plupart attendent votre réponse ; les groupes de deux sont ajoutés automatiquement.",
+    "waitingOnYou": "En attente de votre réponse",
+    "invitationsSummary": "Rejoignez un plan de repas pour aider à choisir où manger, ou un groupe pour planifier ensemble. Si vous refusez, la personne qui vous a invité le saura.",
+    "signInToSeeInvitations": "Connectez-vous pour voir les invitations",
+    "invitationsSignInDescription": "Les invitations sont envoyées à votre adresse e-mail. Connectez-vous avec l’adresse à laquelle vous avez été invité.",
+    "dinnerDecisions": "Décisions de repas",
+    "invitedToChoosePlace": "Vous êtes invité à choisir où le groupe ira manger.",
+    "joinDecision": "Rejoindre la décision",
+    "twoPersonBadge": "À DEUX",
+    "joinTwoPersonCrewDescription": "Rejoignez ce groupe de deux pour partager automatiquement vos prochains plans de repas.",
+    "joinCrewDescription": "Rejoignez ce groupe pour recevoir et préparer de futurs plans de repas.",
+    "joinCrew": "Rejoindre le groupe",
+    "invitationLoadError": "Impossible de charger les invitations. Vérifiez votre connexion et réessayez.",
+    "couldNotRespondInvitation": "Impossible de répondre à cette invitation. Réessayez.",
+    "roleAdmin": "Admin",
+    "roleEditor": "Éditeur",
+    "roleViewer": "Lecteur",
+    "decline": "Refuser",
+    "cancel": "Annuler",
+    "yourCrews": "Vos groupes",
+    "createCrew": "Créer un groupe",
+    "couldNotLoadCrews": "Impossible de charger vos groupes.",
+    "goodThingsShared": "Les bons moments se partagent.",
+    "bringPeopleTogether": "Réunissez vos amis, votre famille ou vos collègues pour prévoir votre prochain repas.",
+    "membersCount": "{count, plural, one{{count} membre} other{{count} membres}}",
+    "@membersCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "crewNameRequired": "Donnez un nom à votre groupe.",
+    "couldNotCreateCrew": "Impossible de créer ce groupe. Réessayez.",
+    "gatherYourCrew": "Réunissez votre groupe.",
+    "inviteEveryoneOnce": "Invitez tout le monde une fois, puis organisez vos repas ensemble quand vous le souhaitez.",
+    "mark": "Marque",
+    "crewName": "Nom du groupe",
+    "crewNameHint": "Les habitués du vendredi",
+    "twoPersonCrewTitle": "Juste nous deux",
+    "twoPersonCrewDescription": "Partagez automatiquement vos plans de repas.",
+    "crewCreated": "Groupe créé.",
+    "crewInvitationSent": "Invitation au groupe envoyée.",
+    "couldNotSendCrewInvitation": "Impossible d’envoyer cette invitation. Réessayez.",
+    "couldNotRenameCrew": "Impossible de renommer ce groupe. Réessayez.",
+    "leaveNamedCrew": "Quitter {name} ?",
+    "@leaveNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "leaveCrewDescription": "Vous ne verrez plus les nouvelles décisions partagées avec ce groupe.",
+    "stay": "Rester",
+    "leaveCrew": "Quitter le groupe",
+    "couldNotLeaveCrew": "Impossible de quitter ce groupe. Réessayez.",
+    "crew": "Groupe",
+    "crewUnavailable": "Ce groupe n’est plus disponible.",
+    "renameCrew": "Renommer le groupe",
+    "twoPersonCrew": "Groupe de deux",
+    "standingCrew": "Groupe régulier",
+    "mealPlansSharedAutomatically": "Les plans de repas sont automatiquement partagés entre vous.",
+    "sharePlansWithCrew": "Partagez vos plans de repas avec ce groupe quand vous prévoyez un repas.",
+    "members": "Membres",
+    "invite": "Inviter",
+    "owner": "PROPRIÉTAIRE",
+    "leaveThisCrew": "Quitter ce groupe",
+    "inviteToYourCrew": "Inviter dans votre groupe",
+    "emailAddress": "Adresse e-mail",
+    "sendInvitation": "Envoyer l’invitation",
+    "save": "Enregistrer",
+    "couldNotLoadCrew": "Impossible de charger ce groupe.",
+    "couldNotLoadCrewMembers": "Impossible de charger les membres du groupe.",
+    "accept": "Accepter",
+    "mealPlanInvitation": "Invitation à un plan de repas",
+    "unnamedMealPlan": "Un plan de repas",
+    "mealPlanInvitationBody": "Vous êtes invité à rejoindre ce plan de repas. En l’acceptant, il sera ajouté à votre liste avec le rôle {role}.",
+    "@mealPlanInvitationBody": {
+      "placeholders": {
+        "role": {"type": "String"}
+      }
+    },
+    "joinMealPlanQuestion": "Rejoindre ce plan de repas ?",
+    "joinMealPlanExplanation": "Il apparaîtra dans votre liste pour retrouver facilement la date et les détails.",
+    "join": "Rejoindre",
+    "alreadyMemberOf": "Vous êtes déjà membre de « {name} ».",
+    "@alreadyMemberOf": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "joinedNamedMealPlan": "Vous avez rejoint « {name} ».",
+    "@joinedNamedMealPlan": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "invitationDeclined": "Invitation refusée.",
+    "twoPersonGroupInvitation": "Invitation à un groupe de deux",
+    "crewInvitation": "Invitation au groupe",
+    "addingYouToCrew": "Vous allez rejoindre le groupe de {name}.",
+    "@addingYouToCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "invitedYouToNamedCrew": "{inviter} vous invite dans « {crew} ».",
+    "@invitedYouToNamedCrew": {
+      "placeholders": {
+        "inviter": {"type": "String"},
+        "crew": {"type": "String"}
+      }
+    },
+    "automaticCrewInvitationBody": "Vous serez ajouté automatiquement. Les futurs plans de repas partagés avec « {crew} » apparaîtront dans votre liste.",
+    "@automaticCrewInvitationBody": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "namedCrewInvitationBody": "Rejoignez « {crew} » pour voir les plans de repas partagés par ce groupe.",
+    "@namedCrewInvitationBody": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "couldNotAddYouAutomatically": "Impossible de vous ajouter automatiquement.",
+    "retryAddingYou": "Réessayer de vous ajouter",
+    "notNow": "Pas maintenant",
+    "alreadyMemberOfCrew": "Vous êtes déjà membre de « {crew} ».",
+    "@alreadyMemberOfCrew": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "addedToNamedCrew": "Vous avez été ajouté à « {crew} ».",
+    "@addedToNamedCrew": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "joinedNamedCrew": "Vous avez rejoint « {crew} ».",
+    "@joinedNamedCrew": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "someone": "Quelqu’un",
+    "you": "Vous",
+    "noCrewsYet": "Aucun groupe pour le moment",
+    "remove": "Retirer",
+    "removeFromCrew": "Retirer du groupe",
+    "removeCrewMemberTitle": "Retirer {name} ?",
+    "@removeCrewMemberTitle": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "removeCrewMemberExplanation": "Cette personne ne verra plus les plans de repas partagés avec ce groupe. Rien de ce qu’elle a créé ne sera supprimé.",
+    "deleteNamedCrew": "Supprimer « {name} » ?",
+    "@deleteNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "deleteCrewExplanation": "Le groupe sera supprimé. Les plans de repas partagés restent les vôtres, mais ne seront plus partagés avec ces personnes.",
+    "inviteToNamedCrew": "Inviter dans « {name} »",
+    "@inviteToNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "inviteToTwoPersonCrew": "Inviter dans votre groupe de deux",
+    "automaticCrewInviteExplanation": "Si cette personne a déjà un compte, elle sera ajoutée automatiquement. Sinon, elle le sera après sa connexion. Les plans partagés avec ce groupe apparaîtront automatiquement.",
+    "crewInviteExplanation": "Cette personne recevra une invitation à accepter ou refuser. Après son arrivée, vous pourrez partager vos plans avec ce groupe en un geste.",
+    "inviteEmailHint": "ami@example.com",
+    "recentContactsLoadError": "Impossible de charger les contacts récents. Vérifiez votre connexion et réessayez.",
+    "theyWillBeAddedAutomatically": "Cette personne sera ajoutée automatiquement.",
+    "invitationSentTo": "Invitation envoyée à {email}.",
+    "@invitationSentTo": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "leftNamedCrew": "Vous avez quitté « {name} ».",
+    "@leftNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "deletedNamedCrew": "« {name} » a été supprimé.",
+    "@deletedNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "signInToUseCrews": "Connectez-vous pour utiliser les groupes",
+    "crewsSignInDescription": "Les groupes invitent des personnes par e-mail ; elles doivent donc avoir un compte pour être invitées.",
+    "editMealPlan": "Modifier le plan de repas",
+    "createMealPlanAction": "Créer un plan de repas",
+    "mealPlanActions": "Actions du plan de repas",
+    "titleField": "Titre",
+    "mealPlanTitleHint": "Dîner vendredi, déjeuner d’équipe, brunch en famille",
+    "descriptionField": "Description",
+    "mealPlanDescriptionHint": "Ajoutez une note sur le repas, le lieu ou le plan",
+    "when": "Quand",
+    "date": "Date",
+    "oneWeek": "+1 semaine",
+    "oneMonth": "+1 mois",
+    "oneYear": "+1 an",
+    "fiveYears": "+5 ans",
+    "mealPlanTitleRequired": "Donnez un titre à ce plan de repas.",
+    "futureMomentRequired": "Choisissez une date ultérieure.",
+    "signInToSaveMealPlans": "Connectez-vous pour enregistrer vos plans de repas.",
+    "mealPlanCreated": "Plan de repas créé.",
+    "changesSaved": "Modifications enregistrées.",
+    "otherPerson": "L’autre personne",
+    "coupleNotAdded": "Plan créé, mais {name} n’a pas été ajouté. Invitez cette personne depuis le plan.",
+    "@coupleNotAdded": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "coupleAdded": "Plan de repas créé. {name} a été ajouté.",
+    "@coupleAdded": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "nobodyAdded": "Plan créé, mais personne n’a été ajouté. Envoyez une invitation depuis le plan.",
+    "viewOnlyMealPlan": "Vous pouvez consulter ce plan de repas, mais pas le modifier.",
+    "chooseFutureMealTime": "Choisissez une date future pour voir le compte à rebours.",
+    "timeUntilMeal": "Temps restant avant le repas : {duration}",
+    "@timeUntilMeal": {
+      "placeholders": {
+        "duration": {"type": "String"}
+      }
+    },
+    "collaborators": "Participants",
+    "inviteesAccessDescription": "Les personnes invitées peuvent consulter ce plan sur leurs appareils.",
+    "peopleWithAccess": "Personnes ayant accès à ce plan de repas.",
+    "noCollaboratorsYet": "Personne d’autre pour le moment.",
+    "sharedWithNamedCrew": "Partagé avec {name}",
+    "@sharedWithNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "inviteAgain": "Renvoyer l’invitation",
+    "moreActions": "Plus d’actions",
+    "changeRole": "Modifier le rôle",
+    "memberRoleUpdated": "{name} a maintenant le rôle {role}.",
+    "@memberRoleUpdated": {
+      "placeholders": {
+        "name": {"type": "String"},
+        "role": {"type": "String"}
+      }
+    },
+    "personRemoved": "{name} a été retiré.",
+    "@personRemoved": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "invitationAskedAgain": "Invitation renvoyée à {email}.",
+    "@invitationAskedAgain": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "removePersonQuestion": "Retirer cette personne ?",
+    "removePersonExplanation": "{email} perdra l’accès à ce plan et ne le verra plus dans sa liste.",
+    "@removePersonExplanation": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "changeRoleFor": "Modifier le rôle de {name}",
+    "@changeRoleFor": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "roleCurrentAccess": "Cela modifie les actions autorisées sur ce plan. Cette personne a actuellement le rôle {role}.",
+    "@roleCurrentAccess": {
+      "placeholders": {
+        "role": {"type": "String"}
+      }
+    },
+    "rolesCannotBeAssigned": "Vous ne pouvez pas attribuer les rôles {roles} avec votre rôle {role}.",
+    "@rolesCannotBeAssigned": {
+      "placeholders": {
+        "roles": {"type": "String"},
+        "role": {"type": "String"}
+      }
+    },
+    "and": "et",
+    "adminRoleDescription": "Peut inviter des personnes, modifier les rôles et le plan, et retirer des participants.",
+    "editorRoleDescription": "Peut modifier le titre, la description et la date. Ne peut pas gérer les participants.",
+    "viewerRoleDescription": "Peut uniquement consulter le plan de repas.",
+    "durationYearCount": "{count, plural, one{{count} an} other{{count} ans}}",
+    "@durationYearCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationMonthCount": "{count, plural, one{{count} mois} other{{count} mois}}",
+    "@durationMonthCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationDayCount": "{count, plural, one{{count} jour} other{{count} jours}}",
+    "@durationDayCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationHourCount": "{count, plural, one{{count} heure} other{{count} heures}}",
+    "@durationHourCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationMinuteCount": "{count, plural, one{{count} minute} other{{count} minutes}}",
+    "@durationMinuteCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationSecondCount": "{count, plural, one{{count} seconde} other{{count} secondes}}",
+    "@durationSecondCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "momentHasPassed": "Le moment est passé.",
+    "couldNotSaveMealPlan": "Impossible d’enregistrer ce plan de repas. Réessayez.",
+    "savePermissionError": "Votre compte ne peut pas enregistrer ce plan. Mettez l’application à jour et réessayez.",
+    "saveNetworkError": "Impossible de joindre le service. Vérifiez votre connexion et réessayez.",
+    "unblock": "Débloquer",
+    "upcoming": "À venir",
+    "invitationAcceptedState": "Acceptée",
+    "invitationDeclinedState": "Refusée",
+    "invitationRemovedState": "Retirée",
+    "invitationReopenedState": "Rouverte",
+    "invitationWaitingState": "En attente",
+    "sharedCrewInviteInfo": "Les groupes de deux partagent automatiquement les plans de repas. Les autres groupes envoient une invitation.",
+    "shareWith": "Partager avec",
+    "arrived": "Le moment est arrivé.",
+    "countdownToGo": "Encore {duration}",
+    "@countdownToGo": {
+      "placeholders": {
+        "duration": {"type": "String"}
+      }
+    }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/countdown.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 
 /// The four big tiles: years, months, days, hours.
 ///
@@ -23,6 +24,7 @@ class CountdownFace extends StatelessWidget {
   Widget build(BuildContext context) {
     final remaining = remainingUntil(target, now);
     if (remaining.isPast) return const SizedBox.shrink();
+    final l10n = context.l10n;
 
     final liveUnit = remaining.hours > 0
         ? _Unit.hours
@@ -42,19 +44,19 @@ class CountdownFace extends StatelessWidget {
           children: [
             _UnitTile(
                 value: remaining.years,
-                label: 'Years',
+                label: l10n.years,
                 live: liveUnit == _Unit.years),
             _UnitTile(
                 value: remaining.months,
-                label: 'Months',
+                label: l10n.months,
                 live: liveUnit == _Unit.months),
             _UnitTile(
                 value: remaining.days,
-                label: 'Days',
+                label: l10n.days,
                 live: liveUnit == _Unit.days),
             _UnitTile(
                 value: remaining.hours,
-                label: 'Hours',
+                label: l10n.hours,
                 live: liveUnit == _Unit.hours),
           ],
         ),
@@ -167,7 +169,10 @@ class _TickingLine extends StatelessWidget {
         _PulsingDot(color: colors.accent),
         const SizedBox(width: 8),
         Text(
-          '${pad2(remaining.minutes)} min · ${pad2(remaining.seconds)} sec remaining',
+          context.l10n.minutesRemaining(
+            remaining.minutes,
+            remaining.seconds,
+          ),
           style: TextStyle(
             fontSize: 13.5,
             color: colors.muted,

@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../widgets/brand_kit.dart';
 
 /// Support, contact and legal.
@@ -26,16 +27,15 @@ class SupportScreen extends StatelessWidget {
 
   /// How long a support request usually takes to answer. Stated on the screen so
   /// nobody is left guessing, and kept honest — it is a promise, not marketing.
-  static const responseTime = 'within 2 business days';
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final router = GoRouter.of(context);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Help & support'),
+        title: Text(l10n.helpAndSupport),
         // A back arrow only where there is a stack to go back through.
         //
         // Inside the shell on desktop the sidebar is the navigation, and an
@@ -47,7 +47,7 @@ class SupportScreen extends StatelessWidget {
         leading: router.canPop()
             ? HoverTintIconButton(
                 icon: Icons.arrow_back_rounded,
-                tooltip: 'Back',
+                tooltip: l10n.back,
                 onPressed: () {
                   final router = GoRouter.of(context);
                   if (router.canPop()) {
@@ -63,7 +63,7 @@ class SupportScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
         children: [
           Text(
-            'We read every message',
+            l10n.weReadEveryMessage,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -72,9 +72,7 @@ class SupportScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Bite Brigade is an independent app. Email is the fastest way to '
-            'reach the person who builds it — there is no support desk in '
-            'between. We usually reply $responseTime.',
+            l10n.supportIntroduction(l10n.supportResponseTime),
             style: TextStyle(fontSize: 13.5, height: 1.55, color: colors.muted),
           ),
           const SizedBox(height: 22),
@@ -83,50 +81,37 @@ class SupportScreen extends StatelessWidget {
             onTap: () => _copyEmail(context),
           ),
           const SizedBox(height: 26),
-          const _SectionTitle('Common questions'),
+          _SectionTitle(l10n.commonQuestions),
           const SizedBox(height: 12),
-          const _Faq(
-            question: 'I signed in but my dinner rooms are missing.',
-            answer:
-                'Check that you signed in with the account invited to those '
-                'rooms. For a crew-shared room, confirm you are still a member '
-                'of that crew.',
+          _Faq(
+            question: l10n.faqMissingPlansQuestion,
+            answer: l10n.faqMissingPlansAnswer,
           ),
-          const _Faq(
-            question: 'Someone I invited cannot see the room.',
-            answer:
-                'Ask them to sign in with the email address that received the '
-                'invitation and accept it from the Invitations screen.',
+          _Faq(
+            question: l10n.faqInviteeQuestion,
+            answer: l10n.faqInviteeAnswer,
           ),
-          const _Faq(
-            question: 'How do I delete my account and my data?',
-            answer:
-                'Email us from the address you signed up with and ask about '
-                'deleting your account or information. Requests are handled '
-                'subject to identity verification and applicable law.',
+          _Faq(
+            question: l10n.faqDeleteAccountQuestion,
+            answer: l10n.faqDeleteAccountAnswer,
           ),
-          const _Faq(
-            question: 'Who can see my room?',
-            answer: 'The room creator and accepted participants can see its '
-                'details. Rooms shared with a crew are also visible to that '
-                'crew’s members.',
+          _Faq(
+            question: l10n.faqWhoSeesRoomQuestion,
+            answer: l10n.faqWhoSeesRoomAnswer,
           ),
-          const _Faq(
-            question: 'Do you sell my data or show ads?',
-            answer:
-                'Room information is stored in the configured Firebase project '
-                'and shared with the participants or crew you choose. Read the '
-                'privacy policy for details.',
+          _Faq(
+            question: l10n.faqDataQuestion,
+            answer: l10n.faqDataAnswer,
           ),
           const SizedBox(height: 26),
-          const _SectionTitle('Legal'),
+          _SectionTitle(l10n.legal),
           const SizedBox(height: 12),
           _LinkRow(
-            label: 'Privacy policy',
+            label: l10n.privacyPolicy,
             onTap: () => openLegalPage(context, LegalDocument.privacy),
           ),
           _LinkRow(
-            label: 'Terms of service',
+            label: l10n.termsOfService,
             onTap: () => openLegalPage(context, LegalDocument.terms),
           ),
           const SizedBox(height: 26),
@@ -145,10 +130,7 @@ class SupportScreen extends StatelessWidget {
                 const SizedBox(width: 11),
                 Expanded(
                   child: Text(
-                    'A refund, a billing question or a crash report all belong '
-                    'at the same address. If the app misbehaves, telling us your '
-                    'device and what you were doing when it happened is the '
-                    'single most useful thing you can include.',
+                    l10n.supportContactNote,
                     style: TextStyle(
                         fontSize: 12.5, height: 1.5, color: colors.subtle),
                   ),
@@ -168,13 +150,14 @@ class SupportScreen extends StatelessWidget {
   /// staring at a screen that ignored their tap. Copying always works, so the
   /// address is in hand either way.
   Future<void> _copyEmail(BuildContext context) async {
+    final l10n = context.l10n;
     await Clipboard.setData(const ClipboardData(text: supportEmail));
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('$supportEmail copied'),
+        content: Text(l10n.supportEmailCopied(supportEmail)),
         action: SnackBarAction(
-          label: 'Open mail',
+          label: l10n.openMail,
           onPressed: () => _open(context, 'mailto:$supportEmail'),
         ),
       ),
@@ -182,6 +165,7 @@ class SupportScreen extends StatelessWidget {
   }
 
   Future<void> _open(BuildContext context, String url) async {
+    final l10n = context.l10n;
     final uri = Uri.parse(url);
     try {
       final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -192,7 +176,7 @@ class SupportScreen extends StatelessWidget {
       await Clipboard.setData(ClipboardData(text: url));
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link copied to your clipboard.')),
+        SnackBar(content: Text(l10n.linkCopiedClipboard)),
       );
     }
   }

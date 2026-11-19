@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/circles.dart';
 import '../core/models.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 
 /// One inbox for meal-plan and group invitations.
@@ -73,7 +74,7 @@ class _InviteLoadError extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Text(
-        'Invitations could not load. Check your connection or Firestore rules.',
+        context.l10n.invitationLoadError,
         style: TextStyle(fontSize: 12.5, color: colors.danger),
       ),
     );
@@ -92,13 +93,13 @@ class _EmptyInbox extends StatelessWidget {
         Icon(Icons.mark_email_read_outlined, size: 30, color: colors.subtle),
         const SizedBox(height: 16),
         Text(
-          'Nothing waiting',
+          context.l10n.nothingWaitingForYou,
           style: TextStyle(
               fontSize: 15, fontWeight: FontWeight.w600, color: colors.fg),
         ),
         const SizedBox(height: 8),
         Text(
-          'Meal-plan and crew invitations will appear here. Most need your response; two-person groups are added automatically.',
+          context.l10n.invitationsEmptyDescription,
           maxLines: 4,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
@@ -212,7 +213,7 @@ class _InviteShell extends StatelessWidget {
                   const SizedBox(height: 10),
                   FilledButton(
                     onPressed: onRetry,
-                    child: const Text('Retry adding you'),
+                    child: Text(context.l10n.retryAddingYou),
                   ),
                 ],
               )
@@ -258,7 +259,7 @@ class _InviteShell extends StatelessWidget {
                       overlayColor: colors.danger.withValues(alpha: 0.10),
                     ),
                     onPressed: busy ? null : onDecline,
-                    child: const Text('Decline'),
+                    child: Text(context.l10n.decline),
                   ),
                 ),
               ],
@@ -296,13 +297,13 @@ class _EventInviteCardState extends ConsumerState<_EventInviteCard> {
     if (_alreadyClaimed) return;
     final user = ref.read(currentUserProvider);
     if (user == null) return;
+    final l10n = context.l10n;
     setState(() => _busy = true);
     final confirmed = await _confirm(
       context,
-      title: 'Join this meal plan?',
-      body:
-          'It will appear in your list so the date and details are easy to find.',
-      action: 'Join',
+      title: l10n.joinMealPlanQuestion,
+      body: l10n.joinMealPlanExplanation,
+      action: l10n.join,
     );
     if (!confirmed) {
       if (mounted) setState(() => _busy = false);
@@ -343,8 +344,8 @@ class _EventInviteCardState extends ConsumerState<_EventInviteCard> {
         SnackBar(
           content: Text(
             alreadyMember
-                ? 'You are already a member of “${widget.invite.eventTitle}”.'
-                : 'You joined “${widget.invite.eventTitle}”.',
+                ? l10n.alreadyMemberOf(widget.invite.eventTitle)
+                : l10n.joinedNamedMealPlan(widget.invite.eventTitle),
           ),
         ),
       );
@@ -368,7 +369,7 @@ class _EventInviteCardState extends ConsumerState<_EventInviteCard> {
             responderName: user?.displayName,
             userId: user?.id,
           ),
-      successMessage: 'Invitation declined.',
+      successMessage: context.l10n.invitationDeclined,
     );
     if (failure != null) _release();
     if (mounted) setState(() => _busy = false);
@@ -377,14 +378,14 @@ class _EventInviteCardState extends ConsumerState<_EventInviteCard> {
   @override
   Widget build(BuildContext context) {
     final invite = widget.invite;
+    final l10n = context.l10n;
     return _InviteShell(
-      eyebrow: 'Meal-plan invitation',
-      title:
-          invite.eventTitle.isEmpty ? 'A meal plan' : '“${invite.eventTitle}”',
-      body:
-          'You have been invited to join this meal plan. Accepting adds it to '
-          'your list as ${_roleLabel(invite.role).toLowerCase()}.',
-      acceptLabel: 'Accept',
+      eyebrow: l10n.mealPlanInvitation,
+      title: invite.eventTitle.isEmpty
+          ? l10n.unnamedMealPlan
+          : '“${invite.eventTitle}”',
+      body: l10n.mealPlanInvitationBody(_roleLabel(context, invite.role)),
+      acceptLabel: l10n.accept,
       busy: _busy,
       onAccept: _accept,
       onDecline: _decline,
@@ -419,6 +420,7 @@ class _CircleInviteCardState extends ConsumerState<_CircleInviteCard> {
     if (_alreadyClaimed) return;
     final user = ref.read(currentUserProvider);
     if (user == null) return;
+    final l10n = context.l10n;
     setState(() => _busy = true);
     if (!ref.read(invitationSubmissionProvider.notifier).claim(_claimKey)) {
       if (mounted) setState(() => _busy = false);
@@ -449,10 +451,10 @@ class _CircleInviteCardState extends ConsumerState<_CircleInviteCard> {
         SnackBar(
           content: Text(
             alreadyMember
-                ? 'You are already a member of “${widget.invite.circleName}”.'
+                ? l10n.alreadyMemberOfCrew(widget.invite.circleName)
                 : widget.invite.isCouple
-                    ? 'You were added to “${widget.invite.circleName}”.'
-                    : 'You joined “${widget.invite.circleName}”.',
+                    ? l10n.addedToNamedCrew(widget.invite.circleName)
+                    : l10n.joinedNamedCrew(widget.invite.circleName),
           ),
         ),
       );
@@ -478,7 +480,7 @@ class _CircleInviteCardState extends ConsumerState<_CircleInviteCard> {
             responderName: user?.displayName,
             userId: user?.id,
           ),
-      successMessage: 'Invitation declined.',
+      successMessage: context.l10n.invitationDeclined,
     );
     if (failure != null) _release();
     if (mounted) setState(() => _busy = false);
@@ -487,24 +489,24 @@ class _CircleInviteCardState extends ConsumerState<_CircleInviteCard> {
   @override
   Widget build(BuildContext context) {
     final invite = widget.invite;
+    final l10n = context.l10n;
     final invitedBy = invite.invitedByName?.trim();
     final from =
-        (invitedBy != null && invitedBy.isNotEmpty) ? invitedBy : 'Someone';
+        (invitedBy != null && invitedBy.isNotEmpty) ? invitedBy : l10n.someone;
 
     return _InviteShell(
       eyebrow:
-          invite.isCouple ? 'Two-person group invitation' : 'Crew invitation',
+          invite.isCouple ? l10n.twoPersonGroupInvitation : l10n.crewInvitation,
       title: invite.isCouple
-          ? "You're being added to $from's crew"
-          : "$from invited you to “${invite.circleName}”",
+          ? l10n.addingYouToCrew(from)
+          : l10n.invitedYouToNamedCrew(from, invite.circleName),
       body: invite.isCouple
-          ? 'You will be added automatically. Future meal plans shared with '
-              '“${invite.circleName}” will appear in your list.'
-          : 'Join “${invite.circleName}” to see the meal plans this crew shares with you.',
-      acceptLabel: 'Join crew',
+          ? l10n.automaticCrewInvitationBody(invite.circleName)
+          : l10n.namedCrewInvitationBody(invite.circleName),
+      acceptLabel: l10n.joinCrew,
       busy: _busy,
       automaticStatus: invite.isCouple
-          ? invite.joinError ?? 'We could not add you automatically.'
+          ? invite.joinError ?? l10n.couldNotAddYouAutomatically
           : null,
       onRetry: invite.isCouple ? _accept : null,
       onAccept: invite.isCouple ? null : _accept,
@@ -527,7 +529,7 @@ Future<bool> _confirm(
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Not now'),
+          child: Text(context.l10n.notNow),
         ),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size(88, 42)),
@@ -540,8 +542,8 @@ Future<bool> _confirm(
   return result ?? false;
 }
 
-String _roleLabel(ParticipantRole role) => switch (role) {
-      ParticipantRole.admin => 'Admin',
-      ParticipantRole.editor => 'Editor',
-      ParticipantRole.viewer => 'Viewer',
+String _roleLabel(BuildContext context, ParticipantRole role) => switch (role) {
+      ParticipantRole.admin => context.l10n.roleAdmin,
+      ParticipantRole.editor => context.l10n.roleEditor,
+      ParticipantRole.viewer => context.l10n.roleViewer,
     };

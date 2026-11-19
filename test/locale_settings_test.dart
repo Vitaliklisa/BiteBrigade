@@ -1,4 +1,6 @@
+import 'package:table_talk/core/countdown.dart';
 import 'package:table_talk/core/locale_settings.dart';
+import 'package:table_talk/l10n/countdown_localization.dart';
 import 'package:table_talk/l10n/generated/app_localizations.dart';
 import 'package:table_talk/providers/app_providers.dart';
 import 'package:table_talk/providers/locale_provider.dart';
@@ -79,6 +81,32 @@ void main() {
       supportedLocaleForCode(container.read(localeProvider).languageCode),
       isNotNull,
     );
+  });
+
+  test('countdown duration uses each locale and its plural forms', () async {
+    const remaining = Remaining(
+      years: 1,
+      months: 2,
+      days: 0,
+      hours: 3,
+      minutes: 0,
+      seconds: 0,
+      totalMs: 0,
+      isPast: false,
+    );
+    const expected = {
+      'en': '1 year, 2 months and 3 hours',
+      'fr': '1 an, 2 mois et 3 heures',
+      'es': '1 año, 2 meses y 3 horas',
+      'uk': '1 рік, 2 місяці і 3 години',
+      'de': '1 Jahr, 2 Monate und 3 Stunden',
+    };
+
+    for (final entry in expected.entries) {
+      final localizations =
+          await AppLocalizations.delegate.load(Locale(entry.key));
+      expect(describeRemainingLocalized(localizations, remaining), entry.value);
+    }
   });
 
   testWidgets('language picker updates Settings and persists the selection',

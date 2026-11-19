@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../core/countdown.dart';
 import '../core/models.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
+import '../l10n/countdown_localization.dart';
 
 /// Bite Brigade's wordmark and restaurant mark.
 class BrandMark extends StatelessWidget {
@@ -68,7 +70,7 @@ class StatusChip extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          isPast ? 'Passed' : 'Upcoming',
+          isPast ? context.l10n.passed : context.l10n.upcoming,
           style: TextStyle(
             fontSize: 12,
             color: isPast ? colors.accent : colors.subtle,
@@ -196,11 +198,26 @@ class InviteStatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final (label, tint) = switch (status) {
-      InviteStatus.accepted => ('Accepted', colors.success),
-      InviteStatus.declined => ('Declined', colors.danger),
-      InviteStatus.rejected => ('Removed', colors.subtle),
-      InviteStatus.reopened => ('Reopened', colors.warning),
-      InviteStatus.pending => ('Waiting', colors.warning),
+      InviteStatus.accepted => (
+          context.l10n.invitationAcceptedState,
+          colors.success
+        ),
+      InviteStatus.declined => (
+          context.l10n.invitationDeclinedState,
+          colors.danger
+        ),
+      InviteStatus.rejected => (
+          context.l10n.invitationRemovedState,
+          colors.subtle
+        ),
+      InviteStatus.reopened => (
+          context.l10n.invitationReopenedState,
+          colors.warning
+        ),
+      InviteStatus.pending => (
+          context.l10n.invitationWaitingState,
+          colors.warning
+        ),
     };
 
     return Container(
@@ -236,8 +253,10 @@ class RemainingSummary extends StatelessWidget {
     final remaining = remainingUntil(target, now);
     return Text(
       remaining.isPast
-          ? 'It has arrived.'
-          : '${describeRemaining(remaining)} to go',
+          ? context.l10n.arrived
+          : context.l10n.countdownToGo(
+              describeRemainingLocalized(context.l10n, remaining),
+            ),
       style: TextStyle(fontSize: 13, color: colors.muted),
     );
   }

@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../core/circles.dart';
 import '../core/theme.dart';
 import '../core/notifications.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 
 /// The live Firestore inbox alongside the existing invitation-response log.
@@ -24,7 +25,7 @@ class NotificationsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(context.l10n.notificationsTitle),
         actions: [
           if (user != null) ...[
             if (hasUnread)
@@ -44,14 +45,16 @@ class NotificationsScreen extends ConsumerWidget {
                           .markAllNotificationsRead(user.id),
                     ]);
                   },
-                  successMessage: 'Marked all read.',
+                  successMessage: context.l10n.markAllRead,
                 ),
-                child:
-                    const Text('Mark all read', style: TextStyle(fontSize: 13)),
+                child: Text(
+                  context.l10n.markAllRead,
+                  style: const TextStyle(fontSize: 13),
+                ),
               ),
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert_rounded, size: 20),
-              tooltip: 'More options',
+              tooltip: context.l10n.moreOptions,
               onSelected: (value) async {
                 if (value == 'delete_read') {
                   final readNotifications = (notifications.value ?? const [])
@@ -62,8 +65,9 @@ class NotificationsScreen extends ConsumerWidget {
                       .toList();
                   if (readNotifications.isEmpty && readResponses.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('No read messages to delete.')),
+                      SnackBar(
+                        content: Text(context.l10n.noReadMessages),
+                      ),
                     );
                     return;
                   }
@@ -81,14 +85,14 @@ class NotificationsScreen extends ConsumerWidget {
                               .deleteResponse(r.id),
                       ]);
                     },
-                    successMessage: 'Deleted read messages.',
+                    successMessage: context.l10n.deletedReadMessages,
                   );
                 }
               },
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete_read',
-                  child: Text('Delete read messages'),
+                  child: Text(context.l10n.deleteReadMessages),
                 ),
               ],
             ),
@@ -96,10 +100,10 @@ class NotificationsScreen extends ConsumerWidget {
         ],
       ),
       body: user == null
-          ? const _Empty(
+          ? _Empty(
               icon: Icons.notifications_none_rounded,
-              title: 'Sign in first',
-              body: 'Notifications are tied to your account.',
+              title: context.l10n.signInFirst,
+              body: context.l10n.notificationsAccountOnly,
             )
           : _InboxList(
               responses: responses,
@@ -167,6 +171,7 @@ class _InboxList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final responseItems = responses.value ?? const <InvitationResponse>[];
     final notificationItems = notifications.value ?? const <AppNotification>[];
 
@@ -184,17 +189,16 @@ class _InboxList extends StatelessWidget {
 
     if (responseItems.isEmpty && notificationItems.isEmpty) {
       if (responses.hasError || notifications.hasError) {
-        return const _Empty(
+        return _Empty(
           icon: Icons.cloud_off_rounded,
-          title: 'Could not load',
-          body: 'Check your connection and try again.',
+          title: l10n.couldNotLoad,
+          body: l10n.checkConnectionRetry,
         );
       }
-      return const _Empty(
+      return _Empty(
         icon: Icons.notifications_none_rounded,
-        title: 'Nothing yet',
-        body:
-            'When something happens with your countdowns or invitations, it will show up here.',
+        title: l10n.nothingYet,
+        body: l10n.notificationsEmpty,
       );
     }
 
@@ -202,10 +206,9 @@ class _InboxList extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
       children: [
         if (notifications.hasError)
-          const _LoadWarning(
-              message: 'Live notifications could not be loaded.'),
+          _LoadWarning(message: l10n.liveNotificationsUnavailable),
         if (notificationItems.isNotEmpty) ...[
-          const _SectionLabel('INBOX'),
+          _SectionLabel(l10n.inbox),
           for (final notification in notificationItems) ...[
             // Swipe left to clear. The service always had `deleteNotification`,
             // but nothing in the UI ever called it, so an inbox could only ever
@@ -236,7 +239,7 @@ class _InboxList extends StatelessWidget {
         ],
         if (responseItems.isNotEmpty) ...[
           if (notificationItems.isNotEmpty) const SizedBox(height: 20),
-          const _SectionLabel('INVITATION RESPONSES'),
+          _SectionLabel(l10n.invitationResponses),
           for (final response in responseItems) ...[
             if (onResponseDismiss != null)
               Dismissible(
@@ -265,9 +268,7 @@ class _InboxList extends StatelessWidget {
           ],
         ],
         if (responses.hasError)
-          const _LoadWarning(
-            message: 'Invitation responses could not be loaded.',
-          ),
+          _LoadWarning(message: l10n.invitationResponsesUnavailable),
       ],
     );
   }

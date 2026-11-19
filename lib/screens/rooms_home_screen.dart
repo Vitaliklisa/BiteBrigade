@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/room_providers.dart';
 import '../widgets/room_widgets.dart';
 
@@ -56,9 +57,10 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
           try {
             await ref.read(roomRepositoryProvider).finalizeRoom(room.id);
           } catch (error) {
+            debugPrint('Could not reveal the winner: $error');
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Could not reveal the winner: $error')),
+              SnackBar(content: Text(context.l10n.couldNotRevealWinner)),
             );
           }
         }
@@ -89,148 +91,151 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1050),
-            child: CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
-                  sliver: SliverToBoxAdapter(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final compact = constraints.maxWidth < 640;
-                        final hero = Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'THE TABLE IS YOURS',
-                              softWrap: true,
-                              style: TextStyle(
-                                color: context.colors.accent,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Where are we\ngoing?',
-                              softWrap: true,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displaySmall
-                                  ?.copyWith(
-                                    fontSize: 42,
-                                    height: 1.03,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Good meals start with a group decision.',
-                              softWrap: true,
-                              style: TextStyle(
-                                color: context.colors.muted,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ],
-                        );
-                        final createButton = FilledButton.icon(
-                          onPressed: () => context.push(Routes.newRoom),
-                          icon: const Icon(Icons.add_rounded),
-                          label: const Text('New decision'),
-                        );
-
-                        if (compact) {
-                          return Column(
+            child: SizedBox(
+              width: double.infinity,
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+                    sliver: SliverToBoxAdapter(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final compact = constraints.maxWidth < 640;
+                          final hero = Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              hero,
-                              const SizedBox(height: 16),
+                              Text(
+                                context.l10n.tableIsYours,
+                                softWrap: true,
+                                style: TextStyle(
+                                  color: context.colors.accent,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 2,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                context.l10n.whereAreWeGoing,
+                                softWrap: true,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displaySmall
+                                    ?.copyWith(
+                                      fontSize: 42,
+                                      height: 1.03,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                context.l10n.groupDecisionDescription,
+                                softWrap: true,
+                                style: TextStyle(
+                                  color: context.colors.muted,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          );
+                          final createButton = FilledButton.icon(
+                            onPressed: () => context.push(Routes.newRoom),
+                            icon: const Icon(Icons.add_rounded),
+                            label: Text(context.l10n.newDecision),
+                          );
+
+                          if (compact) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                hero,
+                                const SizedBox(height: 16),
+                                createButton,
+                              ],
+                            );
+                          }
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: hero),
+                              const SizedBox(width: 12),
                               createButton,
                             ],
                           );
-                        }
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: hero),
-                            const SizedBox(width: 12),
-                            createButton,
-                          ],
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
-                ),
-                if (asyncRooms.isLoading && !asyncRooms.hasValue)
-                  const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (asyncRooms.hasError)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                          'Your decisions could not be loaded.\n${asyncRooms.error}',
-                          textAlign: TextAlign.center,
+                  if (asyncRooms.isLoading && !asyncRooms.hasValue)
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (asyncRooms.hasError)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Text(
+                            context.l10n.decisionsCouldNotLoad,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (rooms.isEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                      sliver: SliverToBoxAdapter(
+                        child: EmptyRoomsState(
+                          onCreate: () => context.push(Routes.newRoom),
+                        ),
+                      ),
+                    )
+                  else ...[
+                    if (featured != null)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
+                        sliver: SliverToBoxAdapter(
+                          child: _FeaturedRoomCard(room: featured),
+                        ),
+                      ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                      sliver: SliverToBoxAdapter(
+                        child: Row(
+                          children: [
+                            Text(
+                              context.l10n.yourTable,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              '${rooms.length}',
+                              style: TextStyle(
+                                color: context.colors.subtle,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  )
-                else if (rooms.isEmpty)
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-                    sliver: SliverToBoxAdapter(
-                      child: EmptyRoomsState(
-                        onCreate: () => context.push(Routes.newRoom),
-                      ),
-                    ),
-                  )
-                else ...[
-                  if (featured != null)
                     SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(24, 18, 24, 24),
-                      sliver: SliverToBoxAdapter(
-                        child: _FeaturedRoomCard(room: featured),
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                      sliver: SliverList.separated(
+                        itemCount: rooms.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) => _RoomRow(
+                          room: rooms[index],
+                          isFeatured: rooms[index].id == featured?.id,
+                        ),
                       ),
                     ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                    sliver: SliverToBoxAdapter(
-                      child: Row(
-                        children: [
-                          Text(
-                            'Your table',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            '${rooms.length}',
-                            style: TextStyle(
-                              color: context.colors.subtle,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-                    sliver: SliverList.separated(
-                      itemCount: rooms.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) => _RoomRow(
-                        room: rooms[index],
-                        isFeatured: rooms[index].id == featured?.id,
-                      ),
-                    ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

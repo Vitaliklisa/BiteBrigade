@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../core/rooms.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 
 String formatMealTime(DateTime value) =>
     DateFormat('EEE, MMM d · h:mm a').format(value.toLocal());
@@ -15,10 +16,23 @@ class RoomStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final l10n = context.l10n;
     final (label, color, icon) = switch (status) {
-      RoomStatus.open => ('OPEN', colors.accent, Icons.how_to_vote_rounded),
-      RoomStatus.decided => ('DECIDED', colors.success, Icons.check_rounded),
-      RoomStatus.cancelled => ('CANCELLED', colors.subtle, Icons.close_rounded),
+      RoomStatus.open => (
+          l10n.roomOpen,
+          colors.accent,
+          Icons.how_to_vote_rounded
+        ),
+      RoomStatus.decided => (
+          l10n.roomDecided,
+          colors.success,
+          Icons.check_rounded
+        ),
+      RoomStatus.cancelled => (
+          l10n.roomCancelled,
+          colors.subtle,
+          Icons.close_rounded
+        ),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -70,7 +84,7 @@ class RoomProgress extends StatelessWidget {
             Icon(Icons.people_alt_outlined, size: 16, color: colors.muted),
             const SizedBox(width: 6),
             Text(
-              '$votesCast of $participantCount voted',
+              context.l10n.votesProgress(votesCast, participantCount),
               style: TextStyle(
                 color: colors.muted,
                 fontSize: 12,
@@ -157,13 +171,13 @@ class EmptyRoomsState extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'No decisions on the table',
+            context.l10n.noDecisions,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Bring your people together and let everyone pick the place.',
+            context.l10n.noDecisionsDescription,
             style: TextStyle(color: colors.muted, height: 1.5),
             textAlign: TextAlign.center,
           ),
@@ -171,7 +185,7 @@ class EmptyRoomsState extends StatelessWidget {
           FilledButton.icon(
             onPressed: onCreate,
             icon: const Icon(Icons.add_rounded),
-            label: const Text('Start a decision'),
+            label: Text(context.l10n.startDecision),
           ),
         ],
       ),

@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../services/room_repository.dart';
@@ -50,10 +51,12 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
           );
       if (mounted) setState(() => _lastVotedOption = option.title);
     } on RoomFailure catch (error) {
-      if (mounted) setState(() => _error = error.message);
+      debugPrint('Could not save room vote: $error');
+      if (mounted) setState(() => _error = context.l10n.voteCouldNotSave);
     } catch (error) {
+      debugPrint('Could not save room vote: $error');
       if (mounted) {
-        setState(() => _error = 'Your vote could not be saved: $error');
+        setState(() => _error = context.l10n.voteCouldNotSave);
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -75,6 +78,7 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final roomAsync = ref.watch(roomProvider(widget.roomId));
     final optionsAsync = ref.watch(roomOptionsProvider(widget.roomId));
     final votesAsync = ref.watch(roomVotesProvider(widget.roomId));
@@ -98,13 +102,13 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cast your vote'),
+        title: Text(l10n.castYourVote),
         actions: [
           TextButton.icon(
             onPressed: () => setState(() => _listMode = !_listMode),
             icon:
                 Icon(_listMode ? Icons.style_rounded : Icons.view_list_rounded),
-            label: Text(_listMode ? 'Swipe' : 'List'),
+            label: Text(_listMode ? l10n.swipeMode : l10n.listMode),
           ),
           const SizedBox(width: 8),
         ],
@@ -112,25 +116,20 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
       body: roomAsync.isLoading && room == null
           ? const Center(child: CircularProgressIndicator())
           : roomAsync.hasError
-              ? _VoteError(
-                  message: 'Could not load this room: ${roomAsync.error}')
+              ? _VoteError(message: l10n.couldNotLoadRoom)
               : room == null
-                  ? const _VoteError(
-                      message: 'This decision is no longer available.')
+                  ? _VoteError(message: l10n.decisionUnavailable)
                   : !canVote
-                      ? const _VoteError(
-                          message:
-                              'Accept the invitation before casting a vote.',
+                      ? _VoteError(
+                          message: l10n.acceptInvitationBeforeVote,
                         )
                       : optionsAsync.hasError
                           ? _VoteError(
-                              message:
-                                  'Could not load restaurants: ${optionsAsync.error}',
+                              message: l10n.restaurantsUnavailable,
                             )
                           : options.isEmpty
-                              ? const _VoteError(
-                                  message:
-                                      'There are no restaurants to vote on yet.',
+                              ? _VoteError(
+                                  message: l10n.noRestaurantsYet,
                                 )
                               : Center(
                                   child: ConstrainedBox(
@@ -153,8 +152,10 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
                                           const SizedBox(height: 6),
                                           Text(
                                             currentChoice == null
-                                                ? 'Swipe right to pick it. Swipe left to pass.'
-                                                : 'Your current pick: ${currentChoice.title}',
+                                                ? l10n.swipeRightToPick
+                                                : l10n.yourCurrentPick(
+                                                    currentChoice.title,
+                                                  ),
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: context.colors.muted,
@@ -237,7 +238,7 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
                                                             ),
                                                     icon: const Icon(
                                                         Icons.close_rounded),
-                                                    label: const Text('Pass'),
+                                                    label: Text(l10n.pass),
                                                   ),
                                                 ),
                                                 const SizedBox(width: 12),
@@ -251,7 +252,7 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
                                                             ),
                                                     icon: const Icon(
                                                         Icons.favorite_rounded),
-                                                    label: const Text('Vote'),
+                                                    label: Text(l10n.vote),
                                                   ),
                                                 ),
                                               ],
@@ -260,7 +261,8 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
                                           if (_lastVotedOption != null) ...[
                                             const SizedBox(height: 12),
                                             Text(
-                                              'You voted for $_lastVotedOption.',
+                                              l10n.youVotedFor(
+                                                  _lastVotedOption!),
                                               textAlign: TextAlign.center,
                                               style: TextStyle(
                                                 color: context.colors.success,
@@ -273,8 +275,7 @@ class _RoomVoteScreenState extends ConsumerState<RoomVoteScreen> {
                                             onPressed: () => context.go(
                                               '${Routes.room}/${room.id}',
                                             ),
-                                            child:
-                                                const Text('Back to decision'),
+                                            child: Text(l10n.backToDecision),
                                           ),
                                         ],
                                       ),
@@ -332,13 +333,16 @@ class _SwipeRestaurantCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 if (offset > 15)
-                  const _SwipeLabel(text: 'YES, LET’S GO', accepted: true),
+                  _SwipeLabel(text: context.l10n.yesLetsGo, accepted: true),
                 if (offset < -15)
-                  const _SwipeLabel(text: 'MAYBE NEXT TIME', accepted: false),
+                  _SwipeLabel(
+                    text: context.l10n.maybeNextTime,
+                    accepted: false,
+                  ),
                 const Spacer(),
-                const Text(
-                  'ON THE MENU',
-                  style: TextStyle(
+                Text(
+                  context.l10n.onTheMenu,
+                  style: const TextStyle(
                     color: Color(0xFFC4A47A),
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -381,7 +385,7 @@ class _SwipeRestaurantCard extends StatelessWidget {
                         color: Color(0xFFC4A47A), size: 18),
                     const SizedBox(width: 7),
                     Text(
-                      'Right to vote · left to pass',
+                      context.l10n.rightToVoteLeftToPass,
                       style: TextStyle(color: colors.muted, fontSize: 12),
                     ),
                   ],
@@ -462,7 +466,9 @@ class _OptionList extends StatelessWidget {
                   : null,
               trailing: FilledButton(
                 onPressed: busy || selected ? null : () => onVote(option),
-                child: Text(selected ? 'Your vote' : 'Vote'),
+                child: Text(
+                  selected ? context.l10n.yourVote : context.l10n.vote,
+                ),
               ),
             ),
           );

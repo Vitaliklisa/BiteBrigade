@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../services/room_repository.dart';
@@ -136,6 +137,7 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
 
   Future<void> _save() async {
     if (_saving || !_formKey.currentState!.validate()) return;
+    final saveErrorMessage = context.l10n.couldNotSaveDecision;
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     final options = _options
@@ -182,9 +184,11 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
         if (mounted) context.go('${Routes.room}/${_room!.id}');
       }
     } on RoomFailure catch (error) {
-      _showError(error.message);
+      debugPrint('Could not save room decision: $error');
+      _showError(saveErrorMessage);
     } catch (error) {
-      _showError('Could not save this decision: $error');
+      debugPrint('Could not save room decision: $error');
+      _showError(saveErrorMessage);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -201,9 +205,10 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
   Widget build(BuildContext context) {
     final crews = ref.watch(crewsProvider).value ?? const <Crew>[];
     final canEditOptions = _room == null || _room!.votesCast == 0;
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_room == null ? 'New decision' : 'Edit decision'),
+        title: Text(_room == null ? l10n.newDecision : l10n.editDecision),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -217,13 +222,13 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                     children: [
                       Text(
                         _room == null
-                            ? 'Set the scene. We’ll take the votes.'
-                            : 'Keep the plan up to date.',
+                            ? l10n.setDecisionScene
+                            : l10n.keepDecisionUpdated,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Name the occasion, pick a time, and add places everyone can vote on.',
+                        l10n.decisionEditorDescription,
                         style: TextStyle(color: context.colors.muted),
                       ),
                       const SizedBox(height: 24),
@@ -231,13 +236,13 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                         controller: _name,
                         maxLength: 80,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(
-                          labelText: 'Decision name',
-                          hintText: 'Dinner Friday',
-                          prefixIcon: Icon(Icons.edit_note_rounded),
+                        decoration: InputDecoration(
+                          labelText: l10n.decisionName,
+                          hintText: l10n.decisionNameHint,
+                          prefixIcon: const Icon(Icons.edit_note_rounded),
                         ),
                         validator: (value) => value?.trim().isEmpty == true
-                            ? 'Add a name for your decision.'
+                            ? l10n.decisionNameRequired
                             : null,
                       ),
                       const SizedBox(height: 12),
@@ -246,9 +251,9 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                         maxLength: 300,
                         maxLines: 3,
                         textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(
-                          labelText: 'A little context (optional)',
-                          hintText: 'A birthday dinner, a team lunch…',
+                        decoration: InputDecoration(
+                          labelText: l10n.optionalContext,
+                          hintText: l10n.decisionContextHint,
                           alignLabelWithHint: true,
                         ),
                       ),
@@ -256,8 +261,9 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                       OutlinedButton.icon(
                         onPressed: _chooseMealTime,
                         icon: const Icon(Icons.calendar_month_rounded),
-                        label:
-                            Text('Decision time · ${formatMealTime(_mealAt)}'),
+                        label: Text(
+                          '${l10n.decisionTime} · ${formatMealTime(_mealAt)}',
+                        ),
                         style: OutlinedButton.styleFrom(
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.all(16),
@@ -265,10 +271,10 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                       ),
                       const SizedBox(height: 26),
                       _SectionHeading(
-                        title: 'The shortlist',
+                        title: l10n.shortlist,
                         detail: canEditOptions
-                            ? 'Add at least two places.'
-                            : 'Voting has started, so the shortlist is locked.',
+                            ? l10n.addTwoPlaces
+                            : l10n.shortlistLocked,
                       ),
                       const SizedBox(height: 12),
                       for (var index = 0; index < _options.length; index++)
@@ -288,21 +294,21 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                           child: TextButton.icon(
                             onPressed: () => setState(_addOption),
                             icon: const Icon(Icons.add_rounded),
-                            label: const Text('Add a restaurant'),
+                            label: Text(l10n.addRestaurant),
                           ),
                         ),
                       if (_room == null) ...[
                         const SizedBox(height: 20),
                         _SectionHeading(
-                          title: 'Share with a crew',
+                          title: l10n.shareWithCrew,
                           detail: crews.any((crew) => crew.isCouple)
-                              ? 'Two-person crews share plans automatically.'
-                              : 'Crew members can vote without another invite.',
+                              ? l10n.twoPersonCrewSharing
+                              : l10n.crewMembersCanVote,
                         ),
                         const SizedBox(height: 10),
                         if (crews.isEmpty)
                           Text(
-                            'Create a crew first to plan meals with a group.',
+                            l10n.createCrewFirst,
                             style: TextStyle(color: context.colors.muted),
                           )
                         else
@@ -325,7 +331,7 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                                   avatar: Text(crew.emoji ?? '✦'),
                                   label: Text(
                                     crew.isCouple
-                                        ? '${crew.name} · always'
+                                        ? '${crew.name} · ${l10n.always}'
                                         : crew.name,
                                   ),
                                 ),
@@ -336,11 +342,11 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                           controller: _invitees,
                           maxLines: 3,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Invite people by email (optional)',
-                            hintText: 'alex@example.com, sam@example.com',
+                          decoration: InputDecoration(
+                            labelText: l10n.inviteByEmailOptional,
+                            hintText: l10n.inviteEmailsHint,
                             alignLabelWithHint: true,
-                            prefixIcon: Icon(Icons.mail_outline_rounded),
+                            prefixIcon: const Icon(Icons.mail_outline_rounded),
                           ),
                         ),
                       ],
@@ -357,7 +363,10 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                               )
                             : const Icon(Icons.check_rounded),
                         label: Text(
-                            _room == null ? 'Create decision' : 'Save changes'),
+                          _room == null
+                              ? l10n.createDecision
+                              : l10n.saveChanges,
+                        ),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 17),
                         ),
@@ -427,16 +436,17 @@ class _OptionEditorRow extends StatelessWidget {
                     enabled: enabled,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
-                      labelText: 'Restaurant ${index + 1}',
-                      hintText: 'e.g. Northside Noodles',
+                      labelText: context.l10n.restaurantNumber(index + 1),
+                      hintText: context.l10n.restaurantExample,
                       prefixIcon: const Icon(Icons.restaurant_rounded),
                     ),
-                    validator: (value) =>
-                        (value?.trim().isEmpty ?? true) ? 'Add a name.' : null,
+                    validator: (value) => (value?.trim().isEmpty ?? true)
+                        ? context.l10n.addName
+                        : null,
                   ),
                 ),
                 IconButton(
-                  tooltip: 'Remove restaurant',
+                  tooltip: context.l10n.removeRestaurant,
                   onPressed: enabled && canRemove ? onRemove : null,
                   icon: const Icon(Icons.remove_circle_outline_rounded),
                 ),
@@ -447,9 +457,9 @@ class _OptionEditorRow extends StatelessWidget {
               controller: fields.address,
               enabled: enabled,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                labelText: 'Address (optional)',
-                prefixIcon: Icon(Icons.location_on_outlined),
+              decoration: InputDecoration(
+                labelText: context.l10n.addressOptional,
+                prefixIcon: const Icon(Icons.location_on_outlined),
               ),
             ),
             const SizedBox(height: 8),
@@ -457,9 +467,9 @@ class _OptionEditorRow extends StatelessWidget {
               controller: fields.url,
               enabled: enabled,
               keyboardType: TextInputType.url,
-              decoration: const InputDecoration(
-                labelText: 'Website (optional)',
-                prefixIcon: Icon(Icons.link_rounded),
+              decoration: InputDecoration(
+                labelText: context.l10n.websiteOptional,
+                prefixIcon: const Icon(Icons.link_rounded),
               ),
             ),
           ],

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../widgets/room_widgets.dart';
@@ -14,6 +15,7 @@ class BiteBrigadeInvitationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final rooms = ref.watch(roomInvitationsProvider);
     final crews = ref.watch(crewInvitationsProvider);
     final error = rooms.error ?? crews.error;
@@ -22,7 +24,7 @@ class BiteBrigadeInvitationsScreen extends ConsumerWidget {
     final crewInvites = crews.value ?? const <CrewInvitation>[];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Invitations')),
+      appBar: AppBar(title: Text(l10n.navInvitations)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 850),
@@ -30,7 +32,7 @@ class BiteBrigadeInvitationsScreen extends ConsumerWidget {
               ? const Center(child: CircularProgressIndicator())
               : error != null
                   ? _InvitationError(
-                      message: 'Invitations could not be loaded: $error',
+                      message: l10n.invitationLoadError,
                     )
                   : roomInvites.isEmpty && crewInvites.isEmpty
                       ? Padding(
@@ -46,12 +48,12 @@ class BiteBrigadeInvitationsScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 14),
                                 Text(
-                                  'Nothing waiting for you.',
+                                  l10n.nothingWaitingForYou,
                                   style: Theme.of(context).textTheme.titleLarge,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'When someone asks you to join a dinner decision or crew, it will show up here.',
+                                  l10n.invitationsEmptyDescription,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: context.colors.muted,
@@ -67,7 +69,7 @@ class BiteBrigadeInvitationsScreen extends ConsumerWidget {
                           children: [
                             if (roomInvites.isNotEmpty) ...[
                               Text(
-                                'Dinner decisions',
+                                l10n.dinnerDecisions,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 12),
@@ -78,7 +80,7 @@ class BiteBrigadeInvitationsScreen extends ConsumerWidget {
                               if (roomInvites.isNotEmpty)
                                 const SizedBox(height: 22),
                               Text(
-                                'Crews',
+                                l10n.navCrews,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 12),
@@ -122,10 +124,10 @@ class _RoomInvitationCardState extends ConsumerState<_RoomInvitationCard> {
       if (!mounted || !accept) return;
       await context.push('${Routes.room}/${widget.invitation.roomId}');
     } catch (error) {
+      debugPrint('Could not respond to room invitation: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Could not respond to this invitation: $error')),
+          SnackBar(content: Text(context.l10n.couldNotRespondInvitation)),
         );
       }
     } finally {
@@ -156,7 +158,11 @@ class _RoomInvitationCardState extends ConsumerState<_RoomInvitationCard> {
                   ),
                 ),
                 Text(
-                  widget.invitation.role.name.toUpperCase(),
+                  switch (widget.invitation.role) {
+                    RoomRole.admin => context.l10n.roleAdmin,
+                    RoomRole.editor => context.l10n.roleEditor,
+                    RoomRole.viewer => context.l10n.roleViewer,
+                  },
                   style: TextStyle(
                     color: colors.subtle,
                     fontSize: 10,
@@ -168,7 +174,7 @@ class _RoomInvitationCardState extends ConsumerState<_RoomInvitationCard> {
             ),
             const SizedBox(height: 8),
             Text(
-              'You’re invited to help decide where the group will eat.',
+              context.l10n.invitedToChoosePlace,
               style: TextStyle(color: colors.muted, height: 1.4),
             ),
             const SizedBox(height: 16),
@@ -176,7 +182,7 @@ class _RoomInvitationCardState extends ConsumerState<_RoomInvitationCard> {
               children: [
                 TextButton(
                   onPressed: _busy ? null : () => _respond(false),
-                  child: const Text('Decline'),
+                  child: Text(context.l10n.decline),
                 ),
                 const Spacer(),
                 FilledButton(
@@ -187,7 +193,7 @@ class _RoomInvitationCardState extends ConsumerState<_RoomInvitationCard> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Join decision'),
+                      : Text(context.l10n.joinDecision),
                 ),
               ],
             ),
@@ -228,10 +234,10 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
         context.go('${Routes.crew}/${widget.invitation.crewId}');
       }
     } catch (error) {
+      debugPrint('Could not respond to crew invitation: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Could not respond to this invitation: $error')),
+          SnackBar(content: Text(context.l10n.couldNotRespondInvitation)),
         );
       }
     } finally {
@@ -270,7 +276,7 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
                 ),
                 if (widget.invitation.isCouple)
                   Text(
-                    'TWO-PERSON',
+                    context.l10n.twoPersonBadge,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -285,8 +291,8 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
             const SizedBox(height: 8),
             Text(
               widget.invitation.isCouple
-                  ? 'Join this two-person crew to share future meal plans automatically.'
-                  : 'Join this crew to receive and shape future meal plans.',
+                  ? context.l10n.joinTwoPersonCrewDescription
+                  : context.l10n.joinCrewDescription,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: colors.muted, height: 1.4),
@@ -296,7 +302,7 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
               children: [
                 TextButton(
                   onPressed: _busy ? null : () => _respond(false),
-                  child: const Text('Decline'),
+                  child: Text(context.l10n.decline),
                 ),
                 const Spacer(),
                 FilledButton(
@@ -307,7 +313,7 @@ class _CrewInvitationCardState extends ConsumerState<_CrewInvitationCard> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Join crew'),
+                      : Text(context.l10n.joinCrew),
                 ),
               ],
             ),

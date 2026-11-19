@@ -6,9 +6,10 @@ import '../core/countdown.dart';
 import '../core/models.dart';
 import '../core/theme.dart';
 import '../core/time_format.dart';
+import '../l10n/app_localizations_context.dart';
+import '../l10n/countdown_localization.dart';
 import '../providers/app_providers.dart';
 import '../router.dart';
-import '../services/event_repository.dart';
 import '../widgets/arrival_celebration.dart';
 import '../widgets/brand_kit.dart';
 import '../widgets/countdown_face.dart';
@@ -162,21 +163,21 @@ class _EmptyHome extends ConsumerWidget {
         ),
         const SizedBox(height: 22),
         Text(
-          'Plan a meal.',
+          context.l10n.homeTitle,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         const SizedBox(height: 12),
         Text(
-          'Choose where to eat, invite your crew, and decide together.',
+          context.l10n.homeDescription,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 15, height: 1.5, color: colors.muted),
         ),
         const SizedBox(height: 28),
         if (hasError)
-          _ErrorCard(error: error)
+          const _ErrorCard()
         else if (user == null)
           _GuestCard(onSignIn: () => context.push(Routes.login)),
         const SizedBox(height: 28),
@@ -185,7 +186,11 @@ class _EmptyHome extends ConsumerWidget {
           icon: const Icon(Icons.add_rounded, size: 20),
           // Signed out, this leads to the editor's sign-in prompt rather than a
           // form that cannot be saved — so the label says as much.
-          label: Text(user == null ? 'Get started' : 'Create a meal plan'),
+          label: Text(
+            user == null
+                ? context.l10n.getStarted
+                : context.l10n.createMealPlan,
+          ),
         ),
       ],
     );
@@ -193,16 +198,11 @@ class _EmptyHome extends ConsumerWidget {
 }
 
 class _ErrorCard extends StatelessWidget {
-  const _ErrorCard({this.error});
-
-  final Object? error;
-
+  const _ErrorCard();
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final message = error is DataFailure
-        ? (error as DataFailure).message
-        : 'Could not load your meal plans. Pull down to try again.';
+    final message = context.l10n.couldNotLoadMealPlans;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -246,25 +246,28 @@ class _GuestCard extends StatelessWidget {
             children: [
               Icon(Icons.sync_rounded, size: 18, color: colors.accent),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Keep your meal plans in sync',
+                  context.l10n.keepMealPlansSynced,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Sign in to keep meal plans in sync across devices and decide where to eat with your crew.',
+            context.l10n.syncMealPlansDescription,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 13, height: 1.45, color: colors.muted),
           ),
           const SizedBox(height: 14),
-          OutlinedButton(onPressed: onSignIn, child: const Text('Sign in')),
+          OutlinedButton(
+            onPressed: onSignIn,
+            child: Text(context.l10n.signIn),
+          ),
         ],
       ),
     );
@@ -344,7 +347,7 @@ class _HeroHome extends ConsumerWidget {
                                 .set(null),
                           ),
                           icon: const Icon(Icons.more_horiz_rounded, size: 18),
-                          label: const Text('Options'),
+                          label: Text(context.l10n.options),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -353,7 +356,7 @@ class _HeroHome extends ConsumerWidget {
                           onPressed: () => context
                               .push('${Routes.eventDetail}/${featured.id}'),
                           icon: const Icon(Icons.tune_rounded, size: 18),
-                          label: const Text('Open'),
+                          label: Text(context.l10n.open),
                         ),
                       ),
                     ],
@@ -361,7 +364,7 @@ class _HeroHome extends ConsumerWidget {
                   if (others.isNotEmpty) ...[
                     const SizedBox(height: 34),
                     Text(
-                      'UPCOMING PLANS',
+                      context.l10n.upcomingPlans,
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                     const SizedBox(height: 12),
@@ -411,7 +414,7 @@ class _HeroHome extends ConsumerWidget {
                                     ),
                                     icon: const Icon(Icons.more_horiz_rounded,
                                         size: 18),
-                                    label: const Text('Options'),
+                                    label: Text(context.l10n.options),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -421,7 +424,7 @@ class _HeroHome extends ConsumerWidget {
                                         '${Routes.eventDetail}/${featured.id}'),
                                     icon: const Icon(Icons.tune_rounded,
                                         size: 18),
-                                    label: const Text('Open meal plan'),
+                                    label: Text(context.l10n.openMealPlan),
                                   ),
                                 ),
                               ],
@@ -443,7 +446,7 @@ class _HeroHome extends ConsumerWidget {
                             if (others.isNotEmpty) ...[
                               const SizedBox(height: 32),
                               Text(
-                                'UPCOMING PLANS',
+                                context.l10n.upcomingPlans,
                                 style: Theme.of(context).textTheme.labelSmall,
                               ),
                               const SizedBox(height: 12),
@@ -481,7 +484,7 @@ class _HeroHome extends ConsumerWidget {
             child: FilledButton.icon(
               onPressed: () => context.push(Routes.newEvent),
               icon: const Icon(Icons.add_rounded, size: 20),
-              label: const Text('New meal plan'),
+              label: Text(context.l10n.newMealPlan),
             ),
           ),
         ),
@@ -523,7 +526,7 @@ class _FeaturedContent extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              arrived ? 'READY TO GATHER' : 'COMING UP',
+              arrived ? context.l10n.readyToGather : context.l10n.comingUp,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: arrived ? colors.accent : colors.subtle,
                   ),
@@ -612,7 +615,7 @@ class _EventRow extends ConsumerWidget {
                     Text(
                       past
                           ? formatMomentShort(event.at, format: timeFormat)
-                          : '${describeRemaining(remaining, compact: true)} · ${formatMomentShort(event.at, format: timeFormat)}',
+                          : '${describeRemainingLocalized(context.l10n, remaining, compact: true)} · ${formatMomentShort(event.at, format: timeFormat)}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 12, color: colors.muted),
@@ -626,7 +629,7 @@ class _EventRow extends ConsumerWidget {
               // the list is long enough that a long-press is not discoverable
               // (and impossible on a laptop trackpad).
               IconButton(
-                tooltip: 'Options',
+                tooltip: context.l10n.options,
                 iconSize: 20,
                 color: colors.subtle,
                 onPressed: () =>
@@ -660,25 +663,25 @@ class _TopBar extends ConsumerWidget {
           children: [
             if (user != null) ...[
               _BadgedIconButton(
-                tooltip: 'Circles',
+                tooltip: context.l10n.circles,
                 icon: Icons.groups_outlined,
                 onPressed: () => context.go(Routes.circles),
               ),
               _BadgedIconButton(
-                tooltip: 'Invitations',
+                tooltip: context.l10n.navInvitations,
                 icon: Icons.mail_outline_rounded,
                 count: pendingInvites,
                 onPressed: () => context.go(Routes.invitations),
               ),
               _BadgedIconButton(
-                tooltip: 'Notifications',
+                tooltip: context.l10n.navNotifications,
                 icon: Icons.notifications_none_rounded,
                 count: unreadResponses,
                 onPressed: () => context.go(Routes.notifications),
               ),
             ],
             IconButton(
-              tooltip: 'Settings',
+              tooltip: context.l10n.settings,
               onPressed: () => context.go(Routes.settings),
               icon: const Icon(Icons.settings_outlined, size: 20),
             ),
@@ -696,7 +699,7 @@ class _TopBar extends ConsumerWidget {
             else
               TextButton(
                 onPressed: () => context.push(Routes.login),
-                child: const Text('Sign in'),
+                child: Text(context.l10n.signIn),
               ),
           ],
         ),

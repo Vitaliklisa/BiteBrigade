@@ -40,5 +40,677 @@
   "termsOfService": "Умови використання",
   "helpAndSupport": "Допомога та підтримка",
   "signedOut": "Ви вийшли.",
-  "signOut": "Вийти"
+  "signOut": "Вийти",
+  "homeTitle": "Сплануймо обід.",
+  "homeDescription": "Оберіть, де поїсти, запросіть свою компанію та вирішіть разом.",
+  "getStarted": "Почати",
+  "createMealPlan": "Створити план зустрічі",
+  "keepMealPlansSynced": "Синхронізуйте плани зустрічей",
+  "syncMealPlansDescription": "Увійдіть, щоб синхронізувати плани між пристроями та разом із компанією обрати місце.",
+  "couldNotLoadMealPlans": "Не вдалося завантажити плани зустрічей. Потягніть униз, щоб спробувати ще раз.",
+  "options": "Параметри",
+  "open": "Відкрити",
+  "openMealPlan": "Відкрити план зустрічі",
+  "upcomingPlans": "НАСТУПНІ ЗУСТРІЧІ",
+  "newMealPlan": "Новий план зустрічі",
+  "readyToGather": "ЧАС ЗБИРАТИСЯ",
+  "comingUp": "НЕЗАБАРОМ",
+  "years": "Роки",
+  "months": "Місяці",
+  "days": "Дні",
+  "hours": "Години",
+  "minutesRemaining": "Залишилося {minutes} хв · {seconds} с",
+  "@minutesRemaining": {
+    "placeholders": {
+      "minutes": {"type": "int"},
+      "seconds": {"type": "int"}
+    }
+  },
+  "navHome": "Головна",
+  "navInvitations": "Запрошення",
+  "navCrews": "Компанії",
+  "navNotifications": "Сповіщення",
+  "navSupport": "Підтримка",
+  "tableIsYours": "ОБИРАЙТЕ РАЗОМ",
+  "whereAreWeGoing": "Куди підемо?",
+  "groupDecisionDescription": "Смачна вечеря починається зі спільного рішення.",
+  "newDecision": "Нове рішення",
+  "decisionsCouldNotLoad": "Не вдалося завантажити ваші рішення.",
+  "yourTable": "Ваш стіл",
+  "noDecisions": "Поки немає рішень",
+  "noDecisionsDescription": "Зберіть друзів і дозвольте кожному обрати місце.",
+  "startDecision": "Почати вибір",
+  "roomOpen": "ВІДКРИТЕ",
+  "roomDecided": "ОБРАНО",
+  "roomCancelled": "СКАСОВАНО",
+  "votesProgress": "Проголосували: {votesCast} з {participantCount}",
+  "@votesProgress": {
+    "placeholders": {
+      "votesCast": {"type": "int"},
+      "participantCount": {"type": "int"}
+    }
+  },
+  "createAccountHeading": "Створити обліковий запис",
+  "welcomeHeading": "Вітаємо в Bite Brigade",
+  "createAccountDescription": "Обирайте вечерю разом на будь-якому пристрої.",
+  "welcomeDescription": "Відлік до важливих моментів на телефоні, планшеті та в інтернеті.",
+  "name": "Ім’я",
+  "nameHint": "Олексій",
+  "nameRequired": "Як до вас звертатися?",
+  "email": "Електронна пошта",
+  "emailHint": "you@example.com",
+  "emailRequired": "Введіть адресу електронної пошти.",
+  "emailInvalid": "Схоже, адреса електронної пошти неправильна.",
+  "password": "Пароль",
+  "passwordRequired": "Введіть пароль.",
+  "passwordTooShort": "Використайте щонайменше 6 символів.",
+  "forgotPassword": "Забули пароль?",
+  "signInServiceUnavailable": "Не вдалося підключитися до служби входу. Перевірте з’єднання.",
+  "createAccountAction": "Створити обліковий запис",
+  "or": "АБО",
+  "continueWithGoogle": "Продовжити з Google",
+  "alreadyHaveAccount": "Уже маєте обліковий запис?",
+  "newHere": "Вперше тут?",
+  "createOne": "Створити",
+  "signInTrouble": "Не вдається увійти? Отримати допомогу",
+  "accountCreated": "Обліковий запис створено.",
+  "welcomeBack": "З поверненням!",
+  "signedInWithGoogle": "Ви ввійшли через Google.",
+  "enterEmailForReset": "Спершу введіть електронну пошту, а потім натисніть «Забули пароль?».",
+  "resetLinkSent": "Посилання для скидання пароля надіслано на {email}.",
+  "@resetLinkSent": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "notificationsTitle": "Сповіщення",
+  "markAllRead": "Позначити все прочитаним",
+  "moreOptions": "Інші параметри",
+  "noReadMessages": "Немає прочитаних повідомлень для видалення.",
+  "deleteReadMessages": "Видалити прочитані повідомлення",
+  "deletedReadMessages": "Прочитані повідомлення видалено.",
+  "signInFirst": "Спершу ввійдіть",
+  "notificationsAccountOnly": "Сповіщення пов’язані з вашим обліковим записом.",
+  "couldNotLoad": "Не вдалося завантажити",
+  "checkConnectionRetry": "Перевірте з’єднання та спробуйте ще раз.",
+  "nothingYet": "Поки що нічого",
+  "notificationsEmpty": "Тут з’являтимуться новини про плани зустрічей і запрошення.",
+  "liveNotificationsUnavailable": "Не вдалося завантажити сповіщення в реальному часі.",
+  "inbox": "ВХІДНІ",
+  "invitationResponses": "ВІДПОВІДІ НА ЗАПРОШЕННЯ",
+  "invitationResponsesUnavailable": "Не вдалося завантажити відповіді на запрошення.",
+  "circles": "Кола",
+  "editDecision": "Змінити рішення",
+  "setDecisionScene": "Розкажіть про плани — ми подбаємо про голосування.",
+  "keepDecisionUpdated": "Оновлюйте план.",
+  "decisionEditorDescription": "Назвіть подію, оберіть час і додайте місця, за які всі зможуть проголосувати.",
+  "decisionName": "Назва рішення",
+  "decisionNameHint": "Вечеря в п’ятницю",
+  "decisionNameRequired": "Додайте назву рішення.",
+  "optionalContext": "Трохи подробиць (необов’язково)",
+  "decisionContextHint": "День народження, обід із командою…",
+  "decisionTime": "Час рішення",
+  "shortlist": "Список варіантів",
+  "addTwoPlaces": "Додайте щонайменше два місця.",
+  "shortlistLocked": "Голосування вже почалося, тому список заблоковано.",
+  "addRestaurant": "Додати ресторан",
+  "shareWithCrew": "Поділитися з компанією",
+  "twoPersonCrewSharing": "Плани автоматично спільні для компаній із двох людей.",
+  "crewMembersCanVote": "Учасники компанії можуть голосувати без окремого запрошення.",
+  "createCrewFirst": "Спершу створіть компанію, щоб планувати зустрічі разом.",
+  "inviteByEmailOptional": "Запросити електронною поштою (необов’язково)",
+  "inviteEmailsHint": "alex@example.com, sam@example.com",
+  "createDecision": "Створити рішення",
+  "saveChanges": "Зберегти зміни",
+  "restaurantNumber": "Ресторан {number}",
+  "@restaurantNumber": {
+    "placeholders": {
+      "number": {"type": "int"}
+    }
+  },
+  "restaurantExample": "наприклад, Північна локшина",
+  "addName": "Додайте назву.",
+  "removeRestaurant": "Видалити ресторан",
+  "addressOptional": "Адреса (необов’язково)",
+  "websiteOptional": "Вебсайт (необов’язково)",
+  "couldNotSaveDecision": "Не вдалося зберегти це рішення.",
+  "castYourVote": "Проголосуйте",
+  "swipeMode": "Гортання",
+  "listMode": "Список",
+  "swipeRightToPick": "Гортайте праворуч, щоб обрати, ліворуч — щоб пропустити.",
+  "yourCurrentPick": "Ваш поточний вибір: {title}",
+  "@yourCurrentPick": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "pass": "Пропустити",
+  "vote": "Голосувати",
+  "youVotedFor": "Ви проголосували за «{title}».",
+  "@youVotedFor": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "backToDecision": "Назад до рішення",
+  "yesLetsGo": "ТАК, ХОДІМО!",
+  "maybeNextTime": "МОЖЕ, ІНШОГО РАЗУ",
+  "onTheMenu": "У МЕНЮ",
+  "rightToVoteLeftToPass": "Праворуч — голосувати · ліворуч — пропустити",
+  "yourVote": "Ваш голос",
+  "decisionUnavailable": "Це рішення більше недоступне.",
+  "acceptInvitationBeforeVote": "Прийміть запрошення, перш ніж голосувати.",
+  "restaurantsUnavailable": "Не вдалося завантажити ресторани.",
+  "noRestaurantsYet": "Поки немає ресторанів для голосування.",
+  "always": "завжди",
+  "couldNotLoadRoom": "Не вдалося завантажити це рішення. Перевірте з’єднання та спробуйте ще раз.",
+  "voteCouldNotSave": "Не вдалося зберегти ваш голос. Перевірте з’єднання та спробуйте ще раз.",
+  "eventUnavailable": "Цей план зустрічі більше недоступний.",
+  "share": "Поділитися",
+  "edit": "Змінити",
+  "viewDetails": "Переглянути подробиці",
+  "sharedWith": "СПІЛЬНИЙ ДОСТУП",
+  "notes": "НОТАТКИ",
+  "notesEmpty": "Поки що нічого. Залиште повідомлення тим, хто планує зустріч разом із вами.",
+  "addNote": "Додати нотатку",
+  "dayHasCome": "ЦЕЙ ДЕНЬ НАСТАВ",
+  "arrivalWithoutDescription": "«{title}» вже настало — насолоджуйтеся кожною миттю.",
+  "@arrivalWithoutDescription": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "arrivalWithDescription": "«{title}» вже настало — {description}",
+  "@arrivalWithDescription": {
+    "placeholders": {
+      "title": {"type": "String"},
+      "description": {"type": "String"}
+    }
+  },
+  "passed": "Минуло",
+  "countingDown": "Зворотний відлік",
+  "duplicateYearLater": "Створити копію на рік пізніше",
+  "duplicateEventSuccess": "Створено копію — відкрийте її, щоб змінити дату.",
+  "deleteMealPlan": "Видалити план зустрічі",
+  "deleteOwnerOnly": "Лише власник може видалити цей план зустрічі.",
+  "mealPlanDeleted": "План зустрічі видалено.",
+  "couldNotDelete": "Не вдалося видалити. Спробуйте ще раз.",
+  "deleteMealPlanConfirm": "Видалити цей план зустрічі?",
+  "mealPlanCannotRecover": "Відновити цей план зустрічі буде неможливо.",
+  "keep": "Залишити",
+  "delete": "Видалити",
+  "cancelDecisionConfirm": "Скасувати це рішення?",
+  "roomKeptInHistory": "Зустріч залишиться в історії.",
+  "keepIt": "Залишити",
+  "cancelDecision": "Скасувати рішення",
+  "couldNotRevealWinner": "Не вдалося показати результат.",
+  "couldNotAddNote": "Не вдалося додати нотатку.",
+  "couldNotDuplicateDecision": "Не вдалося створити копію цього рішення.",
+  "couldNotCancelDecision": "Не вдалося скасувати це рішення.",
+  "linkCouldNotOpen": "Не вдалося відкрити це посилання.",
+  "mapsCouldNotOpen": "Не вдалося відкрити Maps.",
+  "decision": "Рішення",
+  "duplicateForAnotherDay": "Створити копію для іншого дня",
+  "swipeToVote": "Гортайте, щоб голосувати",
+  "noRestaurantsAdded": "Ресторани ще не додано.",
+  "aroundTable": "За столом",
+  "couldNotLoadGroup": "Не вдалося завантажити компанію.",
+  "couldNotLoadNotes": "Не вдалося завантажити нотатки.",
+  "theGroupDecision": "СПІЛЬНИЙ ВИБІР",
+  "weAreGoingTo": "МИ ЙДЕМО ДО",
+  "tableStillOpen": "Вибір ще не зроблено",
+  "openInMaps": "Відкрити в Maps",
+  "addToCalendar": "Додати до календаря",
+  "website": "Вебсайт",
+  "votesCount": "{count, plural, one{{count} голос} few{{count} голоси} many{{count} голосів} other{{count} голосу}}",
+  "@votesCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "currentVote": "Ваш поточний голос",
+  "voteForOption": "Проголосувати за «{title}»",
+  "@voteForOption": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "openInMapsTooltip": "Відкрити в Maps",
+  "openWebsiteTooltip": "Відкрити вебсайт",
+  "guest": "Гість",
+  "calendarEventTitle": "Bite Brigade · {roomName}",
+  "@calendarEventTitle": {
+    "placeholders": {
+      "roomName": {"type": "String"}
+    }
+  },
+  "calendarDecisionMade": "Рішення прийнято в Bite Brigade.",
+  "calendarWinnerPicked": "Ми обрали {title}.",
+  "@calendarWinnerPicked": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "back": "Назад",
+  "nobodyBlocked": "Нікого не заблоковано",
+  "blockPeopleHowTo": "Щоб заблокувати людину, відкрийте спільний план зустрічі, меню ⋮ у її рядку та натисніть «Заблокувати».",
+  "blockedPeopleCannotInvite": "Ці люди не можуть запрошувати вас, і ви не бачите спільних планів зустрічей.",
+  "notToldTheyAreBlocked": "Їм не повідомляють про блокування.",
+  "blockedListLoadError": "Не вдалося завантажити список заблокованих людей",
+  "blockedListPermissionError": "Ваш обліковий запис не має доступу до цього списку. Якщо проблема не зникне, оновіть застосунок.",
+  "tryAgain": "Спробувати ще раз",
+  "blockUserTitle": "Заблокувати {name}?",
+  "@blockUserTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "blockUserExplanation": "Ви більше не бачитимете вміст одне одного. Людину буде вилучено зі спільних планів зустрічей, запрошення між вами скасовано, і вона не зможе запросити вас знову. Їй не повідомлять про це.",
+  "blockUndoTip": "Блокування можна скасувати в Налаштуваннях → Заблоковані люди.",
+  "blocking": "Блокуємо…",
+  "block": "Заблокувати",
+  "undo": "Скасувати",
+  "personBlocked": "{name} заблоковано.",
+  "@personBlocked": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "blockUndoFailed": "Не вдалося скасувати блокування. Спробуйте ще раз.",
+  "blockSavePermissionError": "Не вдалося зберегти блокування. Увійдіть знову та повторіть спробу.",
+  "blockSaveNetworkError": "Немає з’єднання. Перевірте мережу та спробуйте ще раз.",
+  "blockSaveError": "Не вдалося заблокувати {name}. Спробуйте ще раз.",
+  "@blockSaveError": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "personUnblocked": "{name} більше не заблоковано. Доступ до планів зустрічей не відновлено.",
+  "@personUnblocked": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+    },
+    "weReadEveryMessage": "Ми читаємо кожне повідомлення",
+    "supportIntroduction": "Bite Brigade — незалежний застосунок. Найшвидше зв’язатися з розробником можна електронною поштою — окремої служби підтримки немає. Зазвичай ми відповідаємо {responseTime}.",
+    "@supportIntroduction": {
+      "placeholders": {
+        "responseTime": {"type": "String"}
+      }
+    },
+    "supportResponseTime": "протягом 2 робочих днів",
+    "commonQuestions": "Поширені запитання",
+    "faqMissingPlansQuestion": "Я ввійшов, але мої плани зустрічей зникли.",
+    "faqMissingPlansAnswer": "Перевірте, чи ввійшли ви в обліковий запис, якому надіслали запрошення. Якщо план спільний із компанією, переконайтеся, що ви досі її учасник.",
+    "faqInviteeQuestion": "Запрошена людина не бачить зустріч.",
+    "faqInviteeAnswer": "Попросіть її ввійти з адресою, на яку надійшло запрошення, і прийняти його на екрані «Запрошення».",
+    "faqDeleteAccountQuestion": "Як видалити обліковий запис і дані?",
+    "faqDeleteAccountAnswer": "Напишіть нам із адреси, яку використовували під час реєстрації, та попросіть видалити обліковий запис або дані. Запити обробляються після перевірки особи та згідно з чинним законодавством.",
+    "faqWhoSeesRoomQuestion": "Хто бачить мою зустріч?",
+    "faqWhoSeesRoomAnswer": "Подробиці бачать автор зустрічі та учасники, які прийняли запрошення. Учасники компанії також бачать зустрічі, якими поділилися з компанією.",
+    "faqDataQuestion": "Чи продаєте ви мої дані або показуєте рекламу?",
+    "faqDataAnswer": "Інформація про зустрічі зберігається в налаштованому проєкті Firebase і доступна обраним вами учасникам або компанії. Докладніше — у політиці конфіденційності.",
+    "supportContactNote": "Питання щодо повернення коштів, оплати та збоїв надсилайте на ту саму адресу. Якщо застосунок працює неправильно, зазначте пристрій і свої дії — це дуже допоможе.",
+    "emailSupport": "Написати в службу підтримки",
+    "supportEmailCopied": "Скопійовано {email}",
+    "@supportEmailCopied": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "openMail": "Відкрити пошту",
+    "linkCopiedClipboard": "Посилання скопійовано в буфер обміну.",
+    "nothingWaitingForYou": "Немає нових запрошень.",
+    "invitationsEmptyDescription": "Тут з’являтимуться запрошення до планів харчування й компаній. На більшість потрібно відповісти; до компаній із двох людей додають автоматично.",
+    "waitingOnYou": "Очікують на вашу відповідь",
+    "invitationsSummary": "Приєднайтеся до плану харчування, щоб допомогти обрати місце, або до компанії, щоб планувати разом. Якщо відхилите запрошення, запрошувач про це дізнається.",
+    "signInToSeeInvitations": "Увійдіть, щоб переглянути запрошення",
+    "invitationsSignInDescription": "Запрошення надсилаються на вашу електронну адресу. Увійдіть за адресою, на яку вас запросили.",
+    "dinnerDecisions": "Вибір місця зустрічі",
+    "invitedToChoosePlace": "Вас запросили разом обрати місце для зустрічі.",
+    "joinDecision": "Приєднатися до вибору",
+    "twoPersonBadge": "ДВОЄ",
+    "joinTwoPersonCrewDescription": "Приєднайтеся до компанії з двох людей, щоб автоматично ділитися планами зустрічей.",
+    "joinCrewDescription": "Приєднайтеся до компанії, щоб бачити плани зустрічей і долучатися до них.",
+    "joinCrew": "Приєднатися до компанії",
+    "invitationLoadError": "Не вдалося завантажити запрошення. Перевірте з’єднання та спробуйте ще раз.",
+    "couldNotRespondInvitation": "Не вдалося відповісти на запрошення. Спробуйте ще раз.",
+    "roleAdmin": "Адміністратор",
+    "roleEditor": "Редактор",
+    "roleViewer": "Переглядач",
+    "decline": "Відхилити",
+    "cancel": "Скасувати",
+    "yourCrews": "Ваші компанії",
+    "createCrew": "Створити компанію",
+    "couldNotLoadCrews": "Не вдалося завантажити ваші компанії.",
+    "goodThingsShared": "Радісні миті приємніше розділяти.",
+    "bringPeopleTogether": "Зберіть друзів, рідних або колег і сплануйте наступну зустріч.",
+    "membersCount": "{count, plural, one{{count} учасник} few{{count} учасники} many{{count} учасників} other{{count} учасника}}",
+    "@membersCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "crewNameRequired": "Назвіть компанію.",
+    "couldNotCreateCrew": "Не вдалося створити компанію. Спробуйте ще раз.",
+    "gatherYourCrew": "Зберіть свою компанію.",
+    "inviteEveryoneOnce": "Запросіть усіх один раз, а потім плануйте спільні зустрічі, коли забажаєте.",
+    "mark": "Позначка",
+    "crewName": "Назва компанії",
+    "crewNameHint": "П’ятничні друзі",
+    "twoPersonCrewTitle": "Лише ми вдвох",
+    "twoPersonCrewDescription": "Діліться планами зустрічей автоматично.",
+    "crewCreated": "Компанію створено.",
+    "crewInvitationSent": "Запрошення до компанії надіслано.",
+    "couldNotSendCrewInvitation": "Не вдалося надіслати запрошення. Спробуйте ще раз.",
+    "couldNotRenameCrew": "Не вдалося перейменувати компанію. Спробуйте ще раз.",
+    "leaveNamedCrew": "Вийти з компанії «{name}»?",
+    "@leaveNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "leaveCrewDescription": "Ви більше не бачитимете нові рішення, якими діляться з цією компанією.",
+    "stay": "Залишитися",
+    "leaveCrew": "Вийти з компанії",
+    "couldNotLeaveCrew": "Не вдалося вийти з компанії. Спробуйте ще раз.",
+    "crew": "Компанія",
+    "crewUnavailable": "Ця компанія більше недоступна.",
+    "renameCrew": "Перейменувати компанію",
+    "twoPersonCrew": "Компанія з двох людей",
+    "standingCrew": "Постійна компанія",
+    "mealPlansSharedAutomatically": "Плани зустрічей автоматично доступні одне одному.",
+    "sharePlansWithCrew": "Діліться планами зустрічей із компанією, коли плануєте разом.",
+    "members": "Учасники",
+    "invite": "Запросити",
+    "owner": "ВЛАСНИК",
+    "leaveThisCrew": "Вийти з компанії",
+    "inviteToYourCrew": "Запросити до компанії",
+    "emailAddress": "Електронна пошта",
+    "sendInvitation": "Надіслати запрошення",
+    "save": "Зберегти",
+    "couldNotLoadCrew": "Не вдалося завантажити цю компанію.",
+    "couldNotLoadCrewMembers": "Не вдалося завантажити учасників компанії.",
+    "accept": "Прийняти",
+    "mealPlanInvitation": "Запрошення до плану харчування",
+    "unnamedMealPlan": "План харчування",
+    "mealPlanInvitationBody": "Вас запросили до цього плану харчування. Після прийняття він з’явиться у вашому списку з роллю «{role}».",
+    "@mealPlanInvitationBody": {
+      "placeholders": {
+        "role": {"type": "String"}
+      }
+    },
+    "joinMealPlanQuestion": "Приєднатися до цього плану харчування?",
+    "joinMealPlanExplanation": "Він з’явиться у вашому списку, щоб вам було легко знайти дату й деталі.",
+    "join": "Приєднатися",
+    "alreadyMemberOf": "Ви вже є учасником «{name}».",
+    "@alreadyMemberOf": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "joinedNamedMealPlan": "Ви приєдналися до «{name}».",
+    "@joinedNamedMealPlan": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "invitationDeclined": "Запрошення відхилено.",
+    "twoPersonGroupInvitation": "Запрошення до групи з двох",
+    "crewInvitation": "Запрошення до компанії",
+    "addingYouToCrew": "Вас додають до компанії {name}.",
+    "@addingYouToCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "invitedYouToNamedCrew": "{inviter} запросив вас до «{crew}».",
+    "@invitedYouToNamedCrew": {
+      "placeholders": {
+        "inviter": {"type": "String"},
+        "crew": {"type": "String"}
+      }
+    },
+    "automaticCrewInvitationBody": "Вас буде додано автоматично. Майбутні плани харчування, якими поділяться з «{crew}», з’являться у вашому списку.",
+    "@automaticCrewInvitationBody": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "namedCrewInvitationBody": "Приєднайтеся до «{crew}», щоб бачити плани харчування, якими компанія ділиться з вами.",
+    "@namedCrewInvitationBody": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "couldNotAddYouAutomatically": "Не вдалося додати вас автоматично.",
+    "retryAddingYou": "Спробувати додати ще раз",
+    "notNow": "Не зараз",
+    "alreadyMemberOfCrew": "Ви вже є учасником «{crew}».",
+    "@alreadyMemberOfCrew": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "addedToNamedCrew": "Вас додано до «{crew}».",
+    "@addedToNamedCrew": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "joinedNamedCrew": "Ви приєдналися до «{crew}».",
+    "@joinedNamedCrew": {
+      "placeholders": {
+        "crew": {"type": "String"}
+      }
+    },
+    "someone": "Хтось",
+    "you": "Ви",
+    "noCrewsYet": "Компаній поки немає",
+    "remove": "Вилучити",
+    "removeFromCrew": "Вилучити з компанії",
+    "removeCrewMemberTitle": "Вилучити {name}?",
+    "@removeCrewMemberTitle": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "removeCrewMemberExplanation": "Ця людина більше не бачитиме плани харчування, якими діляться з компанією. Створені нею плани не буде видалено.",
+    "deleteNamedCrew": "Видалити «{name}»?",
+    "@deleteNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "deleteCrewExplanation": "Компанію буде видалено. Плани харчування залишаться у вас, але більше не будуть доступні цим людям.",
+    "inviteToNamedCrew": "Запросити до «{name}»",
+    "@inviteToNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "inviteToTwoPersonCrew": "Запросити до компанії з двох",
+    "automaticCrewInviteExplanation": "Якщо ця людина вже має обліковий запис, її буде додано автоматично. Інакше її додадуть після входу. Плани харчування, якими діляться з компанією, з’являтимуться автоматично.",
+    "crewInviteExplanation": "Людина отримає запрошення, яке можна прийняти або відхилити. Після приєднання ви зможете ділитися планами харчування з компанією одним дотиком.",
+    "inviteEmailHint": "friend@example.com",
+    "recentContactsLoadError": "Не вдалося завантажити нещодавні контакти. Перевірте з’єднання та спробуйте ще раз.",
+    "theyWillBeAddedAutomatically": "Людину буде додано автоматично.",
+    "invitationSentTo": "Запрошення надіслано на адресу {email}.",
+    "@invitationSentTo": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "leftNamedCrew": "Ви залишили «{name}».",
+    "@leftNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "deletedNamedCrew": "«{name}» видалено.",
+    "@deletedNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "signInToUseCrews": "Увійдіть, щоб користуватися компаніями",
+    "crewsSignInDescription": "Учасників компаній запрошують електронною поштою, тому їм потрібен обліковий запис.",
+    "editMealPlan": "Редагувати план харчування",
+    "createMealPlanAction": "Створити план харчування",
+    "mealPlanActions": "Дії з планом харчування",
+    "titleField": "Назва",
+    "mealPlanTitleHint": "П’ятнична вечеря, обід команди, сімейний бранч",
+    "descriptionField": "Опис",
+    "mealPlanDescriptionHint": "Додайте примітку про їжу, місце або план",
+    "when": "Коли",
+    "date": "Дата",
+    "oneWeek": "+1 тиждень",
+    "oneMonth": "+1 місяць",
+    "oneYear": "+1 рік",
+    "fiveYears": "+5 років",
+    "mealPlanTitleRequired": "Укажіть назву плану харчування.",
+    "futureMomentRequired": "Виберіть майбутній час.",
+    "signInToSaveMealPlans": "Увійдіть, щоб зберігати плани харчування.",
+    "mealPlanCreated": "План харчування створено.",
+    "changesSaved": "Зміни збережено.",
+    "otherPerson": "Інша людина",
+    "coupleNotAdded": "План створено, але {name} не додано. Запросіть цю людину вручну з плану.",
+    "@coupleNotAdded": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "coupleAdded": "План харчування створено. {name} додано.",
+    "@coupleAdded": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "nobodyAdded": "План створено, але нікого не додано. Надішліть запрошення з плану.",
+    "viewOnlyMealPlan": "Ви можете переглядати цей план харчування, але не змінювати його.",
+    "chooseFutureMealTime": "Виберіть майбутній час, щоб побачити зворотний відлік.",
+    "timeUntilMeal": "До прийому їжі залишилося: {duration}",
+    "@timeUntilMeal": {
+      "placeholders": {
+        "duration": {"type": "String"}
+      }
+    },
+    "collaborators": "Співавтори",
+    "inviteesAccessDescription": "Запрошені люди зможуть переглядати цей план на своїх пристроях.",
+    "peopleWithAccess": "Люди, які мають доступ до цього плану харчування.",
+    "noCollaboratorsYet": "Поки що більше нікого.",
+    "sharedWithNamedCrew": "Відкрито для компанії «{name}»",
+    "@sharedWithNamedCrew": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "inviteAgain": "Запросити ще раз",
+    "moreActions": "Інші дії",
+    "changeRole": "Змінити роль",
+    "memberRoleUpdated": "Тепер у {name} роль «{role}».",
+    "@memberRoleUpdated": {
+      "placeholders": {
+        "name": {"type": "String"},
+        "role": {"type": "String"}
+      }
+    },
+    "personRemoved": "{name} вилучено.",
+    "@personRemoved": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "invitationAskedAgain": "{email} запрошено ще раз.",
+    "@invitationAskedAgain": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "removePersonQuestion": "Вилучити цю людину?",
+    "removePersonExplanation": "{email} втратить доступ до цього плану харчування й більше не бачитиме його у своєму списку.",
+    "@removePersonExplanation": {
+      "placeholders": {
+        "email": {"type": "String"}
+      }
+    },
+    "changeRoleFor": "Змінити роль для {name}",
+    "@changeRoleFor": {
+      "placeholders": {
+        "name": {"type": "String"}
+      }
+    },
+    "roleCurrentAccess": "Це змінює доступні дії з планом. Зараз у людини роль «{role}».",
+    "@roleCurrentAccess": {
+      "placeholders": {
+        "role": {"type": "String"}
+      }
+    },
+    "rolesCannotBeAssigned": "Ви не можете призначити ролі «{roles}», маючи роль «{role}».",
+    "@rolesCannotBeAssigned": {
+      "placeholders": {
+        "roles": {"type": "String"},
+        "role": {"type": "String"}
+      }
+    },
+    "and": "і",
+    "adminRoleDescription": "Може запрошувати людей, змінювати ролі, редагувати план і вилучати співавторів.",
+    "editorRoleDescription": "Може змінювати назву, опис і дату. Не може керувати людьми.",
+    "viewerRoleDescription": "Може лише переглядати план харчування.",
+    "durationYearCount": "{count, plural, one{{count} рік} few{{count} роки} many{{count} років} other{{count} року}}",
+    "@durationYearCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationMonthCount": "{count, plural, one{{count} місяць} few{{count} місяці} many{{count} місяців} other{{count} місяця}}",
+    "@durationMonthCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationDayCount": "{count, plural, one{{count} день} few{{count} дні} many{{count} днів} other{{count} дня}}",
+    "@durationDayCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationHourCount": "{count, plural, one{{count} година} few{{count} години} many{{count} годин} other{{count} години}}",
+    "@durationHourCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationMinuteCount": "{count, plural, one{{count} хвилина} few{{count} хвилини} many{{count} хвилин} other{{count} хвилини}}",
+    "@durationMinuteCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "durationSecondCount": "{count, plural, one{{count} секунда} few{{count} секунди} many{{count} секунд} other{{count} секунди}}",
+    "@durationSecondCount": {
+      "placeholders": {
+        "count": {"type": "int"}
+      }
+    },
+    "momentHasPassed": "Цей момент уже минув.",
+    "couldNotSaveMealPlan": "Не вдалося зберегти план харчування. Спробуйте ще раз.",
+    "savePermissionError": "Ваш обліковий запис не може зберегти цей план. Оновіть застосунок і спробуйте ще раз.",
+    "saveNetworkError": "Не вдалося підключитися до служби. Перевірте з’єднання та спробуйте ще раз.",
+    "unblock": "Розблокувати",
+    "upcoming": "Незабаром",
+    "invitationAcceptedState": "Прийнято",
+    "invitationDeclinedState": "Відхилено",
+    "invitationRemovedState": "Вилучено",
+    "invitationReopenedState": "Повторно відкрито",
+    "invitationWaitingState": "Очікування",
+    "sharedCrewInviteInfo": "Компанії з двох людей діляться планами автоматично. До інших компаній надсилається запрошення.",
+    "shareWith": "Поділитися з",
+    "arrived": "Цей момент настав.",
+    "countdownToGo": "Залишилося: {duration}",
+    "@countdownToGo": {
+      "placeholders": {
+        "duration": {"type": "String"}
+      }
+    }
 }

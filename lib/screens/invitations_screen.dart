@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../router.dart';
 import '../widgets/invitations_inbox.dart';
@@ -22,7 +23,7 @@ class InvitationsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Invitations'),
+        title: Text(context.l10n.navInvitations),
       ),
       body: user == null
           ? _SignIn(onSignIn: () => context.push(Routes.login))
@@ -30,12 +31,12 @@ class InvitationsScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 40),
               children: [
                 Text(
-                  'Waiting on you',
+                  context.l10n.waitingOnYou,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Join a meal plan to help choose where to eat, or join a crew to plan meals together. If you decline, the person who invited you will know.',
+                  context.l10n.invitationsSummary,
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -66,19 +67,21 @@ class _SignIn extends StatelessWidget {
             Icon(Icons.mail_outline_rounded, size: 32, color: colors.accent),
             const SizedBox(height: 18),
             Text(
-              'Sign in to see invitations',
+              context.l10n.signInToSeeInvitations,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Invitations are addressed to your email, so sign in with the address '
-              'someone invited.',
+              context.l10n.invitationsSignInDescription,
               textAlign: TextAlign.center,
               style:
                   TextStyle(fontSize: 13.5, height: 1.5, color: colors.muted),
             ),
             const SizedBox(height: 22),
-            FilledButton(onPressed: onSignIn, child: const Text('Sign in')),
+            FilledButton(
+              onPressed: onSignIn,
+              child: Text(context.l10n.signIn),
+            ),
           ],
         ),
       ),

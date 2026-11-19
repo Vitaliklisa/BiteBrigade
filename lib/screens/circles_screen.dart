@@ -6,6 +6,7 @@ import '../core/circles.dart';
 import '../core/recent_contacts.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../widgets/brand_kit.dart';
 
@@ -22,10 +23,11 @@ class CirclesScreen extends ConsumerWidget {
     final colors = context.colors;
     final user = ref.watch(currentUserProvider);
     final circles = ref.watch(circlesProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Groups'),
+        title: Text(l10n.yourCrews),
       ),
       floatingActionButton: user == null
           ? null
@@ -34,7 +36,7 @@ class CirclesScreen extends ConsumerWidget {
               foregroundColor: colors.accentFg,
               onPressed: () => _openCreateSheet(context, ref),
               icon: const Icon(Icons.group_add_outlined, size: 20),
-              label: const Text('New group'),
+              label: Text(l10n.createCrew),
             ),
       body: user == null
           ? _SignInPrompt(onSignIn: () => context.push(Routes.login))
@@ -42,12 +44,12 @@ class CirclesScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 96),
               children: [
                 Text(
-                  'Groups you plan meals with',
+                  l10n.yourCrews,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Invite people once, then share meal plans with your whole group in a tap. Two-person groups can share plans automatically.',
+                  l10n.inviteEveryoneOnce,
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -65,10 +67,13 @@ class CirclesScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  error: (_, __) => Text(
-                    'Could not load your groups. Pull down to retry.',
-                    style: TextStyle(fontSize: 13, color: colors.danger),
-                  ),
+                  error: (error, _) {
+                    debugPrint('Could not load crews: $error');
+                    return Text(
+                      l10n.couldNotLoadCrews,
+                      style: TextStyle(fontSize: 13, color: colors.danger),
+                    );
+                  },
                   data: (items) {
                     if (items.isEmpty) return const _NoCircles();
                     return Column(
@@ -107,13 +112,13 @@ class _NoCircles extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'No groups yet',
+          context.l10n.noCrewsYet,
           style: TextStyle(
               fontSize: 15, fontWeight: FontWeight.w600, color: colors.fg),
         ),
         const SizedBox(height: 8),
         Text(
-          'Bring friends, family, or teammates together to decide where to eat.',
+          context.l10n.bringPeopleTogether,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
@@ -136,6 +141,7 @@ class _CircleCard extends ConsumerWidget {
     final members = ref.watch(circleMembersProvider(circle.id)).value ??
         const <CircleMember>[];
     final isOwner = circle.isOwner(user?.id);
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -172,8 +178,8 @@ class _CircleCard extends ConsumerWidget {
                     const SizedBox(height: 2),
                     Text(
                       circle.isCouple
-                          ? 'Shares automatically'
-                          : '${members.length} ${members.length == 1 ? 'person' : 'people'}',
+                          ? l10n.mealPlansSharedAutomatically
+                          : l10n.membersCount(members.length),
                       style: TextStyle(
                         fontSize: 12,
                         color: circle.isCouple ? colors.accent : colors.subtle,
@@ -184,7 +190,7 @@ class _CircleCard extends ConsumerWidget {
               ),
               if (isOwner)
                 HoverTintIconButton(
-                  tooltip: 'Invite someone',
+                  tooltip: l10n.invite,
                   iconSize: 19,
                   icon: Icons.person_add_alt_1_rounded,
                   onPressed: () => _openInviteSheet(context, ref, circle),
@@ -215,7 +221,7 @@ class _CircleCard extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          member.userId == user?.id ? 'You' : member.label,
+                          member.userId == user?.id ? l10n.you : member.label,
                           style: const TextStyle(fontSize: 12.5),
                         ),
                         if (member.isOwner) ...[
@@ -278,11 +284,14 @@ class _CircleCard extends ConsumerWidget {
                   () => ref
                       .read(eventRepositoryProvider)
                       .leaveCircle(circleId: circle.id, userId: userId),
-                  successMessage: 'You left “${circle.name}”.',
+                  successMessage: context.l10n.leftNamedCrew(circle.name),
                 );
               },
               icon: const Icon(Icons.logout_rounded, size: 16),
-              label: const Text('Leave group', style: TextStyle(fontSize: 13)),
+              label: Text(
+                context.l10n.leaveThisCrew,
+                style: const TextStyle(fontSize: 13),
+              ),
             )
           else
             TextButton.icon(
@@ -303,11 +312,14 @@ class _CircleCard extends ConsumerWidget {
                         circleId: circle.id,
                         userId: userId,
                       ),
-                  successMessage: 'Deleted “${circle.name}”.',
+                  successMessage: context.l10n.deletedNamedCrew(circle.name),
                 );
               },
               icon: const Icon(Icons.delete_outline_rounded, size: 16),
-              label: const Text('Delete group', style: TextStyle(fontSize: 13)),
+              label: Text(
+                context.l10n.delete,
+                style: const TextStyle(fontSize: 13),
+              ),
             ),
         ],
       ),
@@ -329,22 +341,19 @@ class _KickOutButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Tooltip(
-      message: 'Remove from group',
+      message: context.l10n.removeFromCrew,
       child: InkWell(
         borderRadius: BorderRadius.circular(999),
         onTap: () async {
           final confirmed = await showDialog<bool>(
             context: context,
             builder: (dialogContext) => AlertDialog(
-              title: Text('Remove $label?'),
-              content: const Text(
-                'They will stop seeing meal plans shared with this group. '
-                'Nothing they created is deleted.',
-              ),
+              title: Text(dialogContext.l10n.removeCrewMemberTitle(label)),
+              content: Text(dialogContext.l10n.removeCrewMemberExplanation),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: const Text('Keep'),
+                  child: Text(dialogContext.l10n.keep),
                 ),
                 FilledButton(
                   style: FilledButton.styleFrom(
@@ -352,7 +361,7 @@ class _KickOutButton extends StatelessWidget {
                     minimumSize: const Size(88, 42),
                   ),
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: const Text('Remove'),
+                  child: Text(dialogContext.l10n.remove),
                 ),
               ],
             ),
@@ -373,15 +382,12 @@ Future<bool> _confirmLeaveCircle(BuildContext context, String name) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: Text('Leave “$name”?'),
-      content: const Text(
-        'Meal plans shared with this group will no longer appear for you. '
-        'You can be invited back.',
-      ),
+      title: Text(dialogContext.l10n.leaveNamedCrew(name)),
+      content: Text(dialogContext.l10n.leaveCrewDescription),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Stay'),
+          child: Text(dialogContext.l10n.stay),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -389,7 +395,7 @@ Future<bool> _confirmLeaveCircle(BuildContext context, String name) async {
             minimumSize: const Size(88, 42),
           ),
           onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('Leave'),
+          child: Text(dialogContext.l10n.leaveCrew),
         ),
       ],
     ),
@@ -402,15 +408,12 @@ Future<bool> _confirmDeleteCircle(BuildContext context, String name) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (dialogContext) => AlertDialog(
-      title: Text('Delete “$name”?'),
-      content: const Text(
-        'The group goes away. Meal plans shared with it are kept and stay yours — '
-        'they are just no longer shared with these people.',
-      ),
+      title: Text(dialogContext.l10n.deleteNamedCrew(name)),
+      content: Text(dialogContext.l10n.deleteCrewExplanation),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(dialogContext).pop(false),
-          child: const Text('Keep'),
+          child: Text(dialogContext.l10n.keep),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -418,7 +421,7 @@ Future<bool> _confirmDeleteCircle(BuildContext context, String name) async {
             minimumSize: const Size(88, 42),
           ),
           onPressed: () => Navigator.of(dialogContext).pop(true),
-          child: const Text('Delete'),
+          child: Text(dialogContext.l10n.delete),
         ),
       ],
     ),
@@ -478,7 +481,7 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'New group',
+              context.l10n.createCrew,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
@@ -486,8 +489,9 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
               controller: _nameController,
               autofocus: true,
               textCapitalization: TextCapitalization.words,
-              decoration:
-                  const InputDecoration(hintText: 'Family, Tokyo 2027, Us'),
+              decoration: InputDecoration(
+                hintText: context.l10n.crewNameHint,
+              ),
             ),
             const SizedBox(height: 14),
             InkWell(
@@ -511,16 +515,16 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Just the two of us',
+                          Text(
+                            context.l10n.twoPersonCrewTitle,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.w600),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Meal plans are shared automatically with each other.',
+                            context.l10n.twoPersonCrewDescription,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -560,15 +564,13 @@ class _CreateCircleSheetState extends ConsumerState<_CreateCircleSheet> {
                               emoji: _isCouple ? '🍽️' : null,
                               isCouple: _isCouple,
                             ),
-                        successMessage: _isCouple
-                            ? 'Created. Invite someone to share meal plans automatically.'
-                            : 'Group created.',
+                        successMessage: context.l10n.crewCreated,
                       );
                       if (mounted) {
                         navigator.pop();
                       }
                     },
-              child: const Text('Create'),
+              child: Text(context.l10n.createCrew),
             ),
           ],
         ),
@@ -635,19 +637,15 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
           children: [
             Text(
               circle.isCouple
-                  ? 'Invite to your two-person group'
-                  : 'Invite to “${circle.name}”',
+                  ? context.l10n.inviteToTwoPersonCrew
+                  : context.l10n.inviteToNamedCrew(circle.name),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
               circle.isCouple
-                  ? 'If they already have an account, they will be added '
-                      'automatically. Otherwise, they will be added when they '
-                      'sign in. Meal plans shared with this group will appear '
-                      'automatically.'
-                  : 'They will get an invitation to accept or decline. After they '
-                      'join, you can share meal plans with this group in one tap.',
+                  ? context.l10n.automaticCrewInviteExplanation
+                  : context.l10n.crewInviteExplanation,
               maxLines: 5,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 13, height: 1.5, color: colors.muted),
@@ -657,7 +655,9 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
               controller: _emailController,
               autofocus: true,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(hintText: 'them@example.com'),
+              decoration: InputDecoration(
+                hintText: context.l10n.inviteEmailHint,
+              ),
               onChanged: (value) {
                 setState(() {
                   _query = value.trim();
@@ -687,8 +687,7 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      'Recent contacts could not load. Check your '
-                      'connection or Firestore rules.',
+                      context.l10n.recentContactsLoadError,
                       style: TextStyle(fontSize: 12.5, color: colors.danger),
                     ),
                   );
@@ -783,8 +782,8 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
                               inviterName: user.displayName,
                             ),
                         successMessage: circle.isCouple
-                            ? 'They will be added automatically.'
-                            : 'Invitation sent to $email.',
+                            ? context.l10n.theyWillBeAddedAutomatically
+                            : context.l10n.invitationSentTo(email),
                       );
                       if (failure != null) {
                         if (mounted) {
@@ -799,7 +798,7 @@ class _InviteCircleSheetState extends ConsumerState<_InviteCircleSheet> {
                         navigator.pop();
                       }
                     },
-              child: const Text('Send invitation'),
+              child: Text(context.l10n.sendInvitation),
             ),
           ],
         ),
@@ -825,19 +824,21 @@ class _SignInPrompt extends StatelessWidget {
             Icon(Icons.groups_outlined, size: 32, color: colors.accent),
             const SizedBox(height: 18),
             Text(
-              'Sign in to use groups',
+              context.l10n.signInToUseCrews,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Groups invite people by email, so they need an account to be '
-              'invited to.',
+              context.l10n.crewsSignInDescription,
               textAlign: TextAlign.center,
               style:
                   TextStyle(fontSize: 13.5, height: 1.5, color: colors.muted),
             ),
             const SizedBox(height: 22),
-            FilledButton(onPressed: onSignIn, child: const Text('Sign in')),
+            FilledButton(
+              onPressed: onSignIn,
+              child: Text(context.l10n.signIn),
+            ),
           ],
         ),
       ),

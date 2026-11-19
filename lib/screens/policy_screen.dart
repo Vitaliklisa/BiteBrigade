@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../widgets/brand_kit.dart';
 
 /// EU (GDPR) and Canada (PIPEDA) compliant Privacy Policy and Terms of Service screen.
@@ -26,7 +27,7 @@ class PolicyScreen extends StatelessWidget {
         title: Text(title),
         leading: HoverTintIconButton(
           icon: Icons.arrow_back_rounded,
-          tooltip: 'Back',
+          tooltip: context.l10n.back,
           onPressed: () => closeLegalPage(context),
         ),
       ),

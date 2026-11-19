@@ -80,6 +80,6 @@ void main() {
             .data()!;
     expect(circle['memberIds'], contains('sam'));
     expect(invitation['status'], 'accepted');
-    expect(find.text('Nothing waiting'), findsOneWidget);
+    expect(find.text('Nothing waiting for you.'), findsOneWidget);
   });
 }

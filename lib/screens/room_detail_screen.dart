@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
 import '../widgets/brand_kit.dart';
@@ -76,9 +77,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
     try {
       await ref.read(roomRepositoryProvider).finalizeRoom(roomId);
     } catch (error) {
+      debugPrint('Could not reveal room winner: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not reveal the winner: $error')),
+          SnackBar(content: Text(context.l10n.couldNotRevealWinner)),
         );
       }
     } finally {
@@ -99,9 +101,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
           );
       _noteController.clear();
     } catch (error) {
+      debugPrint('Could not add room note: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not add your note: $error')),
+          SnackBar(content: Text(context.l10n.couldNotAddNote)),
         );
       }
     } finally {
@@ -138,9 +141,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
       if (!mounted) return;
       await context.push('${Routes.room}/$id');
     } catch (error) {
+      debugPrint('Could not duplicate decision room: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not duplicate this decision: $error')),
+          SnackBar(content: Text(context.l10n.couldNotDuplicateDecision)),
         );
       }
     }
@@ -150,16 +154,16 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel this decision?'),
-        content: const Text('The room will be kept in the history.'),
+        title: Text(context.l10n.cancelDecisionConfirm),
+        content: Text(context.l10n.roomKeptInHistory),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Keep it'),
+            child: Text(context.l10n.keepIt),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Cancel decision'),
+            child: Text(context.l10n.cancelDecision),
           ),
         ],
       ),
@@ -171,9 +175,10 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
       await ref.read(roomRepositoryProvider).softDeleteRoom(room, user.id);
       if (mounted) context.go(Routes.home);
     } catch (error) {
+      debugPrint('Could not cancel decision room: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not cancel this decision: $error')),
+          SnackBar(content: Text(context.l10n.couldNotCancelDecision)),
         );
       }
     }
@@ -186,7 +191,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('This link could not be opened.')),
+          SnackBar(content: Text(context.l10n.linkCouldNotOpen)),
         );
       }
     }
@@ -202,7 +207,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication) &&
         mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maps could not be opened.')),
+        SnackBar(content: Text(context.l10n.mapsCouldNotOpen)),
       );
     }
   }
@@ -217,18 +222,19 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
         .first;
     final uri = Uri.https('calendar.google.com', '/calendar/render', {
       'action': 'TEMPLATE',
-      'text': 'Bite Brigade · ${room.name}',
+      'text': context.l10n.calendarEventTitle(room.name),
       'dates': '${stamp(start)}/${stamp(end)}',
       if (winner?.address?.isNotEmpty == true) 'location': winner!.address!,
       'details': winner == null
-          ? 'Decision made with Bite Brigade.'
-          : 'We picked ${winner.title}.',
+          ? context.l10n.calendarDecisionMade
+          : context.l10n.calendarWinnerPicked(winner.title),
     });
     await _openUrl(uri.toString());
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final roomAsync = ref.watch(roomProvider(widget.roomId));
     final optionsAsync = ref.watch(roomOptionsProvider(widget.roomId));
     final participantsAsync =
@@ -268,7 +274,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Decision'),
+        title: Text(l10n.decision),
         actions: [
           if (room != null)
             PopupMenuButton<String>(
@@ -284,16 +290,18 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
               itemBuilder: (context) => [
                 if (room.createdBy == user?.id &&
                     room.status == RoomStatus.open)
-                  const PopupMenuItem(
-                      value: 'edit', child: Text('Edit decision')),
-                const PopupMenuItem(
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Text(l10n.editDecision),
+                  ),
+                PopupMenuItem(
                   value: 'duplicate',
-                  child: Text('Duplicate for another day'),
+                  child: Text(l10n.duplicateForAnotherDay),
                 ),
                 if (room.createdBy == user?.id && !room.isDeleted)
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'cancel',
-                    child: Text('Cancel decision'),
+                    child: Text(l10n.cancelDecision),
                   ),
               ],
             ),
@@ -302,11 +310,9 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
       body: roomAsync.isLoading && room == null
           ? const Center(child: CircularProgressIndicator())
           : roomAsync.hasError
-              ? _ErrorPanel(
-                  message: 'Could not load this decision: ${roomAsync.error}')
+              ? _ErrorPanel(message: l10n.couldNotLoadRoom)
               : room == null
-                  ? const _ErrorPanel(
-                      message: 'This decision is no longer available.')
+                  ? _ErrorPanel(message: l10n.decisionUnavailable)
                   : Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 920),
@@ -343,7 +349,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                   ),
                                   const SizedBox(height: 24),
                                   _SectionHeader(
-                                    title: 'The shortlist',
+                                    title: l10n.shortlist,
                                     trailing: canVote
                                         ? TextButton.icon(
                                             onPressed: () => context.push(
@@ -351,20 +357,18 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                             ),
                                             icon:
                                                 const Icon(Icons.swipe_rounded),
-                                            label: const Text('Swipe to vote'),
+                                            label: Text(l10n.swipeToVote),
                                           )
                                         : null,
                                   ),
                                   const SizedBox(height: 10),
                                   if (optionsAsync.hasError)
                                     _ErrorPanel(
-                                      message:
-                                          'Could not load restaurants: ${optionsAsync.error}',
+                                      message: l10n.restaurantsUnavailable,
                                     )
                                   else if (options.isEmpty)
-                                    const _InlineEmpty(
-                                      message:
-                                          'No restaurants have been added yet.',
+                                    _InlineEmpty(
+                                      message: l10n.noRestaurantsAdded,
                                     )
                                   else
                                     for (final option in options)
@@ -388,12 +392,16 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                                   optionId: option.id,
                                                 );
                                           } catch (error) {
+                                            debugPrint(
+                                              'Could not save room vote: $error',
+                                            );
                                             if (context.mounted) {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
                                                 SnackBar(
                                                   content: Text(
-                                                      'Your vote could not be saved: $error'),
+                                                    l10n.voteCouldNotSave,
+                                                  ),
                                                 ),
                                               );
                                             }
@@ -411,7 +419,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                 ],
                                 const SizedBox(height: 28),
                                 _SectionHeader(
-                                  title: 'Around the table',
+                                  title: l10n.aroundTable,
                                   trailing: Text(
                                     '${participants.where((p) => p.accepted).length}',
                                     style: TextStyle(
@@ -423,8 +431,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                 const SizedBox(height: 12),
                                 if (participantsAsync.hasError)
                                   _ErrorPanel(
-                                    message:
-                                        'Could not load the group: ${participantsAsync.error}',
+                                    message: l10n.couldNotLoadGroup,
                                   )
                                 else
                                   Wrap(
@@ -443,7 +450,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                   ),
                                 const SizedBox(height: 28),
                                 _SectionHeader(
-                                  title: 'Notes',
+                                  title: l10n.notes,
                                   trailing: Text(
                                     '${notes.length}',
                                     style: TextStyle(
@@ -455,13 +462,11 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                 const SizedBox(height: 12),
                                 if (notesAsync.hasError)
                                   _ErrorPanel(
-                                    message:
-                                        'Could not load notes: ${notesAsync.error}',
+                                    message: l10n.couldNotLoadNotes,
                                   )
                                 else if (notes.isEmpty)
-                                  const _InlineEmpty(
-                                    message:
-                                        'No notes yet. Share a time, a thought, or a must-have.',
+                                  _InlineEmpty(
+                                    message: l10n.notesEmpty,
                                   )
                                 else
                                   for (final note in notes)
@@ -483,8 +488,8 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
                                           maxLines: 3,
                                           textCapitalization:
                                               TextCapitalization.sentences,
-                                          decoration: const InputDecoration(
-                                            hintText: 'Add a note…',
+                                          decoration: InputDecoration(
+                                            hintText: l10n.addNote,
                                             counterText: '',
                                           ),
                                         ),
@@ -531,7 +536,7 @@ class _RoomDetailScreenState extends ConsumerState<RoomDetailScreen>
           ? FloatingActionButton.extended(
               onPressed: () => context.push('${Routes.room}/${room.id}/vote'),
               icon: const Icon(Icons.how_to_vote_rounded),
-              label: const Text('Cast your vote'),
+              label: Text(l10n.castYourVote),
             )
           : null,
     );
@@ -560,7 +565,7 @@ class _RoomHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'THE GROUP DECISION',
+          context.l10n.theGroupDecision,
           style: TextStyle(
             color: colors.accent,
             fontSize: 10,
@@ -646,7 +651,7 @@ class _WinnerCard extends StatelessWidget {
           Icon(Icons.celebration_rounded, color: colors.accent, size: 28),
           const SizedBox(height: 16),
           Text(
-            "WE'RE GOING TO",
+            context.l10n.weAreGoingTo,
             style: TextStyle(
               color: colors.accent,
               fontSize: 10,
@@ -656,7 +661,7 @@ class _WinnerCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            winner?.title ?? 'The table is still open',
+            winner?.title ?? context.l10n.tableStillOpen,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -673,18 +678,18 @@ class _WinnerCard extends StatelessWidget {
               FilledButton.icon(
                 onPressed: winner == null ? null : onMaps,
                 icon: const Icon(Icons.map_outlined),
-                label: const Text('Open in Maps'),
+                label: Text(context.l10n.openInMaps),
               ),
               OutlinedButton.icon(
                 onPressed: onCalendar,
                 icon: const Icon(Icons.calendar_today_outlined),
-                label: const Text('Add to calendar'),
+                label: Text(context.l10n.addToCalendar),
               ),
               if (onWebsite != null)
                 OutlinedButton.icon(
                   onPressed: onWebsite,
                   icon: const Icon(Icons.open_in_new_rounded),
-                  label: const Text('Website'),
+                  label: Text(context.l10n.website),
                 ),
             ],
           ),
@@ -753,7 +758,7 @@ class _OptionCard extends StatelessWidget {
                   ],
                   const SizedBox(height: 6),
                   Text(
-                    '$voteCount ${voteCount == 1 ? 'vote' : 'votes'}',
+                    context.l10n.votesCount(voteCount),
                     style: TextStyle(
                       color: selected ? colors.accent : colors.subtle,
                       fontSize: 12,
@@ -765,8 +770,9 @@ class _OptionCard extends StatelessWidget {
             ),
             if (canVote)
               IconButton(
-                tooltip:
-                    selected ? 'Your current vote' : 'Vote for ${option.title}',
+                tooltip: selected
+                    ? context.l10n.currentVote
+                    : context.l10n.voteForOption(option.title),
                 onPressed: selected ? null : onVote,
                 icon: Icon(
                   selected ? Icons.check_circle : Icons.radio_button_unchecked,
@@ -775,13 +781,13 @@ class _OptionCard extends StatelessWidget {
               )
             else ...[
               IconButton(
-                tooltip: 'Open in Maps',
+                tooltip: context.l10n.openInMapsTooltip,
                 onPressed: onMaps,
                 icon: Icon(Icons.map_outlined, color: colors.muted),
               ),
               if (onWebsite != null)
                 IconButton(
-                  tooltip: 'Open website',
+                  tooltip: context.l10n.openWebsiteTooltip,
                   onPressed: onWebsite,
                   icon: Icon(Icons.open_in_new_rounded, color: colors.muted),
                 ),
@@ -813,7 +819,7 @@ class _ParticipantChip extends StatelessWidget {
         seed: participant.userId,
         size: 24,
       ),
-      label: Text(label.isEmpty ? 'Guest' : label),
+      label: Text(label.isEmpty ? context.l10n.guest : label),
       deleteIcon: Icon(
         hasVoted ? Icons.check_circle : Icons.schedule_rounded,
         size: 16,
