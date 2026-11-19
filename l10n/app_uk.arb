@@ -1,0 +1,44 @@
+{
+  "@@locale": "uk",
+  "language": "Мова",
+  "followSystemLanguage": "Мова системи",
+  "languageSaveFailed": "Не вдалося зберегти налаштування мови.",
+  "languageEnglish": "English",
+  "languageFrench": "Français",
+  "languageSpanish": "Español",
+  "languageUkrainian": "Українська",
+  "languageGerman": "Deutsch",
+  "settings": "Налаштування",
+  "biteBrigadeUser": "Учасник Bite Brigade",
+  "guestAccount": "Гостьовий обліковий запис",
+  "mealPlansCount": "{count, plural, one{{count} план харчування} few{{count} плани харчування} many{{count} планів харчування} other{{count} плану харчування}}",
+  "@mealPlansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notSignedIn": "Ви не ввійшли",
+  "syncAndShareDescription": "Увійдіть, щоб синхронізувати плани харчування між пристроями та планувати разом із друзями, родиною й командами.",
+  "signIn": "Увійти",
+  "appearance": "Вигляд",
+  "darkTheme": "Темна",
+  "lightTheme": "Світла",
+  "systemTheme": "Системна",
+  "time": "Час",
+  "timeFormatDescription": "Оберіть формат відображення часу прийому їжі. У планах завжди зберігається точний час.",
+  "twelveHourFormat": "12-годинний (AM/PM)",
+  "twentyFourHourFormat": "24-годинний",
+  "about": "Про застосунок",
+  "version": "Версія",
+  "sync": "Синхронізація",
+  "safety": "Безпека",
+  "blockedPeople": "Заблоковані люди",
+  "legal": "Юридична інформація",
+  "privacyPolicy": "Політика конфіденційності",
+  "termsOfService": "Умови використання",
+  "helpAndSupport": "Допомога та підтримка",
+  "signedOut": "Ви вийшли.",
+  "signOut": "Вийти"
+}

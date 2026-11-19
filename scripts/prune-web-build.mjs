@@ -5,7 +5,7 @@
 // files, while the app itself runs from exactly one of them.
 //
 // This runs after the build and deletes what the pinned renderer can never
-// load. `web/index.html` pins `renderer: 'canvaskit'`, so `canvaskit.wasm` is
+// load. `web/flutter_bootstrap.js` pins `renderer: 'canvaskit'`, so `canvaskit.wasm` is
 // the only renderer that is ever fetched.
 //
 //   node scripts/prune-web-build.mjs
@@ -26,7 +26,7 @@ if (!existsSync(WEB)) {
   process.exit(1);
 }
 
-// The one renderer the app is allowed to load, per `web/index.html`.
+// The one renderer the app is allowed to load, per `web/flutter_bootstrap.js`.
 const KEEP = ['canvaskit.wasm', 'canvaskit.js'];
 
 // Everything else Flutter stages. Each entry is a prefix; any file in

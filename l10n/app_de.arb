@@ -1,0 +1,44 @@
+{
+  "@@locale": "de",
+  "language": "Sprache",
+  "followSystemLanguage": "Sprache des Systems verwenden",
+  "languageSaveFailed": "Ihre Spracheinstellung konnte nicht gespeichert werden.",
+  "languageEnglish": "English",
+  "languageFrench": "Français",
+  "languageSpanish": "Español",
+  "languageUkrainian": "Українська",
+  "languageGerman": "Deutsch",
+  "settings": "Einstellungen",
+  "biteBrigadeUser": "Bite-Brigade-Mitglied",
+  "guestAccount": "Gastkonto",
+  "mealPlansCount": "{count, plural, one{{count} Essensplan} other{{count} Essenspläne}}",
+  "@mealPlansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notSignedIn": "Sie sind nicht angemeldet",
+  "syncAndShareDescription": "Melden Sie sich an, um Essenspläne geräteübergreifend zu synchronisieren und mit Freunden, Familie und Gruppen zu planen.",
+  "signIn": "Anmelden",
+  "appearance": "Darstellung",
+  "darkTheme": "Dunkel",
+  "lightTheme": "Hell",
+  "systemTheme": "System",
+  "time": "Zeit",
+  "timeFormatDescription": "Legen Sie fest, wie Essenszeiten angezeigt werden. Ihre Pläne speichern immer die genaue Uhrzeit.",
+  "twelveHourFormat": "12-Stunden (AM/PM)",
+  "twentyFourHourFormat": "24-Stunden",
+  "about": "Über die App",
+  "version": "Version",
+  "sync": "Synchronisierung",
+  "safety": "Sicherheit",
+  "blockedPeople": "Blockierte Personen",
+  "legal": "Rechtliches",
+  "privacyPolicy": "Datenschutzrichtlinie",
+  "termsOfService": "Nutzungsbedingungen",
+  "helpAndSupport": "Hilfe & Support",
+  "signedOut": "Abgemeldet.",
+  "signOut": "Abmelden"
+}

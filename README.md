@@ -79,11 +79,27 @@ The Firestore rules tests use the local emulator and do not deploy rules to any
 project. They cover room creation, access boundaries, invitations, voting, and
 crew membership changes.
 
+## Localization
+
+The Settings language preference and its labels support English, French,
+Spanish, Ukrainian, and German. The initial locale follows the device language
+when supported and otherwise falls back to English; an explicit choice is saved
+on the device, and “Follow system language” clears it. ARB catalogs live in
+`l10n/`; regenerate their typed Dart API with:
+
+```sh
+flutter gen-l10n
+```
+
+The remaining app screens are not yet translated.
+
 ## Project layout
 
 - `lib/core/rooms.dart` — room, participant, vote, crew, and invitation models.
 - `lib/services/room_repository.dart` — Firestore operations and workflows.
 - `lib/screens/` — room, voting, crew, and invitation screens.
+- `lib/core/locale_settings.dart` — supported locales and system fallback.
+- `l10n/` — typed localization catalogs for Settings.
 - `firestore.rules` — server-side access control.
 - `firestore.indexes.json` — indexes required by Firestore queries.
 - `rules_test/` — emulator-backed authorization tests.

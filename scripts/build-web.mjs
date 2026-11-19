@@ -4,7 +4,7 @@
 //
 // Exists so the release build is one reproducible step rather than a sequence
 // somebody has to remember. `flutter build web` stages every renderer Flutter
-// might pick at runtime (~38 MB); `web/index.html` pins canvaskit, so the rest
+// might pick at runtime (~38 MB); `web/flutter_bootstrap.js` pins canvaskit, so the rest
 // is downloaded by nobody. Pruning it is a 70% size cut on the deployed
 // artifact, and doing it here means it cannot be forgotten.
 //

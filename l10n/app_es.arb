@@ -1,0 +1,44 @@
+{
+  "@@locale": "es",
+  "language": "Idioma",
+  "followSystemLanguage": "Usar el idioma del sistema",
+  "languageSaveFailed": "No se pudo guardar la preferencia de idioma.",
+  "languageEnglish": "English",
+  "languageFrench": "Français",
+  "languageSpanish": "Español",
+  "languageUkrainian": "Українська",
+  "languageGerman": "Deutsch",
+  "settings": "Ajustes",
+  "biteBrigadeUser": "Miembro de Bite Brigade",
+  "guestAccount": "Cuenta de invitado",
+  "mealPlansCount": "{count, plural, one{{count} plan de comida} other{{count} planes de comida}}",
+  "@mealPlansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notSignedIn": "No has iniciado sesión",
+  "syncAndShareDescription": "Inicia sesión para sincronizar tus planes de comida entre dispositivos y planificar con amigos, familiares y grupos.",
+  "signIn": "Iniciar sesión",
+  "appearance": "Apariencia",
+  "darkTheme": "Oscuro",
+  "lightTheme": "Claro",
+  "systemTheme": "Sistema",
+  "time": "Hora",
+  "timeFormatDescription": "Elige cómo se muestran las horas de las comidas. Tus planes conservan la hora exacta.",
+  "twelveHourFormat": "12 horas (a. m./p. m.)",
+  "twentyFourHourFormat": "24 horas",
+  "about": "Acerca de",
+  "version": "Versión",
+  "sync": "Sincronización",
+  "safety": "Seguridad",
+  "blockedPeople": "Personas bloqueadas",
+  "legal": "Legal",
+  "privacyPolicy": "Política de privacidad",
+  "termsOfService": "Términos del servicio",
+  "helpAndSupport": "Ayuda y soporte",
+  "signedOut": "Sesión cerrada.",
+  "signOut": "Cerrar sesión"
+}

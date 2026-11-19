@@ -1,0 +1,44 @@
+{
+  "@@locale": "fr",
+  "language": "Langue",
+  "followSystemLanguage": "Suivre la langue du système",
+  "languageSaveFailed": "Impossible d’enregistrer votre préférence de langue.",
+  "languageEnglish": "English",
+  "languageFrench": "Français",
+  "languageSpanish": "Español",
+  "languageUkrainian": "Українська",
+  "languageGerman": "Deutsch",
+  "settings": "Réglages",
+  "biteBrigadeUser": "Membre de Bite Brigade",
+  "guestAccount": "Compte invité",
+  "mealPlansCount": "{count, plural, one{{count} plan de repas} other{{count} plans de repas}}",
+  "@mealPlansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notSignedIn": "Vous n’êtes pas connecté",
+  "syncAndShareDescription": "Connectez-vous pour synchroniser vos plans de repas entre vos appareils et planifier avec vos proches et vos groupes.",
+  "signIn": "Se connecter",
+  "appearance": "Apparence",
+  "darkTheme": "Sombre",
+  "lightTheme": "Clair",
+  "systemTheme": "Système",
+  "time": "Heure",
+  "timeFormatDescription": "Choisissez l’affichage des heures de repas. Vos plans conservent toujours l’heure exacte.",
+  "twelveHourFormat": "12 heures (AM/PM)",
+  "twentyFourHourFormat": "24 heures",
+  "about": "À propos",
+  "version": "Version",
+  "sync": "Synchronisation",
+  "safety": "Sécurité",
+  "blockedPeople": "Personnes bloquées",
+  "legal": "Informations légales",
+  "privacyPolicy": "Politique de confidentialité",
+  "termsOfService": "Conditions d’utilisation",
+  "helpAndSupport": "Aide et assistance",
+  "signedOut": "Déconnexion effectuée.",
+  "signOut": "Se déconnecter"
+}

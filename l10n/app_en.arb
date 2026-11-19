@@ -1,0 +1,44 @@
+{
+  "@@locale": "en",
+  "language": "Language",
+  "followSystemLanguage": "Follow system language",
+  "languageSaveFailed": "Could not save your language preference.",
+  "languageEnglish": "English",
+  "languageFrench": "Français",
+  "languageSpanish": "Español",
+  "languageUkrainian": "Українська",
+  "languageGerman": "Deutsch",
+  "settings": "Settings",
+  "biteBrigadeUser": "Bite Brigade member",
+  "guestAccount": "Guest account",
+  "mealPlansCount": "{count, plural, one{{count} meal plan} other{{count} meal plans}}",
+  "@mealPlansCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notSignedIn": "You are not signed in",
+  "syncAndShareDescription": "Sign in to sync meal plans across devices and plan with friends, family, and crews.",
+  "signIn": "Sign in",
+  "appearance": "Appearance",
+  "darkTheme": "Dark",
+  "lightTheme": "Light",
+  "systemTheme": "System",
+  "time": "Time",
+  "timeFormatDescription": "Choose how meal times are shown. Your plans keep the exact time either way.",
+  "twelveHourFormat": "12-hour (AM/PM)",
+  "twentyFourHourFormat": "24-hour",
+  "about": "About",
+  "version": "Version",
+  "sync": "Sync",
+  "safety": "Safety",
+  "blockedPeople": "Blocked people",
+  "legal": "Legal",
+  "privacyPolicy": "Privacy policy",
+  "termsOfService": "Terms of service",
+  "helpAndSupport": "Help & support",
+  "signedOut": "Signed out.",
+  "signOut": "Sign out"
+}
