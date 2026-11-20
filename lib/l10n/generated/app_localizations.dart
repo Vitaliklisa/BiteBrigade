@@ -2683,6 +2683,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{duration} to go'**
   String countdownToGo(String duration);
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This action is permanent. All your meal plans, crews, and data will be deleted forever.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteAccountConfirmationPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your exact account email to continue.'**
+  String get deleteAccountConfirmationPrompt;
+
+  /// No description provided for @deleteAccountConfirmationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account email'**
+  String get deleteAccountConfirmationLabel;
+
+  /// No description provided for @deleteAccountProfileConsequence.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile will be permanently deleted.'**
+  String get deleteAccountProfileConsequence;
+
+  /// No description provided for @deleteAccountAccessConsequence.
+  ///
+  /// In en, this message translates to:
+  /// **'You will lose access to all your meal plans and crews.'**
+  String get deleteAccountAccessConsequence;
+
+  /// No description provided for @deleteAccountIrreversibleConsequence.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get deleteAccountIrreversibleConsequence;
+
+  /// No description provided for @deleteAccountPermanentlyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account permanently'**
+  String get deleteAccountPermanentlyAction;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully.'**
+  String get accountDeleted;
+
+  /// No description provided for @serverTimedOutTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'The server timed out. Please try again later.'**
+  String get serverTimedOutTryAgain;
+
+  /// No description provided for @accountDeletionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion could not be completed. Please try again.'**
+  String get accountDeletionFailed;
+
+  /// No description provided for @accountDeletedCleanupWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The account was deleted, but some local settings could not be cleared. Restart the app before using another account.'**
+  String get accountDeletedCleanupWarning;
 }
 
 class _AppLocalizationsDelegate

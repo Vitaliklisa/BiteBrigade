@@ -1568,4 +1568,50 @@ class AppLocalizationsUk extends AppLocalizations {
   String countdownToGo(String duration) {
     return 'Залишилося: $duration';
   }
+
+  @override
+  String get deleteAccount => 'Видалити обліковий запис';
+
+  @override
+  String get deleteAccountWarning =>
+      'Цю дію неможливо скасувати. Усі ваші плани харчування, компанії та дані буде видалено назавжди.';
+
+  @override
+  String get deleteAccountConfirmationPrompt =>
+      'Введіть точну електронну адресу облікового запису, щоб продовжити.';
+
+  @override
+  String get deleteAccountConfirmationLabel =>
+      'Електронна адреса облікового запису';
+
+  @override
+  String get deleteAccountProfileConsequence =>
+      'Ваш профіль буде видалено назавжди.';
+
+  @override
+  String get deleteAccountAccessConsequence =>
+      'Ви втратите доступ до всіх своїх планів харчування й компаній.';
+
+  @override
+  String get deleteAccountIrreversibleConsequence =>
+      'Цю дію неможливо скасувати.';
+
+  @override
+  String get deleteAccountPermanentlyAction =>
+      'Видалити обліковий запис назавжди';
+
+  @override
+  String get accountDeleted => 'Обліковий запис успішно видалено.';
+
+  @override
+  String get serverTimedOutTryAgain =>
+      'Час очікування відповіді сервера минув. Спробуйте ще раз пізніше.';
+
+  @override
+  String get accountDeletionFailed =>
+      'Не вдалося видалити обліковий запис. Спробуйте ще раз.';
+
+  @override
+  String get accountDeletedCleanupWarning =>
+      'Обліковий запис видалено, але не вдалося очистити деякі локальні налаштування. Перезапустіть застосунок, перш ніж увійти в інший обліковий запис.';
 }

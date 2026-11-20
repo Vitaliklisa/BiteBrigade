@@ -712,5 +712,17 @@
       "placeholders": {
         "duration": {"type": "String"}
       }
-    }
+    },
+    "deleteAccount": "Konto löschen",
+    "deleteAccountWarning": "Diese Aktion ist endgültig. Alle deine Essenspläne, Gruppen und Daten werden für immer gelöscht.",
+    "deleteAccountConfirmationPrompt": "Gib deine genaue Konto-E-Mail-Adresse ein, um fortzufahren.",
+    "deleteAccountConfirmationLabel": "Konto-E-Mail-Adresse",
+    "deleteAccountProfileConsequence": "Dein Profil wird dauerhaft gelöscht.",
+    "deleteAccountAccessConsequence": "Du verlierst den Zugriff auf alle deine Essenspläne und Gruppen.",
+    "deleteAccountIrreversibleConsequence": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteAccountPermanentlyAction": "Konto endgültig löschen",
+    "accountDeleted": "Konto erfolgreich gelöscht.",
+    "serverTimedOutTryAgain": "Der Server hat das Zeitlimit überschritten. Bitte versuche es später erneut.",
+    "accountDeletionFailed": "Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut.",
+    "accountDeletedCleanupWarning": "Das Konto wurde gelöscht, aber einige lokale Einstellungen konnten nicht entfernt werden. Starte die App neu, bevor du ein anderes Konto verwendest."
 }

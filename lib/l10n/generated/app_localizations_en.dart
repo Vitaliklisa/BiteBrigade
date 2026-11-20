@@ -1536,4 +1536,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String countdownToGo(String duration) {
     return '$duration to go';
   }
+
+  @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountWarning =>
+      'This action is permanent. All your meal plans, crews, and data will be deleted forever.';
+
+  @override
+  String get deleteAccountConfirmationPrompt =>
+      'Type your exact account email to continue.';
+
+  @override
+  String get deleteAccountConfirmationLabel => 'Account email';
+
+  @override
+  String get deleteAccountProfileConsequence =>
+      'Your profile will be permanently deleted.';
+
+  @override
+  String get deleteAccountAccessConsequence =>
+      'You will lose access to all your meal plans and crews.';
+
+  @override
+  String get deleteAccountIrreversibleConsequence =>
+      'This action cannot be undone.';
+
+  @override
+  String get deleteAccountPermanentlyAction => 'Delete account permanently';
+
+  @override
+  String get accountDeleted => 'Account deleted successfully.';
+
+  @override
+  String get serverTimedOutTryAgain =>
+      'The server timed out. Please try again later.';
+
+  @override
+  String get accountDeletionFailed =>
+      'Account deletion could not be completed. Please try again.';
+
+  @override
+  String get accountDeletedCleanupWarning =>
+      'The account was deleted, but some local settings could not be cleared. Restart the app before using another account.';
 }

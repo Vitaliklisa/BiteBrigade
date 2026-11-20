@@ -107,6 +107,8 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
                               Text(
                                 context.l10n.tableIsYours,
                                 softWrap: true,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: context.colors.accent,
                                   fontSize: 11,
@@ -118,6 +120,8 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
                               Text(
                                 context.l10n.whereAreWeGoing,
                                 softWrap: true,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context)
                                     .textTheme
                                     .displaySmall

@@ -458,6 +458,7 @@ class CrewDetailScreen extends ConsumerWidget {
                                 ? l10n.twoPersonCrew
                                 : l10n.standingCrew,
                             maxLines: 1,
+                            softWrap: false,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
@@ -488,6 +489,9 @@ class CrewDetailScreen extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       l10n.members,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
@@ -538,6 +542,9 @@ class CrewDetailScreen extends ConsumerWidget {
                                       member.displayName.isNotEmpty
                                           ? member.displayName
                                           : member.email,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w700),
                                     ),

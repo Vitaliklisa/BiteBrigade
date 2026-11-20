@@ -1553,4 +1553,49 @@ class AppLocalizationsFr extends AppLocalizations {
   String countdownToGo(String duration) {
     return 'Encore $duration';
   }
+
+  @override
+  String get deleteAccount => 'Supprimer le compte';
+
+  @override
+  String get deleteAccountWarning =>
+      'Cette action est irréversible. Tous vos plans de repas, groupes et données seront supprimés définitivement.';
+
+  @override
+  String get deleteAccountConfirmationPrompt =>
+      'Saisissez exactement l’adresse e-mail de votre compte pour continuer.';
+
+  @override
+  String get deleteAccountConfirmationLabel => 'E-mail du compte';
+
+  @override
+  String get deleteAccountProfileConsequence =>
+      'Votre profil sera supprimé définitivement.';
+
+  @override
+  String get deleteAccountAccessConsequence =>
+      'Vous perdrez l’accès à tous vos plans de repas et groupes.';
+
+  @override
+  String get deleteAccountIrreversibleConsequence =>
+      'Cette action est irréversible.';
+
+  @override
+  String get deleteAccountPermanentlyAction =>
+      'Supprimer définitivement le compte';
+
+  @override
+  String get accountDeleted => 'Compte supprimé avec succès.';
+
+  @override
+  String get serverTimedOutTryAgain =>
+      'Le délai d’attente du serveur a expiré. Veuillez réessayer plus tard.';
+
+  @override
+  String get accountDeletionFailed =>
+      'La suppression du compte n’a pas abouti. Veuillez réessayer.';
+
+  @override
+  String get accountDeletedCleanupWarning =>
+      'Le compte a été supprimé, mais certains réglages locaux n’ont pas pu être effacés. Redémarrez l’application avant d’utiliser un autre compte.';
 }

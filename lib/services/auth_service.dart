@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../firebase_config.dart';
+import 'deletion_service.dart';
 
 /// The signed-in identity, normalised so the UI never touches Firebase types.
 @immutable
@@ -68,9 +69,13 @@ class AuthFailure implements Exception {
 /// is exactly the free-tier surface this app targets. No server code is
 /// involved: Firebase Auth issues and refreshes the tokens itself.
 class AuthService {
-  AuthService({FirebaseAuth? auth, GoogleSignIn? googleSignIn})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? _defaultGoogleSignIn();
+  AuthService({
+    FirebaseAuth? auth,
+    GoogleSignIn? googleSignIn,
+    DeletionService? deletionService,
+  })  : _auth = auth ?? FirebaseAuth.instance,
+        _googleSignIn = googleSignIn ?? _defaultGoogleSignIn(),
+        _deletionService = deletionService;
 
   /// Builds the Google client.
   ///
@@ -87,6 +92,7 @@ class AuthService {
 
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
+  final DeletionService? _deletionService;
   Future<void>? _googleSignInInitialization;
 
   /// Fires on every sign-in/sign-out. `null` means signed out.
@@ -98,6 +104,8 @@ class AuthService {
     final user = _auth.currentUser;
     return user == null ? null : AppUser.fromFirebase(user);
   }
+
+  String? get currentEmail => _auth.currentUser?.email?.trim().toLowerCase();
 
   Future<AppUser> signInWithEmail({
     required String email,
@@ -231,11 +239,23 @@ class AuthService {
     await _auth.signOut();
   }
 
-  Future<void> deleteAccount() async {
+  Future<void> deleteAccount({required String confirmation}) async {
     final user = _auth.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      throw const AuthFailure(
+        'Sign in before deleting your account.',
+        code: 'not-signed-in',
+      );
+    }
+    final deletionService = _deletionService;
+    if (deletionService == null) {
+      throw const AuthFailure(
+        'The account deletion service is not configured.',
+        code: 'deletion-service-missing',
+      );
+    }
     try {
-      await user.delete();
+      await deletionService.deleteAccount(confirmation);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         throw const AuthFailure(
@@ -244,6 +264,16 @@ class AuthService {
         );
       }
       throw _mapException(e);
+    } finally {
+      await _signOutBestEffort();
+    }
+  }
+
+  Future<void> _signOutBestEffort() async {
+    try {
+      await signOut();
+    } catch (error) {
+      debugPrint('[bite-brigade] Post-deletion sign-out failed: $error');
     }
   }
 

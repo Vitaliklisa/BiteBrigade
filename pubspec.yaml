@@ -35,6 +35,7 @@ dependencies:
   # Support screen: opens mail and the policy links, with a clipboard fallback
   # when the platform has no handler (desktop web often does not).
   url_launcher: ^6.3.1
+  http: ^1.2.2
   # Confetti for the arrival celebration (drop-in replacement for the CSS burst).
   confetti: ^0.8.0
   # `UserAvatar` renders initials in a colour derived from the account id, which

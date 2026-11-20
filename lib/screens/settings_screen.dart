@@ -203,6 +203,16 @@ class SettingsScreen extends ConsumerWidget {
           if (user != null) ...[
             const SizedBox(height: 32),
             OutlinedButton.icon(
+              onPressed: () => context.go(Routes.deleteAccount),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colors.danger,
+                side: BorderSide(color: colors.danger.withValues(alpha: 0.6)),
+              ),
+              icon: const Icon(Icons.delete_forever_outlined, size: 18),
+              label: Text(l10n.deleteAccount),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
               onPressed: () async {
                 await runAction(
                   context,

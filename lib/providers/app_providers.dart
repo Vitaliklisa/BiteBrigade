@@ -13,11 +13,20 @@ import '../core/recent_contacts.dart';
 import '../core/time_format.dart';
 import '../router.dart';
 import '../services/auth_service.dart';
+import '../services/deletion_service.dart';
 import '../services/event_repository.dart';
 import '../services/notification_service.dart';
 
 /// Overridden in `main()` (and in tests) with a ready-to-use instance.
-final authServiceProvider = Provider<AuthService>((ref) => AuthService());
+final deletionServiceProvider = Provider<DeletionService>((ref) {
+  final service = DeletionService();
+  ref.onDispose(service.close);
+  return service;
+});
+
+final authServiceProvider = Provider<AuthService>((ref) {
+  return AuthService(deletionService: ref.watch(deletionServiceProvider));
+});
 
 /// The Firestore-backed data layer: countdowns, circles, invitations, notes.
 final eventRepositoryProvider = Provider<EventRepository>((ref) {
@@ -216,6 +225,7 @@ final circleInvitationsProvider = StreamProvider<List<CircleInvitation>>((ref) {
         }));
       }
     }
+
     return visible;
   });
 });
@@ -771,6 +781,12 @@ class TimeFormatController extends Notifier<TimeFormat> {
 
 final timeFormatProvider = NotifierProvider<TimeFormatController, TimeFormat>(
     TimeFormatController.new);
+
+Future<void> clearLocalAccountPreferences() async {
+  final preferences = await SharedPreferences.getInstance();
+  await preferences.remove('theme_mode');
+  await preferences.remove('time_format');
+}
 
 /// Small helper so screens can run an action and show either a success or a
 /// failure message without repeating try/catch.

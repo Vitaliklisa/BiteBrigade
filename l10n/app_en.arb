@@ -712,5 +712,17 @@
       "placeholders": {
         "duration": {"type": "String"}
       }
-    }
+    },
+    "deleteAccount": "Delete account",
+    "deleteAccountWarning": "This action is permanent. All your meal plans, crews, and data will be deleted forever.",
+    "deleteAccountConfirmationPrompt": "Type your exact account email to continue.",
+    "deleteAccountConfirmationLabel": "Account email",
+    "deleteAccountProfileConsequence": "Your profile will be permanently deleted.",
+    "deleteAccountAccessConsequence": "You will lose access to all your meal plans and crews.",
+    "deleteAccountIrreversibleConsequence": "This action cannot be undone.",
+    "deleteAccountPermanentlyAction": "Delete account permanently",
+    "accountDeleted": "Account deleted successfully.",
+    "serverTimedOutTryAgain": "The server timed out. Please try again later.",
+    "accountDeletionFailed": "Account deletion could not be completed. Please try again.",
+    "accountDeletedCleanupWarning": "The account was deleted, but some local settings could not be cleared. Restart the app before using another account."
 }

@@ -1553,4 +1553,50 @@ class AppLocalizationsEs extends AppLocalizations {
   String countdownToGo(String duration) {
     return 'Faltan $duration';
   }
+
+  @override
+  String get deleteAccount => 'Eliminar cuenta';
+
+  @override
+  String get deleteAccountWarning =>
+      'Esta acción es permanente. Todos tus planes de comida, grupos y datos se eliminarán para siempre.';
+
+  @override
+  String get deleteAccountConfirmationPrompt =>
+      'Escribe exactamente el correo electrónico de tu cuenta para continuar.';
+
+  @override
+  String get deleteAccountConfirmationLabel =>
+      'Correo electrónico de la cuenta';
+
+  @override
+  String get deleteAccountProfileConsequence =>
+      'Tu perfil se eliminará permanentemente.';
+
+  @override
+  String get deleteAccountAccessConsequence =>
+      'Perderás el acceso a todos tus planes de comida y grupos.';
+
+  @override
+  String get deleteAccountIrreversibleConsequence =>
+      'Esta acción no se puede deshacer.';
+
+  @override
+  String get deleteAccountPermanentlyAction =>
+      'Eliminar cuenta permanentemente';
+
+  @override
+  String get accountDeleted => 'Cuenta eliminada correctamente.';
+
+  @override
+  String get serverTimedOutTryAgain =>
+      'El servidor agotó el tiempo de espera. Inténtalo de nuevo más tarde.';
+
+  @override
+  String get accountDeletionFailed =>
+      'No se pudo completar la eliminación de la cuenta. Inténtalo de nuevo.';
+
+  @override
+  String get accountDeletedCleanupWarning =>
+      'La cuenta se eliminó, pero no se pudieron borrar algunos ajustes locales. Reinicia la aplicación antes de usar otra cuenta.';
 }

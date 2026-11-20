@@ -712,5 +712,17 @@
       "placeholders": {
         "duration": {"type": "String"}
       }
-    }
+    },
+    "deleteAccount": "Eliminar cuenta",
+    "deleteAccountWarning": "Esta acción es permanente. Todos tus planes de comida, grupos y datos se eliminarán para siempre.",
+    "deleteAccountConfirmationPrompt": "Escribe exactamente el correo electrónico de tu cuenta para continuar.",
+    "deleteAccountConfirmationLabel": "Correo electrónico de la cuenta",
+    "deleteAccountProfileConsequence": "Tu perfil se eliminará permanentemente.",
+    "deleteAccountAccessConsequence": "Perderás el acceso a todos tus planes de comida y grupos.",
+    "deleteAccountIrreversibleConsequence": "Esta acción no se puede deshacer.",
+    "deleteAccountPermanentlyAction": "Eliminar cuenta permanentemente",
+    "accountDeleted": "Cuenta eliminada correctamente.",
+    "serverTimedOutTryAgain": "El servidor agotó el tiempo de espera. Inténtalo de nuevo más tarde.",
+    "accountDeletionFailed": "No se pudo completar la eliminación de la cuenta. Inténtalo de nuevo.",
+    "accountDeletedCleanupWarning": "La cuenta se eliminó, pero no se pudieron borrar algunos ajustes locales. Reinicia la aplicación antes de usar otra cuenta."
 }

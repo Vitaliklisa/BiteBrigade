@@ -1562,4 +1562,48 @@ class AppLocalizationsDe extends AppLocalizations {
   String countdownToGo(String duration) {
     return 'Noch $duration';
   }
+
+  @override
+  String get deleteAccount => 'Konto löschen';
+
+  @override
+  String get deleteAccountWarning =>
+      'Diese Aktion ist endgültig. Alle deine Essenspläne, Gruppen und Daten werden für immer gelöscht.';
+
+  @override
+  String get deleteAccountConfirmationPrompt =>
+      'Gib deine genaue Konto-E-Mail-Adresse ein, um fortzufahren.';
+
+  @override
+  String get deleteAccountConfirmationLabel => 'Konto-E-Mail-Adresse';
+
+  @override
+  String get deleteAccountProfileConsequence =>
+      'Dein Profil wird dauerhaft gelöscht.';
+
+  @override
+  String get deleteAccountAccessConsequence =>
+      'Du verlierst den Zugriff auf alle deine Essenspläne und Gruppen.';
+
+  @override
+  String get deleteAccountIrreversibleConsequence =>
+      'Diese Aktion kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get deleteAccountPermanentlyAction => 'Konto endgültig löschen';
+
+  @override
+  String get accountDeleted => 'Konto erfolgreich gelöscht.';
+
+  @override
+  String get serverTimedOutTryAgain =>
+      'Der Server hat das Zeitlimit überschritten. Bitte versuche es später erneut.';
+
+  @override
+  String get accountDeletionFailed =>
+      'Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut.';
+
+  @override
+  String get accountDeletedCleanupWarning =>
+      'Das Konto wurde gelöscht, aber einige lokale Einstellungen konnten nicht entfernt werden. Starte die App neu, bevor du ein anderes Konto verwendest.';
 }

@@ -712,5 +712,17 @@
       "placeholders": {
         "duration": {"type": "String"}
       }
-    }
+    },
+    "deleteAccount": "Видалити обліковий запис",
+    "deleteAccountWarning": "Цю дію неможливо скасувати. Усі ваші плани харчування, компанії та дані буде видалено назавжди.",
+    "deleteAccountConfirmationPrompt": "Введіть точну електронну адресу облікового запису, щоб продовжити.",
+    "deleteAccountConfirmationLabel": "Електронна адреса облікового запису",
+    "deleteAccountProfileConsequence": "Ваш профіль буде видалено назавжди.",
+    "deleteAccountAccessConsequence": "Ви втратите доступ до всіх своїх планів харчування й компаній.",
+    "deleteAccountIrreversibleConsequence": "Цю дію неможливо скасувати.",
+    "deleteAccountPermanentlyAction": "Видалити обліковий запис назавжди",
+    "accountDeleted": "Обліковий запис успішно видалено.",
+    "serverTimedOutTryAgain": "Час очікування відповіді сервера минув. Спробуйте ще раз пізніше.",
+    "accountDeletionFailed": "Не вдалося видалити обліковий запис. Спробуйте ще раз.",
+    "accountDeletedCleanupWarning": "Обліковий запис видалено, але не вдалося очистити деякі локальні налаштування. Перезапустіть застосунок, перш ніж увійти в інший обліковий запис."
 }

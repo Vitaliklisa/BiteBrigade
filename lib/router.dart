@@ -14,6 +14,7 @@ import 'screens/login_screen.dart';
 import 'screens/notifications_screen.dart';
 import 'screens/policy_screen.dart';
 import 'screens/crews_screen.dart';
+import 'screens/delete_account_screen.dart';
 import 'screens/room_detail_screen.dart';
 import 'screens/room_editor_screen.dart';
 import 'screens/room_vote_screen.dart';
@@ -139,6 +140,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: Routes.settings,
             name: 'settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: Routes.deleteAccount,
+            name: 'deleteAccount',
+            builder: (context, state) => const DeleteAccountScreen(),
           ),
           GoRoute(
             path: Routes.invitations,

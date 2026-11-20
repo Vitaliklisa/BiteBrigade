@@ -52,6 +52,24 @@ project, deploy the Firestore rules and indexes:
 firebase deploy --only firestore:rules,firestore:indexes
 ```
 
+## Account deletion API
+
+The signed-in account deletion flow uses `api/delete-account.ts` and Firebase
+Admin credentials. Configure these Vercel environment variables for the
+Bite Brigade Firebase project:
+
+- `FIREBASE_ADMIN_PROJECT_ID`
+- `FIREBASE_ADMIN_CLIENT_EMAIL`
+- `FIREBASE_ADMIN_PRIVATE_KEY`
+
+The private key must contain the service-account key content with newlines
+escaped or otherwise supplied as environment text. Never commit the credential
+or the service-account JSON file.
+
+Before deployment, deploy the Firestore index exemption for the collection
+group `participants` and field `userId` included in
+`firestore.indexes.json`.
+
 ## Run locally
 
 Install Flutter 3.22 or newer and Java for the Firebase emulator. Then:
@@ -91,7 +109,10 @@ on the device, and “Follow system language” clears it. ARB catalogs live in
 flutter gen-l10n
 ```
 
-The remaining app screens are not yet translated.
+The Settings, home, crew, invitation, meal-plan editor, and support surfaces
+use typed generated localization APIs for English, French, Spanish, Ukrainian,
+and German. Persisted notification text and legal-policy documents remain
+destination-specific and require separate content review before translation.
 
 ## Project layout
 

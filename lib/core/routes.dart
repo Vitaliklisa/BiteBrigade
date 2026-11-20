@@ -29,6 +29,7 @@ class Routes {
   static const home = '/';
   static const login = '/login';
   static const settings = '/settings';
+  static const deleteAccount = '/delete-account';
   static const newEvent = '/event/new';
   static const eventDetail = '/event';
   static const newRoom = '/room/new';
