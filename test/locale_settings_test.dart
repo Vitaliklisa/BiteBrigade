@@ -315,6 +315,28 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    final newHereRect = tester.getRect(find.text('New here?'));
+    final createOneRect = tester.getRect(find.text('Create one'));
+    expect(
+      (newHereRect.center.dy - createOneRect.center.dy).abs(),
+      lessThanOrEqualTo(2),
+    );
+    expect(createOneRect.left - newHereRect.right, greaterThanOrEqualTo(3));
+    await tester.tap(find.text('Create one'));
+    await tester.pumpAndSettle();
+
+    final alreadyAccountRect =
+        tester.getRect(find.text('Already have an account?'));
+    final signInRect = tester.getRect(find.text('Sign in'));
+    expect(
+      (alreadyAccountRect.center.dy - signInRect.center.dy).abs(),
+      lessThanOrEqualTo(2),
+      reason: 'prompt $alreadyAccountRect and action $signInRect',
+    );
+    expect(signInRect.left - alreadyAccountRect.right, greaterThanOrEqualTo(3));
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
     final picker = find.byKey(const ValueKey('login-language-picker'));
     expect(picker, findsOneWidget);
     expect(

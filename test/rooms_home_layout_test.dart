@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:table_talk/core/rooms.dart';
@@ -53,37 +54,60 @@ void main() {
 
   testWidgets('home text uses available width inside the desktop sidebar shell',
       (tester) async {
-    tester.view.physicalSize = const Size(900, 900);
     tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          currentUserProvider.overrideWith((ref) => null),
-          roomsProvider.overrideWith((ref) => Stream.value(const <Room>[])),
-        ],
-        child: const MaterialApp(
-          home: AppNavigationShell(
-            location: '/',
-            child: RoomsHomeScreen(),
+    for (final width in [900.0, 1024.0, 1920.0]) {
+      tester.view.physicalSize = Size(width, 900);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentUserProvider.overrideWith((ref) => null),
+            roomsProvider.overrideWith((ref) => Stream.value(const <Room>[])),
+          ],
+          child: const MaterialApp(
+            home: AppNavigationShell(
+              location: '/',
+              child: RoomsHomeScreen(),
+            ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    expect(
-      tester
-          .getSize(find.text('Good meals start with a group decision.'))
-          .width,
-      greaterThan(300),
-    );
-    expect(
-      tester.getSize(find.text('Where are we\ngoing?')).width,
-      greaterThan(300),
-    );
-    expect(tester.takeException(), isNull);
+      final description = tester.renderObject<RenderParagraph>(
+          find.text('Good meals start with a group decision.'));
+      final descriptionBoxes = description.getBoxesForSelection(
+        TextSelection(
+          baseOffset: 0,
+          extentOffset: description.text.toPlainText().length,
+        ),
+      );
+      expect(
+        descriptionBoxes.map((box) => box.right - box.left).reduce(
+              (widest, current) => widest > current ? widest : current,
+            ),
+        greaterThan(200),
+        reason: 'home description should wrap at the $width px viewport',
+      );
+      final headline = tester
+          .renderObject<RenderParagraph>(find.text('Where are we\ngoing?'));
+      final headlineBoxes = headline.getBoxesForSelection(
+        TextSelection(
+          baseOffset: 0,
+          extentOffset: headline.text.toPlainText().length,
+        ),
+      );
+      expect(
+        headlineBoxes.map((box) => box.right - box.left).reduce(
+              (widest, current) => widest > current ? widest : current,
+            ),
+        greaterThan(200),
+        reason: 'home headline should wrap at the $width px viewport',
+      );
+      expect(tester.takeException(), isNull);
+    }
+
+    addTearDown(tester.view.resetPhysicalSize);
   });
 }

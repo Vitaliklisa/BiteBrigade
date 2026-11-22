@@ -247,6 +247,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         const SizedBox(height: 24),
                         Wrap(
                           alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Text(
                               _creating
@@ -255,6 +256,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               style:
                                   TextStyle(fontSize: 13, color: colors.muted),
                             ),
+                            const SizedBox(width: 4),
                             TextButton(
                               onPressed: _busy
                                   ? null
@@ -262,6 +264,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                         _creating = !_creating;
                                         _formKey.currentState?.reset();
                                       }),
+                              style: TextButton.styleFrom(
+                                foregroundColor: colors.accent,
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.padded,
+                              ),
                               child: Text(
                                 _creating ? l10n.signIn : l10n.createOne,
                                 style: TextStyle(

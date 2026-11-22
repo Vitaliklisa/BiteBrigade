@@ -148,26 +148,26 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
                             label: Text(context.l10n.newDecision),
                           );
 
-                          if (compact) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: hero,
-                                ),
-                                const SizedBox(height: 16),
-                                createButton,
-                              ],
-                            );
-                          }
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(child: hero),
-                              const SizedBox(width: 12),
-                              createButton,
-                            ],
+                          final header = compact
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    hero,
+                                    const SizedBox(height: 16),
+                                    createButton,
+                                  ],
+                                )
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(child: hero),
+                                    const SizedBox(width: 12),
+                                    createButton,
+                                  ],
+                                );
+                          return SizedBox(
+                            width: double.infinity,
+                            child: header,
                           );
                         },
                       ),
