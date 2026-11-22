@@ -81,13 +81,8 @@ class StatusChip extends StatelessWidget {
   }
 }
 
-/// Round avatar drawn entirely in Flutter: the account's initials on a colour
-/// derived from its id.
-///
-/// There is no image to load. Date Dawn launches without uploaded profile
-/// pictures — Cloud Storage requires the Blaze plan — so this is the whole
-/// avatar system: a hash, a palette and a `Text`. That also means it works
-/// offline, costs nothing, and cannot show a broken-image box.
+/// Round avatar showing a profile photo when one is available, or initials on
+/// a colour derived from the account id.
 class UserAvatar extends StatelessWidget {
   const UserAvatar({
     super.key,

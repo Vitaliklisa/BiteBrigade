@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 
 import '../core/notifications.dart';
 
-/// Everything Date Dawn keeps outside the countdown data itself: the in-app
-/// notification inbox and the syncable theme preference.
+/// Per-user data outside shared meal plans: the in-app notification inbox and
+/// the syncable theme preference.
 ///
 /// **Why this is separate from `EventRepository`.** The repository owns the
 /// shared object graph — countdowns, circles, invitations — where the rules are
@@ -68,7 +68,7 @@ class NotificationService {
         'createdAt': FieldValue.serverTimestamp(),
       });
     } catch (error) {
-      debugPrint('[datedawn] Could not write a notification: $error');
+      debugPrint('[bite] Could not write a notification: $error');
     }
   }
 
@@ -117,7 +117,7 @@ class NotificationService {
     } catch (error) {
       // Offline, or the doc does not exist yet. Appearance is a convenience;
       // never let it block the app from starting.
-      debugPrint('[datedawn] Could not read the theme preference: $error');
+      debugPrint('[bite] Could not read the theme preference: $error');
       return null;
     }
   }
@@ -144,7 +144,7 @@ class NotificationService {
       return value is String ? value : null;
     } catch (error) {
       // Formatting is a preference; a read failure must never block startup.
-      debugPrint('[datedawn] Could not read the time format: $error');
+      debugPrint('[bite] Could not read the time format: $error');
       return null;
     }
   }
@@ -162,10 +162,6 @@ class NotificationService {
   // profiles
   // ---------------------------------------------------------------------------
   //
-  // There is deliberately nothing here for profile pictures. Cloud Storage now
-  // requires the Blaze plan, so Date Dawn ships without uploaded avatars and
-  // every identity surface renders initials instead (see `UserAvatar`). Nothing
-  // writes a `photoUrl`; the model fields that still read one exist only to
-  // carry a Google account picture straight from Firebase Auth, which costs
-  // nothing and needs no bucket.
+  // Profile photos are not uploaded by the app. A Google profile photo may be
+  // displayed when Firebase Auth provides its URL; otherwise the UI uses initials.
 }

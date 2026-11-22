@@ -156,6 +156,9 @@ class AppLocalizationsUk extends AppLocalizations {
   String get openMealPlan => 'Відкрити план зустрічі';
 
   @override
+  String get openDecision => 'Відкрити вибір';
+
+  @override
   String get upcomingPlans => 'НАСТУПНІ ЗУСТРІЧІ';
 
   @override
@@ -855,7 +858,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Напишіть нам із адреси, яку використовували під час реєстрації, та попросіть видалити обліковий запис або дані. Запити обробляються після перевірки особи та згідно з чинним законодавством.';
+      'Відкрийте Налаштування > Видалити обліковий запис і виконайте кроки підтвердження. Якщо не можете ввійти, зверніться до підтримки з адреси електронної пошти свого облікового запису.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Хто бачить мою зустріч?';

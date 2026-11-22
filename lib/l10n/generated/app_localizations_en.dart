@@ -154,6 +154,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openMealPlan => 'Open meal plan';
 
   @override
+  String get openDecision => 'Open decision';
+
+  @override
   String get upcomingPlans => 'UPCOMING PLANS';
 
   @override
@@ -844,7 +847,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Email us from the address you signed up with and ask about deleting your account or information. Requests are handled subject to identity verification and applicable law.';
+      'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Who can see my room?';

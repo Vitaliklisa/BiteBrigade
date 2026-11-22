@@ -120,7 +120,7 @@ destination-specific and require separate content review before translation.
 - `lib/services/room_repository.dart` — Firestore operations and workflows.
 - `lib/screens/` — room, voting, crew, and invitation screens.
 - `lib/core/locale_settings.dart` — supported locales and system fallback.
-- `l10n/` — typed localization catalogs for Settings.
+- `l10n/` — typed localization catalogs for the supported app languages.
 - `firestore.rules` — server-side access control.
 - `firestore.indexes.json` — indexes required by Firestore queries.
 - `rules_test/` — emulator-backed authorization tests.

@@ -226,7 +226,7 @@ class _ContactCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Email support',
+                      context.l10n.emailSupport,
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

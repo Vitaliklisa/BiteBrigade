@@ -207,7 +207,7 @@ final circleInvitationsProvider = StreamProvider<List<CircleInvitation>>((ref) {
         claims.release(claimKey);
       } catch (error, stackTrace) {
         debugPrint(
-          '[datedawn] Could not auto-join couple circle '
+          '[bite] Could not auto-join couple circle '
           '${invitation.circleId} (${invitation.id}): $error',
         );
         debugPrintStack(stackTrace: stackTrace);
@@ -597,7 +597,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
       final service = ref.read(notificationServiceProvider);
       await _syncRemote(userId, accountRevision, choiceRevision, service);
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not restore theme preference: $error');
+      debugPrint('[bite] Could not restore theme preference: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
   }
@@ -625,7 +625,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
         _queueRemoteSave(userId, state, accountRevision);
       }
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not sync theme preference: $error');
+      debugPrint('[bite] Could not sync theme preference: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
   }
@@ -636,7 +636,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
       if (choiceRevision != _choiceRevision) return;
       await preferences.setString(_preferenceKey, themeModeToWire(mode));
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not save local theme preference: $error');
+      debugPrint('[bite] Could not save local theme preference: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
   }
@@ -652,7 +652,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
           .read(notificationServiceProvider)
           .saveThemeMode(userId, themeModeToWire(mode));
     }).catchError((Object error, StackTrace stackTrace) {
-      debugPrint('[datedawn] Could not save the theme preference: $error');
+      debugPrint('[bite] Could not save the theme preference: $error');
       debugPrintStack(stackTrace: stackTrace);
     });
   }
@@ -692,7 +692,7 @@ class TimeFormatController extends Notifier<TimeFormat> {
     try {
       return defaultTimeFormatFor(PlatformDispatcher.instance.locale);
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not resolve the device time format: $error');
+      debugPrint('[bite] Could not resolve the device time format: $error');
       debugPrintStack(stackTrace: stackTrace);
       return TimeFormat.twelveHour;
     }
@@ -747,7 +747,7 @@ class TimeFormatController extends Notifier<TimeFormat> {
         _queueRemoteSave(userId, state, accountRevision);
       }
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not restore time format: $error');
+      debugPrint('[bite] Could not restore time format: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
   }
@@ -757,7 +757,7 @@ class TimeFormatController extends Notifier<TimeFormat> {
       final preferences = await SharedPreferences.getInstance();
       await preferences.setString(_preferenceKey, timeFormatToWire(format));
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not save local time format: $error');
+      debugPrint('[bite] Could not save local time format: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
   }
@@ -773,7 +773,7 @@ class TimeFormatController extends Notifier<TimeFormat> {
           .read(notificationServiceProvider)
           .saveTimeFormat(userId, timeFormatToWire(format));
     }).catchError((Object error, StackTrace stackTrace) {
-      debugPrint('[datedawn] Could not save the time format: $error');
+      debugPrint('[bite] Could not save the time format: $error');
       debugPrintStack(stackTrace: stackTrace);
     });
   }

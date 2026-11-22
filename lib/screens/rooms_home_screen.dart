@@ -282,7 +282,7 @@ class _FeaturedRoomCard extends StatelessWidget {
                       color: Color(0xFFC4A47A), size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    'NEXT UP',
+                    context.l10n.comingUp,
                     style: TextStyle(
                       color: colors.accent,
                       fontSize: 10,
@@ -333,7 +333,7 @@ class _FeaturedRoomCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'Open decision',
+                    context.l10n.openDecision,
                     style: TextStyle(
                       color: colors.accent,
                       fontWeight: FontWeight.w700,

@@ -160,7 +160,7 @@ class AuthService {
     try {
       await user.getIdToken(true);
     } catch (error) {
-      debugPrint('[datedawn] Could not refresh the ID token: $error');
+      debugPrint('[bite] Could not refresh the ID token: $error');
     }
   }
 
@@ -273,7 +273,7 @@ class AuthService {
     try {
       await signOut();
     } catch (error) {
-      debugPrint('[bite-brigade] Post-deletion sign-out failed: $error');
+      debugPrint('[bite] Post-deletion sign-out failed: $error');
     }
   }
 

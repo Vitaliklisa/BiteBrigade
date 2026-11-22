@@ -155,6 +155,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get openMealPlan => 'Essensplan öffnen';
 
   @override
+  String get openDecision => 'Entscheidung öffnen';
+
+  @override
   String get upcomingPlans => 'ANSTEHENDE ESSENSPLÄNE';
 
   @override
@@ -863,7 +866,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Schreib uns von der bei der Anmeldung verwendeten Adresse und bitte um die Löschung deines Kontos oder deiner Daten. Anfragen werden vorbehaltlich einer Identitätsprüfung und geltender Gesetze bearbeitet.';
+      'Öffne Einstellungen > Konto löschen und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Wer kann meinen Raum sehen?';

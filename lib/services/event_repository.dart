@@ -479,10 +479,10 @@ class EventRepository {
       final circle = circles.firstWhere((c) => c.id == circleId);
       final circleType = circle.isCouple ? 'couple' : 'standard';
       debugPrint(
-          '[datedawn] createCountdown -> circleType: $circleType, countdownId: $id, userId: $userId, circleId: $circleId');
+          '[bite] createCountdown -> circleType: $circleType, countdownId: $id, userId: $userId, circleId: $circleId');
       if (circleType == 'couple') {
         debugPrint(
-            '[datedawn] Couple-write logic verified: partner link and couple shared participation for circle $circleId');
+            '[bite] Couple-write logic verified: partner link and couple shared participation for circle $circleId');
       }
       // Invitations only apply to circles that are not the automatic kind.
       if (!circle.isCouple) {
@@ -541,7 +541,7 @@ class EventRepository {
               memberSnap.docs.map((d) => CircleMember.fromMap(d.id, d.data())));
         } catch (error) {
           debugPrint(
-            '[datedawn] Could not read members of couple circle ${circle.id}: '
+            '[bite] Could not read members of couple circle ${circle.id}: '
             '$error',
           );
         }
@@ -647,7 +647,7 @@ class EventRepository {
         .toList();
     final partner = autoShareMembers.map(_coupleMemberName).firstOrNull;
     debugPrint(
-      '[datedawn] Couple auto-share outcome: '
+      '[bite] Couple auto-share outcome: '
       'selectedCircleIds=$coupleCircleIds '
       'memberIds=${coupleMemberIds.toList()} '
       'added=$autoShared '
@@ -804,7 +804,7 @@ class EventRepository {
     } catch (error) {
       // A read failure must not read as "they are blocked". The rules decide
       // whether the invitation write is allowed; this is a courtesy check.
-      debugPrint('[datedawn] Could not check the blocked list before '
+      debugPrint('[bite] Could not check the blocked list before '
           'inviting $target: $error');
     }
     if (blocked) {
@@ -823,7 +823,7 @@ class EventRepository {
             .doc(inviterId)
             .get();
       } on FirebaseException catch (error) {
-        debugPrint('[datedawn] Could not verify invitation eligibility for '
+        debugPrint('[bite] Could not verify invitation eligibility for '
             '$targetUserId: ${error.code}');
         throw const DataFailure(
           'Could not verify whether this person can receive your invitation. '
@@ -1109,7 +1109,7 @@ class EventRepository {
     try {
       await targetRef.delete();
     } on FirebaseException catch (error) {
-      debugPrint('[datedawn] Could not remove $userId from $eventId '
+      debugPrint('[bite] Could not remove $userId from $eventId '
           '(${error.code}): ${error.message}');
       if (error.code == 'permission-denied') {
         throw const DataFailure(
@@ -1139,7 +1139,7 @@ class EventRepository {
         );
       } catch (error, stackTrace) {
         debugPrint(
-          '[datedawn] Could not notify $userId about removal from $eventId: '
+          '[bite] Could not notify $userId about removal from $eventId: '
           '$error',
         );
         debugPrintStack(stackTrace: stackTrace);
@@ -1160,7 +1160,7 @@ class EventRepository {
       if (data == null) return null;
       return ParticipantRole.fromWire(data['role']);
     } catch (error) {
-      debugPrint('[datedawn] Could not read the actor\'s role: $error');
+      debugPrint('[bite] Could not read the actor\'s role: $error');
       return null;
     }
   }
@@ -1221,7 +1221,7 @@ class EventRepository {
           targetUid: invitation.invitedBy,
         );
       } catch (error) {
-        debugPrint('[datedawn] Could not check the blocked list before '
+        debugPrint('[bite] Could not check the blocked list before '
             'accepting ${invitation.id}: $error');
       }
       if (blocked) {
@@ -1267,7 +1267,7 @@ class EventRepository {
               .doc(invitation.id)
               .update({'status': InviteStatus.accepted.name});
         } catch (error) {
-          debugPrint('[datedawn] Could not settle the invitation: $error');
+          debugPrint('[bite] Could not settle the invitation: $error');
         }
         return true;
       }
@@ -1346,7 +1346,7 @@ class EventRepository {
       // the participant row, the invitation or the event that the rules
       // refused.
       debugPrint(
-        '[datedawn] Accept ${invitation.id} for event ${invitation.eventId} '
+        '[bite] Accept ${invitation.id} for event ${invitation.eventId} '
         'as $userId refused (${error.code}): ${error.message}',
       );
       if (error.code == 'permission-denied' || error.code == 'not-found') {
@@ -1545,7 +1545,7 @@ class EventRepository {
     try {
       doc = await _invitations.doc(invitation.id).get();
     } on FirebaseException catch (error) {
-      debugPrint('[datedawn] Could not read invitation ${invitation.id} '
+      debugPrint('[bite] Could not read invitation ${invitation.id} '
           '(${error.code}): ${error.message}');
       if (error.code == 'permission-denied') {
         throw const DataFailure(
@@ -1750,7 +1750,7 @@ class EventRepository {
       } on FirebaseException catch (error) {
         errors.add(error.code);
         debugPrint(
-          '[datedawn] Couple membership read refused: '
+          '[bite] Couple membership read refused: '
           'code=${error.code} path=circles/$circleId '
           'subcollection=members message=${error.message}',
         );
@@ -1759,7 +1759,7 @@ class EventRepository {
         // Best-effort: a circle whose members cannot be read still shares the
         // event with the circles that could be read.
         debugPrint(
-          '[datedawn] Couple membership read failed: '
+          '[bite] Couple membership read failed: '
           'code=unknown path=circles/$circleId subcollection=members '
           'error=$error',
         );
@@ -1812,7 +1812,7 @@ class EventRepository {
         photoUrl: data['photoUrl'] as String?,
       );
     } catch (error) {
-      debugPrint('[datedawn] Could not read the profile of $userId: $error');
+      debugPrint('[bite] Could not read the profile of $userId: $error');
       return CircleMember(
         userId: userId,
         email: '',
@@ -1862,7 +1862,7 @@ class EventRepository {
       } catch (error) {
         // A viewer cannot write another person's row; that is fine, the screen
         // still shows the hydrated identity for this session.
-        debugPrint('[datedawn] Could not repair ${participant.userId}\'s '
+        debugPrint('[bite] Could not repair ${participant.userId}\'s '
             'participant row: $error');
       }
     }
@@ -1901,13 +1901,13 @@ class EventRepository {
         );
       } on FirebaseException catch (error) {
         debugPrint(
-          '[datedawn] Couple participant write refused: '
+          '[bite] Couple participant write refused: '
           'code=${error.code} paths=$attemptedPaths message=${error.message}',
         );
         rethrow;
       } catch (error) {
         debugPrint(
-          '[datedawn] Couple participant write failed: '
+          '[bite] Couple participant write failed: '
           'code=unknown paths=$attemptedPaths error=$error',
         );
         rethrow;
@@ -1962,13 +1962,13 @@ class EventRepository {
       // is the feature not working. `permission-denied` means the deployed
       // rules do not match this client.
       debugPrint(
-        '[datedawn] Couple participant write refused: '
+        '[bite] Couple participant write refused: '
         'code=${error.code} paths=$attemptedPaths message=${error.message}',
       );
       rethrow;
     } catch (error) {
       debugPrint(
-        '[datedawn] Couple participant write failed: '
+        '[bite] Couple participant write failed: '
         'code=unknown paths=$attemptedPaths error=$error',
       );
       rethrow;
@@ -2002,14 +2002,14 @@ class EventRepository {
       return true;
     } on FirebaseException catch (error) {
       debugPrint(
-        '[datedawn] Couple visibility write refused: '
+        '[bite] Couple visibility write refused: '
         'code=${error.code} path=$eventPath '
         'field=sharedWithMemberIds message=${error.message}',
       );
       rethrow;
     } catch (error) {
       debugPrint(
-        '[datedawn] Couple visibility write failed: '
+        '[bite] Couple visibility write failed: '
         'code=unknown path=$eventPath field=sharedWithMemberIds error=$error',
       );
       rethrow;
@@ -2093,7 +2093,7 @@ class EventRepository {
       } catch (error) {
         // One person's invite failing must not stop the others, and must never
         // surface as a failed create.
-        debugPrint('[datedawn] Could not invite $targetEmail: $error');
+        debugPrint('[bite] Could not invite $targetEmail: $error');
       }
     }
 
@@ -2193,7 +2193,7 @@ class EventRepository {
       }
     } catch (error) {
       // The membership change is the user's action and has already committed.
-      debugPrint('[datedawn] Could not resync shares for $circleId: $error');
+      debugPrint('[bite] Could not resync shares for $circleId: $error');
     }
   }
 
@@ -2259,7 +2259,7 @@ class EventRepository {
     try {
       await sink(userId: userId, title: title, body: body, kind: kind);
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not notify $userId: $error');
+      debugPrint('[bite] Could not notify $userId: $error');
       debugPrintStack(stackTrace: stackTrace);
     }
   }
@@ -2563,13 +2563,12 @@ class EventRepository {
       }
     } on FirebaseException catch (error) {
       debugPrint(
-        '[datedawn] Could not seed $inviteeId into circle $circleId shares '
+        '[bite] Could not seed $inviteeId into circle $circleId shares '
         '(${error.code}). Countdowns shared with this circle BEFORE the '
         'invitation will not be visible to them until they are re-shared.',
       );
     } catch (error) {
-      debugPrint(
-          '[datedawn] Could not seed circle shares for $circleId: $error');
+      debugPrint('[bite] Could not seed circle shares for $circleId: $error');
     }
   }
 
@@ -2637,7 +2636,7 @@ class EventRepository {
       await batch.commit();
     } on FirebaseException catch (error) {
       debugPrint(
-        '[datedawn] Accept circle invitation ${invitation.id} for '
+        '[bite] Accept circle invitation ${invitation.id} for '
         '${invitation.circleId} as $userId refused '
         '(${error.code}): ${error.message}',
       );
@@ -2870,7 +2869,7 @@ class EventRepository {
         },
         onError: (Object error) {
           // Both reads failed: this is a genuine error, reported as one.
-          debugPrint('[datedawn] Blocked list unreadable: $error');
+          debugPrint('[bite] Blocked list unreadable: $error');
           if (!controller.isClosed) controller.addError(error);
         },
       );
@@ -2884,7 +2883,7 @@ class EventRepository {
         if (!controller.isClosed) controller.add(read(snap));
       },
       onError: (Object error) {
-        debugPrint('[datedawn] Blocked-list query failed, falling back to an '
+        debugPrint('[bite] Blocked-list query failed, falling back to an '
             'unfiltered read: $error');
         startFallback();
       },
@@ -2964,8 +2963,7 @@ class EventRepository {
         if (storedPhoto != null && storedPhoto.isNotEmpty) photo = storedPhoto;
       }
     } catch (error) {
-      debugPrint(
-          '[datedawn] Block: could not read the blocked profile: $error');
+      debugPrint('[bite] Block: could not read the blocked profile: $error');
     }
 
     // `merge: true` and `active: true` together are what heal a row written by
@@ -2988,7 +2986,7 @@ class EventRepository {
         BlockedUser.activeField: true,
       }, SetOptions(merge: true));
     } on FirebaseException catch (error) {
-      debugPrint('[datedawn] Block: writing the block row failed '
+      debugPrint('[bite] Block: writing the block row failed '
           '(${error.code}) at users/$userId/blocked/$targetUid: '
           '${error.message}');
       if (error.code == 'permission-denied') {
@@ -3025,7 +3023,7 @@ class EventRepository {
         await removeBlockedParticipant(eventRef, targetUid, actorId: userId);
       }
     } catch (error) {
-      debugPrint('[datedawn] Block: shared-countdown cleanup failed: $error');
+      debugPrint('[bite] Block: shared-countdown cleanup failed: $error');
     }
 
     // 2b. The caller's own participant row is NOT deleted, and must not be.
@@ -3059,11 +3057,11 @@ class EventRepository {
           await doc.reference.delete();
         } catch (error) {
           debugPrint(
-              '[datedawn] Block: could not delete invitation ${doc.id}: $error');
+              '[bite] Block: could not delete invitation ${doc.id}: $error');
         }
       }
     } catch (error) {
-      debugPrint('[datedawn] Block: could not clear invitations: $error');
+      debugPrint('[bite] Block: could not clear invitations: $error');
     }
 
     // 3. Shared circles: leave them. Rules let a member remove only themselves.
@@ -3078,12 +3076,12 @@ class EventRepository {
         try {
           await leaveCircle(circleId: circle.id, userId: userId);
         } catch (error) {
-          debugPrint('[datedawn] Block: could not leave circle ${circle.id}: '
+          debugPrint('[bite] Block: could not leave circle ${circle.id}: '
               '$error');
         }
       }
     } catch (error) {
-      debugPrint('[datedawn] Block: could not list shared circles: $error');
+      debugPrint('[bite] Block: could not list shared circles: $error');
     }
 
     // 4. Recents, so the person is not offered as an invitee straight after.
@@ -3098,7 +3096,7 @@ class EventRepository {
           }
         }
       } catch (error) {
-        debugPrint('[datedawn] Block: could not prune recents: $error');
+        debugPrint('[bite] Block: could not prune recents: $error');
       }
     }
   }
@@ -3141,14 +3139,14 @@ class EventRepository {
       } catch (error) {
         // If the check itself cannot run, fall through and let the write be
         // attempted -- the catch below still keeps the block safe.
-        debugPrint('[datedawn] Block: could not check authority on '
+        debugPrint('[bite] Block: could not check authority on '
             '${eventRef.id}: $error');
       }
     }
     try {
       await eventRef.collection('participants').doc(targetUid).delete();
     } catch (error) {
-      debugPrint('[datedawn] Block: could not remove $targetUid from '
+      debugPrint('[bite] Block: could not remove $targetUid from '
           '${eventRef.id}: $error');
     }
   }
@@ -3169,7 +3167,7 @@ class EventRepository {
     } catch (error) {
       // Not fatal: the signed-in account may already have a profile, in which
       // case the block write below is authorised anyway.
-      debugPrint('[datedawn] Could not ensure the user profile: $error');
+      debugPrint('[bite] Could not ensure the user profile: $error');
     }
   }
 
@@ -3272,7 +3270,7 @@ class EventRepository {
       sharedDocs = shared.docs;
     } on FirebaseException catch (error) {
       debugPrint(
-        '[datedawn] Could not list countdowns shared with circle $circleId '
+        '[bite] Could not list countdowns shared with circle $circleId '
         '(${error.code}). Deleting the circle anyway; any countdown still '
         'pointing at it is cleaned up on its next open. If this is '
         'permission-denied, deploy the rules: '
@@ -3280,7 +3278,7 @@ class EventRepository {
       );
     } catch (error) {
       debugPrint(
-        '[datedawn] Could not list countdowns shared with circle $circleId: '
+        '[bite] Could not list countdowns shared with circle $circleId: '
         '$error',
       );
     }
@@ -3293,7 +3291,7 @@ class EventRepository {
       memberRefs = members.docs.map((d) => d.reference).toList();
     } catch (error) {
       debugPrint(
-        '[datedawn] Could not list members of circle $circleId before '
+        '[bite] Could not list members of circle $circleId before '
         'deleting it: $error',
       );
     }
@@ -3333,7 +3331,7 @@ class EventRepository {
         // is deleted in its own request below rather than being held hostage by
         // a member row that refuses.
         debugPrint(
-          '[datedawn] Could not delete a batch of circle $circleId refs '
+          '[bite] Could not delete a batch of circle $circleId refs '
           '($error). Retrying one at a time.',
         );
         for (final ref in refs.sublist(i, end)) {
@@ -3341,7 +3339,7 @@ class EventRepository {
             await ref.delete();
           } catch (singleError) {
             debugPrint(
-              '[datedawn] Could not delete ${ref.path} while deleting circle '
+              '[bite] Could not delete ${ref.path} while deleting circle '
               '$circleId: $singleError',
             );
           }
@@ -3379,7 +3377,7 @@ class EventRepository {
         // chunk still gets unshared; the circle delete must not be blocked by
         // it.
         debugPrint(
-          '[datedawn] Could not unshare circle $circleId from a batch of '
+          '[bite] Could not unshare circle $circleId from a batch of '
           'countdowns ($error). Retrying one at a time.',
         );
         for (final event in chunk) {
@@ -3390,7 +3388,7 @@ class EventRepository {
             });
           } catch (singleError) {
             debugPrint(
-              '[datedawn] Could not unshare circle $circleId from '
+              '[bite] Could not unshare circle $circleId from '
               'countdown ${event.id}: $singleError',
             );
           }
@@ -3441,7 +3439,7 @@ class EventRepository {
       }
     } catch (error) {
       debugPrint(
-        '[datedawn] Could not read members of circle $circleId while pruning: '
+        '[bite] Could not read members of circle $circleId while pruning: '
         '$error',
       );
     }
@@ -3467,7 +3465,7 @@ class EventRepository {
           if (raw is List) stillCovered.addAll(raw.whereType<String>());
         } catch (error) {
           debugPrint(
-            '[datedawn] Could not read circle $id while pruning $circleId; '
+            '[bite] Could not read circle $id while pruning $circleId; '
             'leaving its members shared: $error',
           );
           stillCovered.addAll(current);
@@ -3491,7 +3489,7 @@ class EventRepository {
         // Per-event, so one countdown that refuses the write does not stop the
         // others from being pruned — and never propagates to fail the delete.
         debugPrint(
-          '[datedawn] Could not prune shares for $circleId on event '
+          '[bite] Could not prune shares for $circleId on event '
           '${event.id}: $error',
         );
       }
@@ -3529,7 +3527,7 @@ class EventRepository {
           memberIds.addAll(snap.docs.map((d) => d.id));
         }
       } catch (error) {
-        debugPrint('[datedawn] Could not read members of $circleId: $error');
+        debugPrint('[bite] Could not read members of $circleId: $error');
       }
     }
     await _events.doc(event.id).update({
@@ -3690,7 +3688,7 @@ class EventRepository {
           'inviteCount': count,
         }, SetOptions(merge: true));
       } catch (error) {
-        debugPrint('[datedawn] Could not remember contact $email: $error');
+        debugPrint('[bite] Could not remember contact $email: $error');
       }
     }
   }
@@ -3711,7 +3709,7 @@ class EventRepository {
       await _recentContacts(userId).doc(docId).delete();
     } catch (error) {
       debugPrint(
-        '[datedawn] Could not forget contact ${contact.email}: $error',
+        '[bite] Could not forget contact ${contact.email}: $error',
       );
     }
   }

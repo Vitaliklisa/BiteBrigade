@@ -368,6 +368,12 @@ abstract class AppLocalizations {
   /// **'Open meal plan'**
   String get openMealPlan;
 
+  /// No description provided for @openDecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Open decision'**
+  String get openDecision;
+
   /// No description provided for @upcomingPlans.
   ///
   /// In en, this message translates to:
@@ -1607,7 +1613,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqDeleteAccountAnswer.
   ///
   /// In en, this message translates to:
-  /// **'Email us from the address you signed up with and ask about deleting your account or information. Requests are handled subject to identity verification and applicable law.'**
+  /// **'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.'**
   String get faqDeleteAccountAnswer;
 
   /// No description provided for @faqWhoSeesRoomQuestion.

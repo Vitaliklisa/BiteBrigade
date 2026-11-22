@@ -211,7 +211,7 @@ class _BlockUserSheetState extends ConsumerState<_BlockUserSheet> {
         ),
       );
     } catch (error, stackTrace) {
-      debugPrint('[datedawn] Could not undo block for $targetUid: $error');
+      debugPrint('[bite] Could not undo block for $targetUid: $error');
       debugPrintStack(stackTrace: stackTrace);
       messenger.showSnackBar(
         SnackBar(content: Text(errorMessage)),

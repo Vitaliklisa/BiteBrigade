@@ -109,6 +109,41 @@ void main() {
     }
   });
 
+  test('decision and account-support copy is translated in every locale',
+      () async {
+    const expectedOpenDecision = {
+      'en': 'Open decision',
+      'fr': 'Ouvrir la décision',
+      'es': 'Abrir decisión',
+      'uk': 'Відкрити вибір',
+      'de': 'Entscheidung öffnen',
+    };
+    const expectedDeleteAccountHelp = {
+      'en':
+          'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.',
+      'fr':
+          'Ouvrez Réglages > Supprimer le compte et suivez les étapes de confirmation. Si vous ne pouvez pas vous connecter, contactez l’assistance depuis l’adresse e-mail de votre compte.',
+      'es':
+          'Abre Ajustes > Eliminar cuenta y sigue los pasos de confirmación. Si no puedes iniciar sesión, contacta con soporte desde el correo electrónico de tu cuenta.',
+      'uk':
+          'Відкрийте Налаштування > Видалити обліковий запис і виконайте кроки підтвердження. Якщо не можете ввійти, зверніться до підтримки з адреси електронної пошти свого облікового запису.',
+      'de':
+          'Öffne Einstellungen > Konto löschen und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.',
+    };
+
+    for (final locale in supportedAppLocales) {
+      final localizations = await AppLocalizations.delegate.load(locale);
+      expect(
+        localizations.openDecision,
+        expectedOpenDecision[locale.languageCode],
+      );
+      expect(
+        localizations.faqDeleteAccountAnswer,
+        expectedDeleteAccountHelp[locale.languageCode],
+      );
+    }
+  });
+
   testWidgets('language picker updates Settings and persists the selection',
       (tester) async {
     await tester.pumpWidget(

@@ -155,6 +155,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get openMealPlan => 'Abrir plan de comida';
 
   @override
+  String get openDecision => 'Abrir decisión';
+
+  @override
   String get upcomingPlans => 'PRÓXIMAS COMIDAS';
 
   @override
@@ -855,7 +858,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Escríbenos desde la dirección con la que te registraste para solicitar la eliminación de tu cuenta o información. Las solicitudes están sujetas a la verificación de identidad y a la legislación aplicable.';
+      'Abre Ajustes > Eliminar cuenta y sigue los pasos de confirmación. Si no puedes iniciar sesión, contacta con soporte desde el correo electrónico de tu cuenta.';
 
   @override
   String get faqWhoSeesRoomQuestion => '¿Quién puede ver mi sala?';

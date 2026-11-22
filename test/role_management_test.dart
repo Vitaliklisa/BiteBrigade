@@ -754,7 +754,7 @@ void main() {
       }
 
       expect(find.text('viewer was removed.'), findsOneWidget);
-      expect(debugMessages, isNot(contains('[datedawn] Remove failed: null')));
+      expect(debugMessages, isNot(contains('[bite] Remove failed: null')));
       expect(
         (await db
                 .collection('events')
