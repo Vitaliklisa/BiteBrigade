@@ -18,19 +18,22 @@ class AppLocalizationsUk extends AppLocalizations {
   String get languageSaveFailed => 'Не вдалося зберегти налаштування мови.';
 
   @override
-  String get languageEnglish => 'English';
+  String get languageEnglish => 'Англійська';
 
   @override
-  String get languageFrench => 'Français';
+  String get languageFrench => 'Французька';
 
   @override
-  String get languageSpanish => 'Español';
+  String get languageSpanish => 'Іспанська';
 
   @override
   String get languageUkrainian => 'Українська';
 
   @override
-  String get languageGerman => 'Deutsch';
+  String get languageGerman => 'Німецька';
+
+  @override
+  String get languageChineseTaiwan => 'Традиційна китайська (Тайвань)';
 
   @override
   String get settings => 'Налаштування';

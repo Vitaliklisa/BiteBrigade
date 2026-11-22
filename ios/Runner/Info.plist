@@ -23,6 +23,8 @@
 			<string>es</string>
 			<string>uk</string>
 			<string>de</string>
+			<string>zh-Hant</string>
+			<string>zh-TW</string>
 		</array>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>

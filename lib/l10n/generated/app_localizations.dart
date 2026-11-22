@@ -10,6 +10,7 @@ import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
 import 'app_localizations_uk.dart';
+import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
 
@@ -101,7 +102,9 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('es'),
     Locale('fr'),
-    Locale('uk')
+    Locale('uk'),
+    Locale('zh'),
+    Locale('zh', 'TW')
   ];
 
   /// No description provided for @language.
@@ -131,26 +134,32 @@ abstract class AppLocalizations {
   /// No description provided for @languageFrench.
   ///
   /// In en, this message translates to:
-  /// **'Français'**
+  /// **'French'**
   String get languageFrench;
 
   /// No description provided for @languageSpanish.
   ///
   /// In en, this message translates to:
-  /// **'Español'**
+  /// **'Spanish'**
   String get languageSpanish;
 
   /// No description provided for @languageUkrainian.
   ///
   /// In en, this message translates to:
-  /// **'Українська'**
+  /// **'Ukrainian'**
   String get languageUkrainian;
 
   /// No description provided for @languageGerman.
   ///
   /// In en, this message translates to:
-  /// **'Deutsch'**
+  /// **'German'**
   String get languageGerman;
+
+  /// No description provided for @languageChineseTaiwan.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional Chinese (Taiwan)'**
+  String get languageChineseTaiwan;
 
   /// No description provided for @settings.
   ///
@@ -2773,14 +2782,32 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'es', 'fr', 'uk'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+        'de',
+        'en',
+        'es',
+        'fr',
+        'uk',
+        'zh'
+      ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'zh':
+      {
+        switch (locale.countryCode) {
+          case 'TW':
+            return AppLocalizationsZhTw();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'de':
@@ -2793,6 +2820,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsFr();
     case 'uk':
       return AppLocalizationsUk();
+    case 'zh':
+      return AppLocalizationsZh();
   }
 
   throw FlutterError(

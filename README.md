@@ -99,8 +99,9 @@ crew membership changes.
 
 ## Localization
 
-The Settings language preference and its labels support English, French,
-Spanish, Ukrainian, and German. The initial locale follows the device language
+The language preference supports English, French, Spanish, Ukrainian, German,
+and Traditional Chinese (Taiwan). Language names are displayed in the currently
+selected interface language. The initial locale follows the device language
 when supported and otherwise falls back to English; an explicit choice is saved
 on the device, and “Follow system language” clears it. ARB catalogs live in
 `l10n/`; regenerate their typed Dart API with:
@@ -111,7 +112,9 @@ flutter gen-l10n
 
 The Settings, home, crew, invitation, meal-plan editor, and support surfaces
 use typed generated localization APIs for English, French, Spanish, Ukrainian,
-and German. Persisted notification text and legal-policy documents remain
+and German. Traditional Chinese (Taiwan) is translated on the login and primary
+home surfaces; untranslated catalog entries retain the English source copy.
+Persisted notification text and legal-policy documents remain
 destination-specific and require separate content review before translation.
 
 ## Project layout

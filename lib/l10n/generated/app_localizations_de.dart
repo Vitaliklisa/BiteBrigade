@@ -19,19 +19,22 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ihre Spracheinstellung konnte nicht gespeichert werden.';
 
   @override
-  String get languageEnglish => 'English';
+  String get languageEnglish => 'Englisch';
 
   @override
-  String get languageFrench => 'Français';
+  String get languageFrench => 'Französisch';
 
   @override
-  String get languageSpanish => 'Español';
+  String get languageSpanish => 'Spanisch';
 
   @override
-  String get languageUkrainian => 'Українська';
+  String get languageUkrainian => 'Ukrainisch';
 
   @override
   String get languageGerman => 'Deutsch';
+
+  @override
+  String get languageChineseTaiwan => 'Traditionelles Chinesisch (Taiwan)';
 
   @override
   String get settings => 'Einstellungen';

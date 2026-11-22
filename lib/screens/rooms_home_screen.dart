@@ -152,7 +152,10 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                hero,
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: hero,
+                                ),
                                 const SizedBox(height: 16),
                                 createButton,
                               ],

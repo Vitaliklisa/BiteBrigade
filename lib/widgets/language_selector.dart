@@ -7,7 +7,9 @@ import '../l10n/generated/app_localizations.dart';
 import '../providers/locale_provider.dart';
 
 class LanguageSelector extends ConsumerWidget {
-  const LanguageSelector({super.key});
+  const LanguageSelector({super.key, this.compact = false});
+
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,6 +18,15 @@ class LanguageSelector extends ConsumerWidget {
     final label = selectedLocale == null
         ? l10n.followSystemLanguage
         : '${_localeFlag(selectedLocale)} ${_localeName(l10n, selectedLocale)}';
+
+    if (compact) {
+      return IconButton(
+        key: const ValueKey('login-language-picker'),
+        tooltip: l10n.language,
+        icon: const Icon(Icons.language_rounded),
+        onPressed: () => _showChoices(context, ref, l10n),
+      );
+    }
 
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainerLow,
@@ -123,6 +134,7 @@ class LanguageSelector extends ConsumerWidget {
       'es' => l10n.languageSpanish,
       'uk' => l10n.languageUkrainian,
       'de' => l10n.languageGerman,
+      'zh' => l10n.languageChineseTaiwan,
       _ => l10n.languageEnglish,
     };
   }
@@ -133,7 +145,8 @@ class LanguageSelector extends ConsumerWidget {
       'es' => '🇪🇸',
       'uk' => '🇺🇦',
       'de' => '🇩🇪',
-      _ => '🇺🇸',
+      'zh' => '🇹🇼',
+      _ => '🇬🇧',
     };
   }
 }

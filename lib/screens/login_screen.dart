@@ -6,6 +6,7 @@ import '../core/routes.dart';
 import '../core/theme.dart';
 import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
+import '../widgets/language_selector.dart';
 
 /// Sign in / create account across Android, iOS and web with Firebase Auth.
 ///
@@ -105,182 +106,199 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      _creating
-                          ? l10n.createAccountHeading
-                          : l10n.welcomeHeading,
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      _creating
-                          ? l10n.createAccountDescription
-                          : l10n.welcomeDescription,
-                      style: TextStyle(
-                          fontSize: 14, height: 1.5, color: colors.muted),
-                    ),
-                    const SizedBox(height: 28),
-                    if (_creating) ...[
-                      _Field(
-                        controller: _name,
-                        label: l10n.name,
-                        hint: l10n.nameHint,
-                        textInputAction: TextInputAction.next,
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? l10n.nameRequired
-                            : null,
-                      ),
-                      const SizedBox(height: 14),
-                    ],
-                    _Field(
-                      controller: _email,
-                      label: l10n.email,
-                      hint: l10n.emailHint,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.email],
-                      validator: (v) {
-                        final value = v?.trim() ?? '';
-                        if (value.isEmpty) return l10n.emailRequired;
-                        if (!value.contains('@') || !value.contains('.')) {
-                          return l10n.emailInvalid;
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-                    _Field(
-                      controller: _password,
-                      label: l10n.password,
-                      hint: '••••••••',
-                      obscure: _obscure,
-                      textInputAction: TextInputAction.done,
-                      autofillHints: const [AutofillHints.password],
-                      onSubmitted: (_) => _submit(),
-                      suffix: IconButton(
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                        icon: Icon(
-                          _obscure
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          size: 19,
-                          color: colors.subtle,
-                        ),
-                      ),
-                      validator: (v) {
-                        if ((v ?? '').isEmpty) return l10n.passwordRequired;
-                        if (_creating && (v ?? '').length < 6) {
-                          return l10n.passwordTooShort;
-                        }
-                        return null;
-                      },
-                    ),
-                    if (!_creating)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: _busy ? null : _forgotPassword,
-                          child: Text(l10n.forgotPassword,
-                              style: const TextStyle(fontSize: 13)),
-                        ),
-                      )
-                    else
-                      const SizedBox(height: 8),
-                    if (authError != null) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        l10n.signInServiceUnavailable,
-                        style: TextStyle(fontSize: 13, color: colors.danger),
-                      ),
-                    ],
-                    const SizedBox(height: 14),
-                    FilledButton(
-                      onPressed: _busy ? null : _submit,
-                      child: _busy
-                          ? const _ButtonSpinner()
-                          : Text(
-                              _creating
-                                  ? l10n.createAccountAction
-                                  : l10n.signIn,
-                            ),
-                    ),
-                    const SizedBox(height: 18),
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: colors.border)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            l10n.or,
-                            style: TextStyle(
-                                fontSize: 11,
-                                letterSpacing: 1.4,
-                                color: colors.subtle),
-                          ),
-                        ),
-                        Expanded(child: Divider(color: colors.border)),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    OutlinedButton.icon(
-                      onPressed: _busy ? null : _google,
-                      icon: const _GoogleGlyph(),
-                      label: Text(l10n.continueWithGoogle),
-                    ),
-                    const SizedBox(height: 24),
-                    Wrap(
-                      alignment: WrapAlignment.center,
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          _creating ? l10n.alreadyHaveAccount : l10n.newHere,
-                          style: TextStyle(fontSize: 13, color: colors.muted),
+                          _creating
+                              ? l10n.createAccountHeading
+                              : l10n.welcomeHeading,
+                          style: Theme.of(context).textTheme.headlineMedium,
                         ),
-                        TextButton(
-                          onPressed: _busy
-                              ? null
-                              : () => setState(() {
-                                    _creating = !_creating;
-                                    _formKey.currentState?.reset();
-                                  }),
-                          child: Text(
-                            _creating ? l10n.signIn : l10n.createOne,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: colors.accent,
+                        const SizedBox(height: 10),
+                        Text(
+                          _creating
+                              ? l10n.createAccountDescription
+                              : l10n.welcomeDescription,
+                          style: TextStyle(
+                              fontSize: 14, height: 1.5, color: colors.muted),
+                        ),
+                        const SizedBox(height: 28),
+                        if (_creating) ...[
+                          _Field(
+                            controller: _name,
+                            label: l10n.name,
+                            hint: l10n.nameHint,
+                            textInputAction: TextInputAction.next,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? l10n.nameRequired
+                                : null,
+                          ),
+                          const SizedBox(height: 14),
+                        ],
+                        _Field(
+                          controller: _email,
+                          label: l10n.email,
+                          hint: l10n.emailHint,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          autofillHints: const [AutofillHints.email],
+                          validator: (v) {
+                            final value = v?.trim() ?? '';
+                            if (value.isEmpty) return l10n.emailRequired;
+                            if (!value.contains('@') || !value.contains('.')) {
+                              return l10n.emailInvalid;
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 14),
+                        _Field(
+                          controller: _password,
+                          label: l10n.password,
+                          hint: '••••••••',
+                          obscure: _obscure,
+                          textInputAction: TextInputAction.done,
+                          autofillHints: const [AutofillHints.password],
+                          onSubmitted: (_) => _submit(),
+                          suffix: IconButton(
+                            onPressed: () =>
+                                setState(() => _obscure = !_obscure),
+                            icon: Icon(
+                              _obscure
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              size: 19,
+                              color: colors.subtle,
                             ),
+                          ),
+                          validator: (v) {
+                            if ((v ?? '').isEmpty) return l10n.passwordRequired;
+                            if (_creating && (v ?? '').length < 6) {
+                              return l10n.passwordTooShort;
+                            }
+                            return null;
+                          },
+                        ),
+                        if (!_creating)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: _busy ? null : _forgotPassword,
+                              child: Text(l10n.forgotPassword,
+                                  style: const TextStyle(fontSize: 13)),
+                            ),
+                          )
+                        else
+                          const SizedBox(height: 8),
+                        if (authError != null) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            l10n.signInServiceUnavailable,
+                            style:
+                                TextStyle(fontSize: 13, color: colors.danger),
+                          ),
+                        ],
+                        const SizedBox(height: 14),
+                        FilledButton(
+                          onPressed: _busy ? null : _submit,
+                          child: _busy
+                              ? const _ButtonSpinner()
+                              : Text(
+                                  _creating
+                                      ? l10n.createAccountAction
+                                      : l10n.signIn,
+                                ),
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          children: [
+                            Expanded(child: Divider(color: colors.border)),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              child: Text(
+                                l10n.or,
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    letterSpacing: 1.4,
+                                    color: colors.subtle),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: colors.border)),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        OutlinedButton.icon(
+                          onPressed: _busy ? null : _google,
+                          icon: const _GoogleGlyph(),
+                          label: Text(l10n.continueWithGoogle),
+                        ),
+                        const SizedBox(height: 24),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          children: [
+                            Text(
+                              _creating
+                                  ? l10n.alreadyHaveAccount
+                                  : l10n.newHere,
+                              style:
+                                  TextStyle(fontSize: 13, color: colors.muted),
+                            ),
+                            TextButton(
+                              onPressed: _busy
+                                  ? null
+                                  : () => setState(() {
+                                        _creating = !_creating;
+                                        _formKey.currentState?.reset();
+                                      }),
+                              child: Text(
+                                _creating ? l10n.signIn : l10n.createOne,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.accent,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        // The one place this link matters most. Somebody stuck on
+                        // the login screen — wrong password, signed in with the
+                        // other provider, account they cannot get into — is exactly
+                        // who needs support, and until now the only way out was to
+                        // guess a URL.
+                        TextButton(
+                          onPressed: () => context.push(Routes.support),
+                          child: Text(
+                            l10n.signInTrouble,
+                            style:
+                                TextStyle(fontSize: 12.5, color: colors.subtle),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    // The one place this link matters most. Somebody stuck on
-                    // the login screen — wrong password, signed in with the
-                    // other provider, account they cannot get into — is exactly
-                    // who needs support, and until now the only way out was to
-                    // guess a URL.
-                    TextButton(
-                      onPressed: () => context.push(Routes.support),
-                      child: Text(
-                        l10n.signInTrouble,
-                        style: TextStyle(fontSize: 12.5, color: colors.subtle),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            const Positioned(
+              top: 0,
+              right: 12,
+              child: LanguageSelector(compact: true),
+            ),
+          ],
         ),
       ),
     );
