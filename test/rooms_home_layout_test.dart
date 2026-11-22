@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:table_talk/core/rooms.dart';
+import 'package:table_talk/core/theme.dart';
 import 'package:table_talk/providers/app_providers.dart';
 import 'package:table_talk/providers/room_providers.dart';
 import 'package:table_talk/screens/rooms_home_screen.dart';
@@ -65,8 +66,9 @@ void main() {
             currentUserProvider.overrideWith((ref) => null),
             roomsProvider.overrideWith((ref) => Stream.value(const <Room>[])),
           ],
-          child: const MaterialApp(
-            home: AppNavigationShell(
+          child: MaterialApp(
+            theme: AppTheme.build(brightness: Brightness.dark),
+            home: const AppNavigationShell(
               location: '/',
               child: RoomsHomeScreen(),
             ),

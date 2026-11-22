@@ -146,6 +146,9 @@ class _RoomsHomeScreenState extends ConsumerState<RoomsHomeScreen> {
                             onPressed: () => context.push(Routes.newRoom),
                             icon: const Icon(Icons.add_rounded),
                             label: Text(context.l10n.newDecision),
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(0, 50),
+                            ),
                           );
 
                           final header = compact
