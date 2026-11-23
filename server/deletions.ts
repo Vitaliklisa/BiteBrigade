@@ -9,6 +9,7 @@ import {
   type Query,
 } from "firebase-admin/firestore";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { hasRecentAuthentication } from "./recent-auth.mjs";
 
 type Request = IncomingMessage & { body?: unknown };
 type Input = Record<string, unknown>;
@@ -22,10 +23,12 @@ type DeletionAction = (context: DeletionContext) => Promise<void>;
 
 class HttpError extends Error {
   readonly status: number;
+  readonly code?: string;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -117,20 +120,33 @@ export function deletionHandler(action: DeletionAction) {
       if (!token) throw new HttpError(401, "Sign in to continue.");
 
       const { auth, db } = getAdmin();
-      let uid: string;
+      let decodedToken: Awaited<ReturnType<typeof auth.verifyIdToken>>;
       try {
-        uid = (await auth.verifyIdToken(token, true)).uid;
+        decodedToken = await auth.verifyIdToken(token, true);
       } catch {
         throw new HttpError(401, "Your session is invalid. Sign in again.");
       }
+      if (!hasRecentAuthentication(decodedToken.auth_time)) {
+        throw new HttpError(
+          401,
+          "For security, sign in again before deleting your account.",
+          "requires-recent-login",
+        );
+      }
 
-      await action({ uid, input: await parseInput(req), db, auth });
+      await action({ uid: decodedToken.uid, input: await parseInput(req), db, auth });
       res.statusCode = 200;
       res.end(JSON.stringify({ success: true }));
     } catch (error) {
       if (error instanceof HttpError) {
         res.statusCode = error.status;
-        res.end(JSON.stringify({ success: false, error: error.message }));
+        res.end(
+          JSON.stringify({
+            success: false,
+            error: error.message,
+            ...(error.code ? { code: error.code } : {}),
+          }),
+        );
         return;
       }
       console.error("[bite-brigade] Admin deletion request failed:", error);

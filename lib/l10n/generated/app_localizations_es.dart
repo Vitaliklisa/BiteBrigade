@@ -1616,6 +1616,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Eliminar cuenta permanentemente';
 
   @override
+  String get accountDeletionReauthRequired =>
+      'Por seguridad, vuelve a iniciar sesión e intenta eliminar tu cuenta de nuevo.';
+
+  @override
   String get accountDeleted => 'Cuenta eliminada correctamente.';
 
   @override

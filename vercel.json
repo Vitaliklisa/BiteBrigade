@@ -4,6 +4,11 @@
   "installCommand": "npm ci",
   "buildCommand": "bash scripts/build-vercel-web.sh",
   "outputDirectory": "build/web",
+  "functions": {
+    "api/delete-account.ts": {
+      "maxDuration": 60
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

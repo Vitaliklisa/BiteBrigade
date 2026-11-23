@@ -77,4 +77,36 @@ void main() {
     verify(() => googleSignIn.signOut()).called(1);
     verify(() => auth.signOut()).called(1);
   });
+
+  test('a stale deletion session asks the user to sign in again', () async {
+    final auth = _MockFirebaseAuth();
+    final user = _MockUser();
+    final googleSignIn = _MockGoogleSignIn();
+    final deletionService = _MockDeletionService();
+
+    when(() => auth.currentUser).thenReturn(user);
+    when(() => deletionService.deleteAccount('person@example.com'))
+        .thenThrow(const DeletionFailure(
+      'For security, sign in again before deleting your account.',
+      statusCode: 401,
+      code: 'requires-recent-login',
+    ));
+    when(() => googleSignIn.signOut()).thenAnswer((_) => Future.value(null));
+    when(() => auth.signOut()).thenAnswer((_) async {});
+
+    await expectLater(
+      AuthService(
+        auth: auth,
+        googleSignIn: googleSignIn,
+        deletionService: deletionService,
+      ).deleteAccount(confirmation: 'person@example.com'),
+      throwsA(
+        isA<AuthFailure>()
+            .having((error) => error.code, 'code', 'requires-recent-login'),
+      ),
+    );
+
+    verify(() => googleSignIn.signOut()).called(1);
+    verify(() => auth.signOut()).called(1);
+  });
 }

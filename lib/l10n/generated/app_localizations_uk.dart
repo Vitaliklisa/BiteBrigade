@@ -1631,6 +1631,10 @@ class AppLocalizationsUk extends AppLocalizations {
       'Видалити обліковий запис назавжди';
 
   @override
+  String get accountDeletionReauthRequired =>
+      'З міркувань безпеки увійдіть знову й повторіть спробу видалення облікового запису.';
+
+  @override
   String get accountDeleted => 'Обліковий запис успішно видалено.';
 
   @override

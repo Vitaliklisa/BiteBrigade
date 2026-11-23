@@ -1596,6 +1596,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deleteAccountPermanentlyAction => 'Delete account permanently';
 
   @override
+  String get accountDeletionReauthRequired =>
+      'For security, sign in again, then retry deleting your account.';
+
+  @override
   String get accountDeleted => 'Account deleted successfully.';
 
   @override
@@ -1895,4 +1899,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String personRemoved(String name) {
     return '已移除 $name。';
   }
+
+  @override
+  String get accountDeletionReauthRequired => '為了安全起見，請重新登入後再試一次刪除帳戶。';
 }

@@ -1615,6 +1615,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Supprimer définitivement le compte';
 
   @override
+  String get accountDeletionReauthRequired =>
+      'Pour votre sécurité, reconnectez-vous, puis réessayez de supprimer votre compte.';
+
+  @override
   String get accountDeleted => 'Compte supprimé avec succès.';
 
   @override

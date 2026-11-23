@@ -729,6 +729,7 @@
     "deleteAccountAccessConsequence": "Ви втратите доступ до всіх своїх планів харчування й компаній.",
     "deleteAccountIrreversibleConsequence": "Цю дію неможливо скасувати.",
     "deleteAccountPermanentlyAction": "Видалити обліковий запис назавжди",
+    "accountDeletionReauthRequired": "З міркувань безпеки увійдіть знову й повторіть спробу видалення облікового запису.",
     "accountDeleted": "Обліковий запис успішно видалено.",
     "serverTimedOutTryAgain": "Час очікування відповіді сервера минув. Спробуйте ще раз пізніше.",
     "accountDeletionFailed": "Не вдалося видалити обліковий запис. Спробуйте ще раз.",

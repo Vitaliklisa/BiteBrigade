@@ -199,7 +199,10 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           : failure.message;
       messenger.showSnackBar(SnackBar(content: Text(message)));
     } on AuthFailure catch (failure) {
-      messenger.showSnackBar(SnackBar(content: Text(failure.message)));
+      final message = failure.code == 'requires-recent-login'
+          ? l10n.accountDeletionReauthRequired
+          : failure.message;
+      messenger.showSnackBar(SnackBar(content: Text(message)));
     } catch (error, stackTrace) {
       debugPrint('[bite-brigade] Account deletion failed unexpectedly: $error');
       debugPrintStack(stackTrace: stackTrace);

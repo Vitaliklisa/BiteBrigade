@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
     "dev:detached": "node scripts/start-dev.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs' && flutter test",
+    "test": "node --test 'scripts/**/*.test.mjs' && node --test server/recent-auth.test.mjs && flutter test",
     "test:node": "node --test 'scripts/**/*.test.mjs'",
     "test:flutter": "flutter test",
     "audit:scripts": "node scripts/audit-scripts.mjs",

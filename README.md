@@ -66,6 +66,11 @@ The private key must contain the service-account key content with newlines
 escaped or otherwise supplied as environment text. Never commit the credential
 or the service-account JSON file.
 
+The deletion function is configured for up to 60 seconds, subject to the
+Vercel plan's limits. For security, the API also requires a sign-in from within
+the last five minutes; if the session is older, the app signs out and asks the
+user to sign in again before retrying deletion.
+
 Before deployment, deploy the Firestore index exemption for the collection
 group `participants` and field `userId` included in
 `firestore.indexes.json`.

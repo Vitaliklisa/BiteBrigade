@@ -729,6 +729,7 @@
     "deleteAccountAccessConsequence": "Du verlierst den Zugriff auf alle deine Essenspläne und Gruppen.",
     "deleteAccountIrreversibleConsequence": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteAccountPermanentlyAction": "Konto endgültig löschen",
+    "accountDeletionReauthRequired": "Melde dich zur Sicherheit erneut an und versuche dann, dein Konto wieder zu löschen.",
     "accountDeleted": "Konto erfolgreich gelöscht.",
     "serverTimedOutTryAgain": "Der Server hat das Zeitlimit überschritten. Bitte versuche es später erneut.",
     "accountDeletionFailed": "Das Konto konnte nicht gelöscht werden. Bitte versuche es erneut.",

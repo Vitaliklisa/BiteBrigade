@@ -2783,6 +2783,12 @@ abstract class AppLocalizations {
   /// **'Delete account permanently'**
   String get deleteAccountPermanentlyAction;
 
+  /// No description provided for @accountDeletionReauthRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'For security, sign in again, then retry deleting your account.'**
+  String get accountDeletionReauthRequired;
+
   /// No description provided for @accountDeleted.
   ///
   /// In en, this message translates to:

@@ -1596,6 +1596,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccountPermanentlyAction => 'Delete account permanently';
 
   @override
+  String get accountDeletionReauthRequired =>
+      'For security, sign in again, then retry deleting your account.';
+
+  @override
   String get accountDeleted => 'Account deleted successfully.';
 
   @override
