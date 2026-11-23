@@ -50,8 +50,8 @@ try {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     status: 'open',
-    participantIds: ['creator'],
-    participantCount: 1,
+    participantIds: ['creator', 'viewer'],
+    participantCount: 2,
     optionCount: 2,
     votesCast: 0,
     votesRevision: 0,
@@ -69,6 +69,15 @@ try {
     isDirect: true,
     sourceCrewIds: [],
   });
+  batch.set(doc(creator, 'rooms/dinner/participants/viewer'), {
+    email: 'viewer@example.com',
+    displayName: 'Viewer',
+    role: 'viewer',
+    inviteStatus: 'accepted',
+    joinedAt: serverTimestamp(),
+    isDirect: true,
+    sourceCrewIds: [],
+  });
   for (const id of ['one', 'two']) {
     batch.set(doc(creator, `rooms/dinner/options/${id}`), {
       title: id,
@@ -81,6 +90,11 @@ try {
   }
   await batch.commit();
   console.log('PASS  creator can create a room with options and participant');
+  assert.equal(
+    (await getDoc(doc(creator, 'rooms/dinner/participants/viewer'))).data().role,
+    'viewer',
+  );
+  console.log('PASS  a crew viewer role can be inherited by a new room');
 
   await denied(getDoc(doc(stranger, 'rooms/dinner')));
   console.log('PASS  an unrelated account cannot read a room');
@@ -97,8 +111,8 @@ try {
       sourceCrewIds: [],
     });
     await setDoc(doc(db, 'rooms/dinner'), {
-      participantIds: ['creator', 'participant'],
-      participantCount: 2,
+      participantIds: ['creator', 'participant', 'viewer'],
+      participantCount: 3,
     }, { merge: true });
   });
 
@@ -108,7 +122,7 @@ try {
       where('inviteStatus', '==', 'accepted'),
     ),
   );
-  assert.equal(acceptedParticipants.size, 2);
+  assert.equal(acceptedParticipants.size, 3);
   console.log('PASS  a participant can list accepted room members');
 
   const voterBatch = writeBatch(participant);

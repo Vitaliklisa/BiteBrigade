@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/rooms.dart';
 import '../core/routes.dart';
 import '../core/theme.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../l10n/app_localizations_context.dart';
 import '../providers/app_providers.dart';
 import '../providers/room_providers.dart';
@@ -349,6 +350,230 @@ class CrewDetailScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> _changeMemberRole(
+    BuildContext context,
+    WidgetRef ref,
+    Crew crew,
+    CrewMember member,
+    String userId,
+  ) async {
+    final l10n = context.l10n;
+    final role = await showModalBottomSheet<RoomRole>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final role in RoomRole.values)
+              ListTile(
+                title: Text(_crewRoleLabel(l10n, role)),
+                trailing: member.role == role
+                    ? const Icon(Icons.check_rounded)
+                    : null,
+                onTap: () => Navigator.pop(sheetContext, role),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (role == null || role == member.role || !context.mounted) return;
+    try {
+      await ref.read(roomRepositoryProvider).changeCrewMemberRole(
+            crew: crew,
+            actorId: userId,
+            memberId: member.userId,
+            role: role,
+          );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.memberRoleUpdated(
+                _crewMemberLabel(member),
+                _crewRoleLabel(l10n, role),
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      debugPrint('Could not change crew member role: $error');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.couldNotChangeCrewRole)),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeMember(
+    BuildContext context,
+    WidgetRef ref,
+    Crew crew,
+    CrewMember member,
+    String ownerId,
+  ) async {
+    final label = _crewMemberLabel(member);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(dialogContext.l10n.removeCrewMemberTitle(label)),
+        content: Text(dialogContext.l10n.removeCrewMemberExplanation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(dialogContext.l10n.keep),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: dialogContext.colors.danger,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(dialogContext.l10n.remove),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await ref.read(roomRepositoryProvider).removeCrewMember(
+            crew: crew,
+            ownerId: ownerId,
+            memberId: member.userId,
+          );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.personRemoved(label))),
+        );
+      }
+    } catch (error) {
+      debugPrint('Could not remove crew member: $error');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.couldNotRemoveCrewMember)),
+        );
+      }
+    }
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    Crew crew,
+    String ownerId,
+  ) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(dialogContext.l10n.deleteNamedCrew(crew.name)),
+        content: Text(dialogContext.l10n.deleteCrewExplanation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(dialogContext.l10n.keep),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: dialogContext.colors.danger,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(dialogContext.l10n.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await ref.read(roomRepositoryProvider).deleteCrew(
+            crew: crew,
+            ownerId: ownerId,
+          );
+      if (context.mounted) context.go(Routes.crews);
+    } catch (error) {
+      debugPrint('Could not delete crew: $error');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.couldNotDeleteCrew)),
+        );
+      }
+    }
+  }
+
+  Future<void> _blockMember(
+    BuildContext context,
+    WidgetRef ref,
+    Crew crew,
+    CrewMember member,
+    String userId,
+  ) async {
+    final l10n = context.l10n;
+    final name = _crewMemberLabel(member);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(dialogContext.l10n.blockUserTitle(name)),
+        content: Text(dialogContext.l10n.blockCrewMemberExplanation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(dialogContext.l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: dialogContext.colors.danger,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(dialogContext.l10n.block),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await ref.read(eventRepositoryProvider).blockUser(
+            userId: userId,
+            targetUid: member.userId,
+            targetEmail: member.email,
+            targetDisplayName: member.displayName,
+          );
+    } catch (error) {
+      debugPrint('Could not block crew member: $error');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.blockSaveError(name))),
+        );
+      }
+      return;
+    }
+
+    try {
+      final repository = ref.read(roomRepositoryProvider);
+      if (crew.ownerId == userId) {
+        await repository.removeCrewMember(
+          crew: crew,
+          ownerId: userId,
+          memberId: member.userId,
+        );
+      } else {
+        await repository.leaveCrew(crew: crew, userId: userId);
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.personBlocked(name))),
+        );
+        if (crew.ownerId != userId) context.go(Routes.crews);
+      }
+    } catch (error) {
+      debugPrint('Blocked user, but could not update crew membership: $error');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.couldNotUpdateCrewAfterBlock)),
+        );
+      }
+    }
+  }
+
   Future<void> _leave(
     BuildContext context,
     WidgetRef ref,
@@ -397,13 +622,27 @@ class CrewDetailScreen extends ConsumerWidget {
     final crew = crews.value?.where((item) => item.id == crewId).firstOrNull;
     final membersAsync = ref.watch(crewMembersProvider(crewId));
     if (crews.isLoading && crew == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded),
+            tooltip: l10n.back,
+            onPressed: () => context.go(Routes.crews),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
     if (crews.hasError || crew == null) {
       return Scaffold(
-        appBar: AppBar(title: Text(l10n.crew)),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded),
+            tooltip: l10n.back,
+            onPressed: () => context.go(Routes.crews),
+          ),
+          title: Text(l10n.crew),
+        ),
         body: _CrewError(
           message:
               crews.hasError ? l10n.couldNotLoadCrew : l10n.crewUnavailable,
@@ -414,6 +653,11 @@ class CrewDetailScreen extends ConsumerWidget {
     final canInvite = isOwner && (!crew.isCouple || crew.memberIds.length < 2);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          tooltip: l10n.back,
+          onPressed: () => context.go(Routes.crews),
+        ),
         title: Text(crew.name),
         actions: [
           if (isOwner)
@@ -421,12 +665,18 @@ class CrewDetailScreen extends ConsumerWidget {
               onSelected: (action) {
                 if (action == 'rename') {
                   _rename(context, ref, crew, user!.id);
+                } else if (action == 'delete') {
+                  _delete(context, ref, crew, user!.id);
                 }
               },
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: 'rename',
                   child: Text(l10n.renameCrew),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(l10n.delete),
                 ),
               ],
             ),
@@ -468,7 +718,7 @@ class CrewDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 5),
                           Text(
                             crew.isCouple
-                                ? l10n.mealPlansSharedAutomatically
+                                ? l10n.twoPersonCrewSharing
                                 : l10n.sharePlansWithCrew,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
@@ -502,6 +752,16 @@ class CrewDetailScreen extends ConsumerWidget {
                       label: Text(l10n.invite),
                     ),
                 ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text(
+                  l10n.crewRoleAppliesToFutureDecisions,
+                  style: TextStyle(
+                    color: context.colors.muted,
+                    fontSize: 13,
+                  ),
+                ),
               ),
               const SizedBox(height: 12),
               membersAsync.when(
@@ -570,6 +830,61 @@ class CrewDetailScreen extends ConsumerWidget {
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 1,
                                   ),
+                                )
+                              else
+                                Text(
+                                  _crewRoleLabel(l10n, member.role),
+                                  style: TextStyle(
+                                    color: context.colors.muted,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              if (user != null && member.userId != user.id)
+                                PopupMenuButton<String>(
+                                  tooltip: l10n.moreActions,
+                                  onSelected: (action) {
+                                    if (action == 'block') {
+                                      _blockMember(
+                                        context,
+                                        ref,
+                                        crew,
+                                        member,
+                                        user.id,
+                                      );
+                                    } else if (action == 'remove') {
+                                      _removeMember(
+                                        context,
+                                        ref,
+                                        crew,
+                                        member,
+                                        user.id,
+                                      );
+                                    } else if (action == 'change-role') {
+                                      _changeMemberRole(
+                                        context,
+                                        ref,
+                                        crew,
+                                        member,
+                                        user.id,
+                                      );
+                                    }
+                                  },
+                                  itemBuilder: (context) => [
+                                    if (isOwner && !member.isOwner)
+                                      PopupMenuItem(
+                                        value: 'change-role',
+                                        child: Text(l10n.changeRole),
+                                      ),
+                                    if (isOwner && !member.isOwner)
+                                      PopupMenuItem(
+                                        value: 'remove',
+                                        child: Text(l10n.removeFromCrew),
+                                      ),
+                                    PopupMenuItem(
+                                      value: 'block',
+                                      child: Text(l10n.block),
+                                    ),
+                                  ],
                                 ),
                             ],
                           ),
@@ -694,4 +1009,15 @@ String _initials(String value) {
       value.trim().split(RegExp(r'\s+')).where((part) => part.isNotEmpty);
   final result = parts.take(2).map((part) => part[0].toUpperCase()).join();
   return result.isEmpty ? '?' : result;
+}
+
+String _crewRoleLabel(AppLocalizations l10n, RoomRole role) => switch (role) {
+      RoomRole.admin => l10n.roleAdmin,
+      RoomRole.editor => l10n.roleEditor,
+      RoomRole.viewer => l10n.roleViewer,
+    };
+
+String _crewMemberLabel(CrewMember member) {
+  final name = member.displayName.trim();
+  return name.isEmpty ? member.email : name;
 }

@@ -440,7 +440,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get twoPersonCrewSharing =>
-      'Two-person crews share plans automatically.';
+      'Two-person crews are selected by default. Turn one off for this decision anytime.';
 
   @override
   String get crewMembersCanVote =>
@@ -1020,6 +1020,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get couldNotRenameCrew => 'Could not rename this crew. Try again.';
+
+  @override
+  String get couldNotChangeCrewRole =>
+      'Could not change this crew member’s role. Try again.';
+
+  @override
+  String get couldNotRemoveCrewMember =>
+      'Could not remove this person from the crew. Try again.';
+
+  @override
+  String get couldNotDeleteCrew => 'Could not delete this crew. Try again.';
+
+  @override
+  String get couldNotUpdateCrewAfterBlock =>
+      'This person is blocked, but crew access could not be updated. Try removing them again.';
+
+  @override
+  String get crewRoleAppliesToFutureDecisions =>
+      'A member’s role applies to new decisions shared with this crew.';
+
+  @override
+  String get blockCrewMemberExplanation =>
+      'They will be blocked. If you own this crew, they will be removed; otherwise, you will leave it. Direct access to other meal plans is unchanged.';
 
   @override
   String leaveNamedCrew(String name) {
@@ -1769,6 +1792,107 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   }
 
   @override
+  String get twoPersonCrewSharing => '雙人群組預設為選取狀態。你可以在此用餐選擇中取消選取。';
+
+  @override
+  String get keep => '保留';
+
+  @override
+  String get delete => '刪除';
+
+  @override
+  String blockUserTitle(String name) {
+    return '要封鎖 $name 嗎？';
+  }
+
+  @override
+  String get blockUserExplanation =>
+      '你們將不再互相聯絡。對方會從你們共用的用餐選擇中移除，彼此的邀請也會取消；對方不會收到通知。';
+
+  @override
+  String get block => '封鎖';
+
+  @override
+  String personBlocked(String name) {
+    return '已封鎖 $name。';
+  }
+
+  @override
+  String blockSaveError(String name) {
+    return '無法封鎖 $name，請再試一次。';
+  }
+
+  @override
   String get faqDeleteAccountAnswer =>
       '請開啟「設定」>「刪除帳戶」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。';
+
+  @override
+  String get roleAdmin => '管理員';
+
+  @override
+  String get roleEditor => '編輯者';
+
+  @override
+  String get roleViewer => '檢視者';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get couldNotChangeCrewRole => '無法變更這位群組成員的角色，請再試一次。';
+
+  @override
+  String get couldNotRemoveCrewMember => '無法將此人移出群組，請再試一次。';
+
+  @override
+  String get couldNotDeleteCrew => '無法刪除群組，請再試一次。';
+
+  @override
+  String get couldNotUpdateCrewAfterBlock => '已封鎖此人，但無法更新群組存取權。請再試一次移除操作。';
+
+  @override
+  String get crewRoleAppliesToFutureDecisions => '成員角色會套用於之後與此群組分享的用餐選擇。';
+
+  @override
+  String get blockCrewMemberExplanation =>
+      '此人將會被封鎖。若你是群組擁有者，對方會從群組中移除；否則你會離開群組。其他用餐選擇的直接存取權不受影響。';
+
+  @override
+  String get remove => '移除';
+
+  @override
+  String get removeFromCrew => '從群組中移除';
+
+  @override
+  String removeCrewMemberTitle(String name) {
+    return '要移除 $name 嗎？';
+  }
+
+  @override
+  String get removeCrewMemberExplanation =>
+      '此人將無法再查看與這個群組分享的用餐選擇。對方建立的內容不會被刪除。';
+
+  @override
+  String deleteNamedCrew(String name) {
+    return '要刪除「$name」嗎？';
+  }
+
+  @override
+  String get deleteCrewExplanation => '群組將會刪除。用餐選擇會保留，但不會再與這些人分享。';
+
+  @override
+  String get moreActions => '更多操作';
+
+  @override
+  String get changeRole => '變更角色';
+
+  @override
+  String memberRoleUpdated(String name, String role) {
+    return '$name 的角色已變更為「$role」。';
+  }
+
+  @override
+  String personRemoved(String name) {
+    return '已移除 $name。';
+  }
 }

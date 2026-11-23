@@ -440,7 +440,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get twoPersonCrewSharing =>
-      'Two-person crews share plans automatically.';
+      'Two-person crews are selected by default. Turn one off for this decision anytime.';
 
   @override
   String get crewMembersCanVote =>
@@ -1020,6 +1020,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couldNotRenameCrew => 'Could not rename this crew. Try again.';
+
+  @override
+  String get couldNotChangeCrewRole =>
+      'Could not change this crew member’s role. Try again.';
+
+  @override
+  String get couldNotRemoveCrewMember =>
+      'Could not remove this person from the crew. Try again.';
+
+  @override
+  String get couldNotDeleteCrew => 'Could not delete this crew. Try again.';
+
+  @override
+  String get couldNotUpdateCrewAfterBlock =>
+      'This person is blocked, but crew access could not be updated. Try removing them again.';
+
+  @override
+  String get crewRoleAppliesToFutureDecisions =>
+      'A member’s role applies to new decisions shared with this crew.';
+
+  @override
+  String get blockCrewMemberExplanation =>
+      'They will be blocked. If you own this crew, they will be removed; otherwise, you will leave it. Direct access to other meal plans is unchanged.';
 
   @override
   String leaveNamedCrew(String name) {

@@ -157,7 +157,7 @@
   "shortlistLocked": "La votación ha empezado y la lista está bloqueada.",
   "addRestaurant": "Añadir restaurante",
   "shareWithCrew": "Compartir con un grupo",
-  "twoPersonCrewSharing": "Los grupos de dos comparten los planes automáticamente.",
+  "twoPersonCrewSharing": "Los grupos de dos se seleccionan de forma predeterminada. Puedes desactivarlo para esta decisión cuando quieras.",
   "crewMembersCanVote": "Los miembros del grupo pueden votar sin otra invitación.",
   "createCrewFirst": "Crea primero un grupo para planear comidas juntos.",
   "inviteByEmailOptional": "Invitar por correo electrónico (opcional)",
@@ -406,6 +406,12 @@
     "crewInvitationSent": "Se envió la invitación al grupo.",
     "couldNotSendCrewInvitation": "No se pudo enviar la invitación. Inténtalo de nuevo.",
     "couldNotRenameCrew": "No se pudo cambiar el nombre del grupo. Inténtalo de nuevo.",
+    "couldNotChangeCrewRole": "No se pudo cambiar el rol de esta persona. Inténtalo de nuevo.",
+    "couldNotRemoveCrewMember": "No se pudo quitar a esta persona del grupo. Inténtalo de nuevo.",
+    "couldNotDeleteCrew": "No se pudo eliminar el grupo. Inténtalo de nuevo.",
+    "couldNotUpdateCrewAfterBlock": "La persona está bloqueada, pero no se pudo actualizar su acceso al grupo. Intenta quitarla otra vez.",
+    "crewRoleAppliesToFutureDecisions": "El rol de cada persona se aplica a las nuevas decisiones que se compartan con este grupo.",
+    "blockCrewMemberExplanation": "Se bloqueará a esta persona. Si eres propietario del grupo, se la quitará; de lo contrario, saldrás del grupo. Su acceso directo a otros planes no cambiará.",
     "leaveNamedCrew": "¿Salir de {name}?",
     "@leaveNamedCrew": {
       "placeholders": {

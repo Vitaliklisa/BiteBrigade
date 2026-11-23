@@ -443,7 +443,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get twoPersonCrewSharing =>
-      'Los grupos de dos comparten los planes automáticamente.';
+      'Los grupos de dos se seleccionan de forma predeterminada. Puedes desactivarlo para esta decisión cuando quieras.';
 
   @override
   String get crewMembersCanVote =>
@@ -1034,6 +1034,30 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get couldNotRenameCrew =>
       'No se pudo cambiar el nombre del grupo. Inténtalo de nuevo.';
+
+  @override
+  String get couldNotChangeCrewRole =>
+      'No se pudo cambiar el rol de esta persona. Inténtalo de nuevo.';
+
+  @override
+  String get couldNotRemoveCrewMember =>
+      'No se pudo quitar a esta persona del grupo. Inténtalo de nuevo.';
+
+  @override
+  String get couldNotDeleteCrew =>
+      'No se pudo eliminar el grupo. Inténtalo de nuevo.';
+
+  @override
+  String get couldNotUpdateCrewAfterBlock =>
+      'La persona está bloqueada, pero no se pudo actualizar su acceso al grupo. Intenta quitarla otra vez.';
+
+  @override
+  String get crewRoleAppliesToFutureDecisions =>
+      'El rol de cada persona se aplica a las nuevas decisiones que se compartan con este grupo.';
+
+  @override
+  String get blockCrewMemberExplanation =>
+      'Se bloqueará a esta persona. Si eres propietario del grupo, se la quitará; de lo contrario, saldrás del grupo. Su acceso directo a otros planes no cambiará.';
 
   @override
   String leaveNamedCrew(String name) {

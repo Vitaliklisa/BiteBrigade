@@ -444,7 +444,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shareWithCrew => 'Mit einer Gruppe teilen';
 
   @override
-  String get twoPersonCrewSharing => 'Zweiergruppen teilen Pläne automatisch.';
+  String get twoPersonCrewSharing =>
+      'Zweiergruppen sind standardmäßig ausgewählt. Für diese Entscheidung kannst du sie jederzeit abwählen.';
 
   @override
   String get crewMembersCanVote =>
@@ -1042,6 +1043,30 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get couldNotRenameCrew =>
       'Gruppe konnte nicht umbenannt werden. Versuche es erneut.';
+
+  @override
+  String get couldNotChangeCrewRole =>
+      'Die Rolle dieses Gruppenmitglieds konnte nicht geändert werden. Versuche es erneut.';
+
+  @override
+  String get couldNotRemoveCrewMember =>
+      'Diese Person konnte nicht aus der Gruppe entfernt werden. Versuche es erneut.';
+
+  @override
+  String get couldNotDeleteCrew =>
+      'Die Gruppe konnte nicht gelöscht werden. Versuche es erneut.';
+
+  @override
+  String get couldNotUpdateCrewAfterBlock =>
+      'Diese Person ist blockiert, aber der Gruppenzugriff konnte nicht aktualisiert werden. Versuche, sie erneut zu entfernen.';
+
+  @override
+  String get crewRoleAppliesToFutureDecisions =>
+      'Die Rolle eines Mitglieds gilt für neue Entscheidungen, die mit dieser Gruppe geteilt werden.';
+
+  @override
+  String get blockCrewMemberExplanation =>
+      'Diese Person wird blockiert. Wenn du Eigentümer der Gruppe bist, wird sie entfernt; andernfalls verlässt du die Gruppe. Direkter Zugriff auf andere Essenspläne bleibt unverändert.';
 
   @override
   String leaveNamedCrew(String name) {

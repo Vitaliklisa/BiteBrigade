@@ -157,7 +157,7 @@
   "shortlistLocked": "Die Abstimmung läuft bereits, daher ist die Vorauswahl gesperrt.",
   "addRestaurant": "Restaurant hinzufügen",
   "shareWithCrew": "Mit einer Gruppe teilen",
-  "twoPersonCrewSharing": "Zweiergruppen teilen Pläne automatisch.",
+  "twoPersonCrewSharing": "Zweiergruppen sind standardmäßig ausgewählt. Für diese Entscheidung kannst du sie jederzeit abwählen.",
   "crewMembersCanVote": "Gruppenmitglieder können ohne weitere Einladung abstimmen.",
   "createCrewFirst": "Erstelle zuerst eine Gruppe, um gemeinsam Essen zu planen.",
   "inviteByEmailOptional": "Personen per E-Mail einladen (optional)",
@@ -406,6 +406,12 @@
     "crewInvitationSent": "Gruppeneinladung gesendet.",
     "couldNotSendCrewInvitation": "Einladung konnte nicht gesendet werden. Versuche es erneut.",
     "couldNotRenameCrew": "Gruppe konnte nicht umbenannt werden. Versuche es erneut.",
+    "couldNotChangeCrewRole": "Die Rolle dieses Gruppenmitglieds konnte nicht geändert werden. Versuche es erneut.",
+    "couldNotRemoveCrewMember": "Diese Person konnte nicht aus der Gruppe entfernt werden. Versuche es erneut.",
+    "couldNotDeleteCrew": "Die Gruppe konnte nicht gelöscht werden. Versuche es erneut.",
+    "couldNotUpdateCrewAfterBlock": "Diese Person ist blockiert, aber der Gruppenzugriff konnte nicht aktualisiert werden. Versuche, sie erneut zu entfernen.",
+    "crewRoleAppliesToFutureDecisions": "Die Rolle eines Mitglieds gilt für neue Entscheidungen, die mit dieser Gruppe geteilt werden.",
+    "blockCrewMemberExplanation": "Diese Person wird blockiert. Wenn du Eigentümer der Gruppe bist, wird sie entfernt; andernfalls verlässt du die Gruppe. Direkter Zugriff auf andere Essenspläne bleibt unverändert.",
     "leaveNamedCrew": "{name} verlassen?",
     "@leaveNamedCrew": {
       "placeholders": {

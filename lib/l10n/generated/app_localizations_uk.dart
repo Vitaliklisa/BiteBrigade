@@ -443,7 +443,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get twoPersonCrewSharing =>
-      'Плани автоматично спільні для компаній із двох людей.';
+      'Компанії з двох людей вибрано за замовчуванням. Для цього рішення їх можна вимкнути.';
 
   @override
   String get crewMembersCanVote =>
@@ -1036,6 +1036,30 @@ class AppLocalizationsUk extends AppLocalizations {
   @override
   String get couldNotRenameCrew =>
       'Не вдалося перейменувати компанію. Спробуйте ще раз.';
+
+  @override
+  String get couldNotChangeCrewRole =>
+      'Не вдалося змінити роль учасника. Спробуйте ще раз.';
+
+  @override
+  String get couldNotRemoveCrewMember =>
+      'Не вдалося вилучити цю людину з компанії. Спробуйте ще раз.';
+
+  @override
+  String get couldNotDeleteCrew =>
+      'Не вдалося видалити компанію. Спробуйте ще раз.';
+
+  @override
+  String get couldNotUpdateCrewAfterBlock =>
+      'Цю людину заблоковано, але не вдалося оновити доступ до компанії. Спробуйте вилучити її ще раз.';
+
+  @override
+  String get crewRoleAppliesToFutureDecisions =>
+      'Роль учасника застосовується до нових рішень, якими діляться з цією компанією.';
+
+  @override
+  String get blockCrewMemberExplanation =>
+      'Цю людину буде заблоковано. Якщо ви власник компанії, її буде вилучено; інакше ви залишите компанію. Прямий доступ до інших планів харчування не зміниться.';
 
   @override
   String leaveNamedCrew(String name) {

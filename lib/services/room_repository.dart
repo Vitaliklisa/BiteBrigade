@@ -226,9 +226,6 @@ class RoomRepository {
     if (selected.any((id) => !crews.any((crew) => crew.id == id))) {
       throw const RoomFailure('You can only share with crews you belong to.');
     }
-    selected.addAll(
-      crews.where((crew) => crew.isCouple).map((crew) => crew.id),
-    );
     if (selected.length > 10) {
       throw const RoomFailure(
         'A decision can be shared with up to ten crews.',
@@ -236,12 +233,19 @@ class RoomRepository {
     }
     final crewMembers = <String, Map<String, dynamic>>{};
     final memberCrewIds = <String, Set<String>>{};
+    final memberRoles = <String, RoomRole>{};
     for (final crew in crews.where((crew) => selected.contains(crew.id))) {
       final members = await _crews.doc(crew.id).collection('members').get();
       for (final member in members.docs) {
         if (member.id == userId) continue;
         crewMembers[member.id] = member.data();
         memberCrewIds.putIfAbsent(member.id, () => <String>{}).add(crew.id);
+        final role = _roomRoleFromWire(member.data()['role']);
+        final previousRole = memberRoles[member.id];
+        if (previousRole == null ||
+            _roomRolePriority(role) > _roomRolePriority(previousRole)) {
+          memberRoles[member.id] = role;
+        }
       }
     }
     if (crewMembers.length > 100) {
@@ -285,7 +289,7 @@ class RoomRepository {
       batch.set(roomRef.collection('participants').doc(entry.key), {
         'email': (member['email'] as String? ?? '').toLowerCase(),
         'displayName': member['displayName'] ?? '',
-        'role': RoomRole.editor.name,
+        'role': (memberRoles[entry.key] ?? RoomRole.editor).name,
         'inviteStatus': 'accepted',
         'joinedAt': member['joinedAt'] ?? FieldValue.serverTimestamp(),
         'isDirect': false,
@@ -452,6 +456,10 @@ class RoomRepository {
         .limit(1)
         .get();
     if (existing.docs.isNotEmpty) {
+      await _ensureNotBlocked(
+        userId: invitedBy,
+        targetUid: existing.docs.first.id,
+      );
       final participant = await _rooms
           .doc(roomId)
           .collection('participants')
@@ -520,6 +528,23 @@ class RoomRepository {
           (invite['inviteeEmail'] as String? ?? '').toLowerCase() !=
               email.toLowerCase()) {
         throw const RoomFailure('This invitation is no longer available.');
+      }
+      if (accept) {
+        final inviterId = invite['invitedBy'] as String?;
+        if (inviterId != null && inviterId.isNotEmpty) {
+          final blocked = await transaction.get(
+            _db
+                .collection('users')
+                .doc(userId)
+                .collection('blocked')
+                .doc(inviterId),
+          );
+          if (blocked.exists) {
+            throw const RoomFailure(
+              'You cannot accept an invitation from someone you blocked.',
+            );
+          }
+        }
       }
       final oldParticipant = await transaction.get(participantRef);
       final wasAccepted = oldParticipant.data()?['inviteStatus'] == 'accepted';
@@ -762,6 +787,7 @@ class RoomRepository {
       'email': email.toLowerCase(),
       'displayName': displayName,
       'isOwner': true,
+      'role': RoomRole.admin.name,
       'joinedAt': FieldValue.serverTimestamp(),
     });
     await batch.commit();
@@ -781,6 +807,159 @@ class RoomRepository {
       throw const RoomFailure('Give your crew a name (up to 60 characters).');
     }
     await _crews.doc(crew.id).update({'name': cleanName});
+  }
+
+  Future<void> changeCrewMemberRole({
+    required Crew crew,
+    required String actorId,
+    required String memberId,
+    required RoomRole role,
+  }) async {
+    if (crew.ownerId != actorId) {
+      throw const RoomFailure('Only the crew owner can change member roles.');
+    }
+    if (memberId == crew.ownerId) {
+      throw const RoomFailure('The crew owner role cannot be changed.');
+    }
+    final memberRef = _crews.doc(crew.id).collection('members').doc(memberId);
+    final member = await memberRef.get();
+    if (!member.exists) {
+      throw const RoomFailure('This person is no longer in the crew.');
+    }
+    await memberRef.update({'role': role.name});
+  }
+
+  Future<void> removeCrewMember({
+    required Crew crew,
+    required String ownerId,
+    required String memberId,
+  }) async {
+    if (crew.ownerId != ownerId) {
+      throw const RoomFailure('Only the crew owner can remove people.');
+    }
+    if (memberId == crew.ownerId) {
+      throw const RoomFailure('You cannot remove yourself from your crew.');
+    }
+
+    final crewRef = _crews.doc(crew.id);
+    final memberRef = crewRef.collection('members').doc(memberId);
+    final member = await memberRef.get();
+    if (!member.exists) {
+      throw const RoomFailure('This person is no longer in the crew.');
+    }
+    final memberEmail =
+        (member.data()?['email'] as String? ?? '').trim().toLowerCase();
+    if (memberEmail.isNotEmpty) {
+      await _cancelCrewInvitations(
+        crewId: crew.id,
+        ownerId: ownerId,
+        inviteeEmail: memberEmail,
+      );
+    }
+    final sharedRooms = await crewRef.collection('sharedRooms').get();
+    final memberships =
+        await _crews.where('memberIds', arrayContains: memberId).get();
+    await _removeCrewMemberFromSharedRooms(
+      crewId: crew.id,
+      userId: memberId,
+      remainingCrewIds: memberships.docs
+          .map((doc) => doc.id)
+          .where((id) => id != crew.id)
+          .toList(),
+      sharedRooms: sharedRooms.docs,
+    );
+
+    final batch = _db.batch();
+    batch.update(crewRef, {
+      'memberIds': FieldValue.arrayRemove([memberId]),
+      'lastRemovedMemberId': memberId,
+    });
+    batch.delete(memberRef);
+    await batch.commit();
+  }
+
+  Future<void> deleteCrew({
+    required Crew crew,
+    required String ownerId,
+  }) async {
+    if (crew.ownerId != ownerId) {
+      throw const RoomFailure('Only the crew owner can delete this crew.');
+    }
+
+    final crewRef = _crews.doc(crew.id);
+    final members = await crewRef.collection('members').get();
+    final sharedRooms = await crewRef.collection('sharedRooms').get();
+    final memberIds = members.docs.map((member) => member.id).toList();
+    await _cancelCrewInvitations(crewId: crew.id, ownerId: ownerId);
+
+    for (final sharedRoom in sharedRooms.docs) {
+      final roomRef = _rooms.doc(sharedRoom.id);
+      final roomSnapshot = await roomRef.get();
+      if (!roomSnapshot.exists) continue;
+      final roomData = roomSnapshot.data()!;
+      final oldSharedCrewIds = _stringSet(roomData['sharedWithCrewIds']);
+      if (!oldSharedCrewIds.contains(crew.id)) {
+        continue;
+      }
+      final remainingSharedCrewIds = oldSharedCrewIds..remove(crew.id);
+      final participantRefs = memberIds
+          .map((memberId) => roomRef.collection('participants').doc(memberId))
+          .toList();
+      final participantSnapshots = await Future.wait(
+        participantRefs.map((reference) => reference.get()),
+      );
+      final participantIds = _stringSet(roomData['participantIds']);
+      for (var index = 0; index < participantSnapshots.length; index++) {
+        final snapshot = participantSnapshots[index];
+        final data = snapshot.data();
+        if (data == null) continue;
+        final sourceCrewIds = _stringSet(data['sourceCrewIds'])
+          ..remove(crew.id)
+          ..retainAll(remainingSharedCrewIds);
+        final stillShared = sourceCrewIds.any(remainingSharedCrewIds.contains);
+        final batch = _db.batch();
+        if (data['isDirect'] == true || stillShared) {
+          batch.update(snapshot.reference, {
+            'sourceCrewIds': sourceCrewIds.toList(),
+            'lastRemovedCrewId': crew.id,
+          });
+        } else {
+          batch.update(snapshot.reference, {
+            'sourceCrewIds': sourceCrewIds.toList(),
+            'lastRemovedCrewId': crew.id,
+            'inviteStatus': 'removed',
+          });
+          if (participantIds.remove(snapshot.id)) {
+            batch.update(roomRef, {
+              'participantIds': participantIds.toList(),
+              'participantCount': FieldValue.increment(-1),
+              'lastRemovedCrewId': crew.id,
+              'lastRemovedCrewMemberId': snapshot.id,
+              'updatedAt': FieldValue.serverTimestamp(),
+            });
+          }
+        }
+        await batch.commit();
+      }
+      await roomRef.update({
+        'sharedWithCrewIds': remainingSharedCrewIds.toList(),
+        'lastRemovedCrewId': crew.id,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    final refs = <DocumentReference<Map<String, dynamic>>>[
+      ...members.docs.map((member) => member.reference),
+      ...sharedRooms.docs.map((room) => room.reference),
+      crewRef,
+    ];
+    for (var start = 0; start < refs.length; start += 400) {
+      final batch = _db.batch();
+      for (final reference in refs.skip(start).take(400)) {
+        batch.delete(reference);
+      }
+      await batch.commit();
+    }
   }
 
   Future<void> inviteToCrew({
@@ -810,6 +989,12 @@ class RoomRepository {
     if (existing.docs.isNotEmpty &&
         crew.memberIds.contains(existing.docs.first.id)) {
       throw const RoomFailure('This person is already in the crew.');
+    }
+    if (existing.docs.isNotEmpty) {
+      await _ensureNotBlocked(
+        userId: invitedBy,
+        targetUid: existing.docs.first.id,
+      );
     }
     final inviteRef = _crewInvitations.doc();
     final batch = _db.batch();
@@ -859,6 +1044,23 @@ class RoomRepository {
       }
       final crewId = invitation['crewId'] as String;
       final crewRef = _crews.doc(crewId);
+      if (accept) {
+        final inviterId = invitation['invitedBy'] as String?;
+        if (inviterId != null && inviterId.isNotEmpty) {
+          final blocked = await transaction.get(
+            _db
+                .collection('users')
+                .doc(userId)
+                .collection('blocked')
+                .doc(inviterId),
+          );
+          if (blocked.exists) {
+            throw const RoomFailure(
+              'You cannot accept an invitation from someone you blocked.',
+            );
+          }
+        }
+      }
       transaction
           .update(inviteRef, {'status': accept ? 'accepted' : 'declined'});
       if (accept) {
@@ -871,6 +1073,7 @@ class RoomRepository {
           'email': email.toLowerCase(),
           'displayName': displayName,
           'isOwner': false,
+          'role': RoomRole.editor.name,
           'joinedAt': FieldValue.serverTimestamp(),
           'invitationId': invitationId,
         });
@@ -1002,6 +1205,8 @@ class RoomRepository {
           batch.update(roomRef, {
             'participantIds': FieldValue.arrayRemove([userId]),
             'participantCount': FieldValue.increment(-1),
+            'lastRemovedCrewId': crewId,
+            'lastRemovedCrewMemberId': userId,
             'updatedAt': FieldValue.serverTimestamp(),
           });
           batch.set(
@@ -1076,4 +1281,55 @@ class RoomRepository {
       throw StateError('A batch or transaction is required for notifications.');
     }
   }
+
+  Future<void> _ensureNotBlocked({
+    required String userId,
+    required String targetUid,
+  }) async {
+    final blocked = await _db
+        .collection('users')
+        .doc(userId)
+        .collection('blocked')
+        .doc(targetUid)
+        .get();
+    if (blocked.exists) {
+      throw const RoomFailure('You cannot invite someone you blocked.');
+    }
+  }
+
+  Future<void> _cancelCrewInvitations({
+    required String crewId,
+    required String ownerId,
+    String? inviteeEmail,
+  }) async {
+    final invitations =
+        await _crewInvitations.where('invitedBy', isEqualTo: ownerId).get();
+    final pending = invitations.docs.where((invitation) {
+      final data = invitation.data();
+      return data['crewId'] == crewId &&
+          data['status'] == 'pending' &&
+          (inviteeEmail == null || data['inviteeEmail'] == inviteeEmail);
+    }).toList();
+    for (var start = 0; start < pending.length; start += 400) {
+      final batch = _db.batch();
+      for (final invitation in pending.skip(start).take(400)) {
+        batch.update(invitation.reference, {'status': 'cancelled'});
+      }
+      await batch.commit();
+    }
+  }
+
+  Set<String> _stringSet(dynamic value) =>
+      (value as Iterable?)?.whereType<String>().toSet() ?? <String>{};
+
+  RoomRole _roomRoleFromWire(dynamic value) => RoomRole.values.firstWhere(
+        (role) => role.name == value,
+        orElse: () => RoomRole.editor,
+      );
+
+  int _roomRolePriority(RoomRole role) => switch (role) {
+        RoomRole.admin => 3,
+        RoomRole.editor => 2,
+        RoomRole.viewer => 1,
+      };
 }

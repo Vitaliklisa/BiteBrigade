@@ -9,6 +9,70 @@
   "languageUkrainian": "烏克蘭文",
   "languageGerman": "德文",
   "languageChineseTaiwan": "繁體中文（台灣）",
+  "twoPersonCrewSharing": "雙人群組預設為選取狀態。你可以在此用餐選擇中取消選取。",
+  "couldNotChangeCrewRole": "無法變更這位群組成員的角色，請再試一次。",
+  "couldNotRemoveCrewMember": "無法將此人移出群組，請再試一次。",
+  "couldNotDeleteCrew": "無法刪除群組，請再試一次。",
+  "couldNotUpdateCrewAfterBlock": "已封鎖此人，但無法更新群組存取權。請再試一次移除操作。",
+  "crewRoleAppliesToFutureDecisions": "成員角色會套用於之後與此群組分享的用餐選擇。",
+  "blockCrewMemberExplanation": "此人將會被封鎖。若你是群組擁有者，對方會從群組中移除；否則你會離開群組。其他用餐選擇的直接存取權不受影響。",
+  "roleAdmin": "管理員",
+  "roleEditor": "編輯者",
+  "roleViewer": "檢視者",
+  "changeRole": "變更角色",
+  "memberRoleUpdated": "{name} 的角色已變更為「{role}」。",
+  "@memberRoleUpdated": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "role": {"type": "String"}
+    }
+  },
+  "personRemoved": "已移除 {name}。",
+  "@personRemoved": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "moreActions": "更多操作",
+  "remove": "移除",
+  "removeFromCrew": "從群組中移除",
+  "removeCrewMemberTitle": "要移除 {name} 嗎？",
+  "@removeCrewMemberTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "removeCrewMemberExplanation": "此人將無法再查看與這個群組分享的用餐選擇。對方建立的內容不會被刪除。",
+  "deleteNamedCrew": "要刪除「{name}」嗎？",
+  "@deleteNamedCrew": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "deleteCrewExplanation": "群組將會刪除。用餐選擇會保留，但不會再與這些人分享。",
+  "delete": "刪除",
+  "keep": "保留",
+  "blockUserTitle": "要封鎖 {name} 嗎？",
+  "@blockUserTitle": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "blockUserExplanation": "你們將不再互相聯絡。對方會從你們共用的用餐選擇中移除，彼此的邀請也會取消；對方不會收到通知。",
+  "block": "封鎖",
+  "blockSaveError": "無法封鎖 {name}，請再試一次。",
+  "@blockSaveError": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "personBlocked": "已封鎖 {name}。",
+  "@personBlocked": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "cancel": "取消",
   "settings": "設定",
   "signIn": "登入",
   "createAccountHeading": "建立帳戶",

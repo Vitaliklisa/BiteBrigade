@@ -157,7 +157,7 @@
   "shortlistLocked": "Voting has started, so the shortlist is locked.",
   "addRestaurant": "Add a restaurant",
   "shareWithCrew": "Share with a crew",
-  "twoPersonCrewSharing": "Two-person crews share plans automatically.",
+  "twoPersonCrewSharing": "Two-person crews are selected by default. Turn one off for this decision anytime.",
   "crewMembersCanVote": "Crew members can vote without another invite.",
   "createCrewFirst": "Create a crew first to plan meals with a group.",
   "inviteByEmailOptional": "Invite people by email (optional)",
@@ -406,6 +406,12 @@
     "crewInvitationSent": "Crew invitation sent.",
     "couldNotSendCrewInvitation": "Could not send this invitation. Try again.",
     "couldNotRenameCrew": "Could not rename this crew. Try again.",
+    "couldNotChangeCrewRole": "Could not change this crew member’s role. Try again.",
+    "couldNotRemoveCrewMember": "Could not remove this person from the crew. Try again.",
+    "couldNotDeleteCrew": "Could not delete this crew. Try again.",
+    "couldNotUpdateCrewAfterBlock": "This person is blocked, but crew access could not be updated. Try removing them again.",
+    "crewRoleAppliesToFutureDecisions": "A member’s role applies to new decisions shared with this crew.",
+    "blockCrewMemberExplanation": "They will be blocked. If you own this crew, they will be removed; otherwise, you will leave it. Direct access to other meal plans is unchanged.",
     "leaveNamedCrew": "Leave {name}?",
     "@leaveNamedCrew": {
       "placeholders": {

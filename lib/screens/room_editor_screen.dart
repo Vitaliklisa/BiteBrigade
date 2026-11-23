@@ -28,6 +28,7 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
   final _options = <_OptionFields>[];
   DateTime _mealAt = DateTime.now().add(const Duration(days: 1));
   final Set<String> _crewIds = {};
+  final Set<String> _excludedDefaultCrewIds = {};
   Room? _room;
   List<RestaurantOption>? _loadedOptions;
   bool _populated = false;
@@ -148,6 +149,13 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
             ))
         .where((option) => option.title.trim().isNotEmpty)
         .toList();
+    final crews = ref.read(crewsProvider).value ?? const <Crew>[];
+    final selectedCrewIds = crews
+        .where((crew) => crew.isCouple
+            ? !_excludedDefaultCrewIds.contains(crew.id)
+            : _crewIds.contains(crew.id))
+        .map((crew) => crew.id)
+        .toList();
     setState(() => _saving = true);
     try {
       final repository = ref.read(roomRepositoryProvider);
@@ -167,7 +175,7 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
             description: _description.text,
             mealAt: _mealAt,
             options: options,
-            crewIds: _crewIds.toList(),
+            crewIds: selectedCrewIds,
             inviteeEmails: emails,
           ),
         );
@@ -318,22 +326,25 @@ class _RoomEditorScreenState extends ConsumerState<RoomEditorScreen> {
                             children: [
                               for (final crew in crews)
                                 FilterChip(
-                                  selected: _crewIds.contains(crew.id),
-                                  onSelected: crew.isCouple
-                                      ? null
-                                      : (selected) => setState(() {
-                                            if (selected) {
-                                              _crewIds.add(crew.id);
-                                            } else {
-                                              _crewIds.remove(crew.id);
-                                            }
-                                          }),
+                                  selected: crew.isCouple
+                                      ? !_excludedDefaultCrewIds
+                                          .contains(crew.id)
+                                      : _crewIds.contains(crew.id),
+                                  onSelected: (selected) => setState(() {
+                                    if (crew.isCouple) {
+                                      if (selected) {
+                                        _excludedDefaultCrewIds.remove(crew.id);
+                                      } else {
+                                        _excludedDefaultCrewIds.add(crew.id);
+                                      }
+                                    } else if (selected) {
+                                      _crewIds.add(crew.id);
+                                    } else {
+                                      _crewIds.remove(crew.id);
+                                    }
+                                  }),
                                   avatar: Text(crew.emoji ?? '✦'),
-                                  label: Text(
-                                    crew.isCouple
-                                        ? '${crew.name} · ${l10n.always}'
-                                        : crew.name,
-                                  ),
+                                  label: Text(crew.name),
                                 ),
                             ],
                           ),

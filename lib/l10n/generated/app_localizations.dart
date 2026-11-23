@@ -908,7 +908,7 @@ abstract class AppLocalizations {
   /// No description provided for @twoPersonCrewSharing.
   ///
   /// In en, this message translates to:
-  /// **'Two-person crews share plans automatically.'**
+  /// **'Two-person crews are selected by default. Turn one off for this decision anytime.'**
   String get twoPersonCrewSharing;
 
   /// No description provided for @crewMembersCanVote.
@@ -1912,6 +1912,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not rename this crew. Try again.'**
   String get couldNotRenameCrew;
+
+  /// No description provided for @couldNotChangeCrewRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not change this crew member’s role. Try again.'**
+  String get couldNotChangeCrewRole;
+
+  /// No description provided for @couldNotRemoveCrewMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove this person from the crew. Try again.'**
+  String get couldNotRemoveCrewMember;
+
+  /// No description provided for @couldNotDeleteCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete this crew. Try again.'**
+  String get couldNotDeleteCrew;
+
+  /// No description provided for @couldNotUpdateCrewAfterBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'This person is blocked, but crew access could not be updated. Try removing them again.'**
+  String get couldNotUpdateCrewAfterBlock;
+
+  /// No description provided for @crewRoleAppliesToFutureDecisions.
+  ///
+  /// In en, this message translates to:
+  /// **'A member’s role applies to new decisions shared with this crew.'**
+  String get crewRoleAppliesToFutureDecisions;
+
+  /// No description provided for @blockCrewMemberExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'They will be blocked. If you own this crew, they will be removed; otherwise, you will leave it. Direct access to other meal plans is unchanged.'**
+  String get blockCrewMemberExplanation;
 
   /// No description provided for @leaveNamedCrew.
   ///

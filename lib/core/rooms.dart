@@ -238,6 +238,7 @@ class CrewMember {
     required this.email,
     required this.displayName,
     required this.isOwner,
+    this.role = RoomRole.editor,
     required this.joinedAt,
   });
 
@@ -245,6 +246,7 @@ class CrewMember {
   final String email;
   final String displayName;
   final bool isOwner;
+  final RoomRole role;
   final DateTime joinedAt;
 
   factory CrewMember.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -254,6 +256,11 @@ class CrewMember {
       email: _string(data['email'], ''),
       displayName: _string(data['displayName'], ''),
       isOwner: data['isOwner'] == true,
+      role: RoomRole.values.firstWhere(
+        (value) => value.name == data['role'],
+        orElse: () =>
+            data['isOwner'] == true ? RoomRole.admin : RoomRole.editor,
+      ),
       joinedAt: _date(data['joinedAt']),
     );
   }

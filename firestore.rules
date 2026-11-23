@@ -757,6 +757,15 @@ service cloud.firestore {
       return crewId == safeCrewId && exists(memberPath);
     }
 
+    function isCrewOwner(crewId, ownerId) {
+      let safeCrewId = safeDocumentId(crewId);
+      let crewPath = /databases/$(database)/documents/crews/$(safeCrewId);
+      return crewId == safeCrewId
+        && (exists(crewPath)
+          ? get(crewPath).data.get('ownerId', '') == ownerId
+          : false);
+    }
+
     function roomCrewJoin(roomId, participantId) {
       let participantPath = /databases/$(database)/documents/rooms/$(roomId)/participants/$(participantId);
       let crewId = safeDocumentId(
@@ -776,13 +785,90 @@ service cloud.firestore {
       let crewId = safeDocumentId(
         getAfter(participantPath).data.get('lastRemovedCrewId', '')
       );
-      return participantId == uid()
-        && exists(participantPath)
+      return exists(participantPath)
         && existsAfter(participantPath)
         && crewId != '-'
         && crewId in get(roomPath(roomId)).data.get('sharedWithCrewIds', [])
         && crewId in participant.get('sourceCrewIds', [])
-        && !isCrewMember(crewId, uid());
+        && (
+          participantId == uid() && !isCrewMember(crewId, uid())
+          || isCrewOwner(crewId, uid())
+        );
+    }
+
+    function roomCrewOwnerRemovesMember(roomId) {
+      let memberId = safeDocumentId(
+        request.resource.data.get('lastRemovedCrewMemberId', '')
+      );
+      return memberId != '-'
+        ? roomCrewLeave(roomId, memberId)
+          && request.resource.data.get('lastRemovedCrewId', '')
+            == getAfter(/databases/$(database)/documents/rooms/$(roomId)/participants/$(memberId)).data.get('lastRemovedCrewId', '')
+          && (
+            roomCrewLeaveKeepsAccess(roomId, memberId)
+              ? memberId in request.resource.data.get('participantIds', [])
+                && request.resource.data.get('participantIds', []).size()
+                  == resource.data.get('participantIds', []).size()
+                && request.resource.data.participantIds.toSet()
+                  .hasAll(resource.data.participantIds.toSet())
+                && resource.data.participantIds.toSet()
+                  .hasAll(request.resource.data.participantIds.toSet())
+                && request.resource.data.get('participantCount', 0)
+                  == resource.data.get('participantCount', 0)
+              : !(memberId in request.resource.data.get('participantIds', []))
+                && request.resource.data.get('participantIds', []).size()
+                  == resource.data.get('participantIds', []).size() - 1
+                && resource.data.participantIds.toSet()
+                  .hasAll(request.resource.data.participantIds.toSet())
+                && request.resource.data.get('participantCount', 0)
+                  == resource.data.get('participantCount', 0) - 1
+          )
+        : false;
+    }
+
+    function roomCrewOwnerUnshares(roomId) {
+      let crewId = safeDocumentId(
+        request.resource.data.get('lastRemovedCrewId', '')
+      );
+      return crewId != '-'
+        && isCrewOwner(crewId, uid())
+        && crewId in resource.data.get('sharedWithCrewIds', [])
+        && !(crewId in request.resource.data.get('sharedWithCrewIds', []))
+        && request.resource.data.get('sharedWithCrewIds', []).size()
+          == resource.data.get('sharedWithCrewIds', []).size() - 1
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['sharedWithCrewIds', 'lastRemovedCrewId', 'updatedAt'])
+        && request.resource.data.get('updatedAt', null) == request.time;
+    }
+
+    function crewOwnerRemovesMember(crewId) {
+      let memberId = safeDocumentId(
+        request.resource.data.get('lastRemovedMemberId', '')
+      );
+      let crewPath = /databases/$(database)/documents/crews/$(crewId);
+      let memberPath = /databases/$(database)/documents/crews/$(crewId)/members/$(memberId);
+      return memberId != '-'
+        && resource.data.get('ownerId', '') == uid()
+        && memberId != uid()
+        && memberId in resource.data.get('memberIds', [])
+        && !(memberId in request.resource.data.get('memberIds', []))
+        && request.resource.data.get('memberIds', []).size()
+          == resource.data.get('memberIds', []).size() - 1
+        && exists(memberPath)
+        && !existsAfter(memberPath)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['memberIds', 'lastRemovedMemberId']);
+    }
+
+    function crewOwnerRemovedMember(crewId, memberId) {
+      let crewPath = /databases/$(database)/documents/crews/$(crewId);
+      let memberPath = /databases/$(database)/documents/crews/$(crewId)/members/$(memberId);
+      return isCrewOwner(crewId, uid())
+        && memberId != uid()
+        && exists(memberPath)
+        && memberId in get(crewPath).data.get('memberIds', [])
+        && existsAfter(crewPath)
+        && !(memberId in getAfter(crewPath).data.get('memberIds', []));
     }
 
     function roomVoteExistsAfter(roomId) {
@@ -1293,8 +1379,7 @@ service cloud.firestore {
             && request.resource.data.updatedAt == request.time
           )
           || (
-            resource.data.get('status', '') == 'open'
-            && roomCrewLeave(roomId, uid())
+            roomCrewLeave(roomId, uid())
             && (
               (uid() in request.resource.data.get('participantIds', []))
                 == roomCrewLeaveKeepsAccess(roomId, uid())
@@ -1306,6 +1391,19 @@ service cloud.firestore {
               .hasOnly(['participantIds', 'participantCount', 'updatedAt'])
             && request.resource.data.updatedAt == request.time
           )
+          || (
+            roomCrewOwnerRemovesMember(roomId)
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly([
+                'participantIds',
+                'participantCount',
+                'lastRemovedCrewId',
+                'lastRemovedCrewMemberId',
+                'updatedAt'
+              ])
+            && request.resource.data.get('updatedAt', null) == request.time
+          )
+          || roomCrewOwnerUnshares(roomId)
         );
 
       allow delete: if false;
@@ -1328,7 +1426,7 @@ service cloud.firestore {
               && getAfter(roomPath(roomId)).data.get('createdBy', '') == uid()
               && participantId in getAfter(roomPath(roomId)).data.get('participantIds', [])
               && request.resource.data.get('inviteStatus', '') == 'accepted'
-              && request.resource.data.get('role', '') in ['admin', 'editor']
+              && request.resource.data.get('role', '') in ['admin', 'editor', 'viewer']
             )
             || (
               isRoomCreator(roomId)
@@ -1502,9 +1600,11 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys()
               .hasOnly(['memberIds'])
           )
+          || crewOwnerRemovesMember(crewId)
         );
 
-      allow delete: if false;
+      allow delete: if signedIn()
+        && resource.data.get('ownerId', '') == uid();
 
       match /members/{memberId} {
         allow get, list: if signedIn()
@@ -1516,6 +1616,7 @@ service cloud.firestore {
             && getAfter(/databases/$(database)/documents/crews/$(crewId)).data.get('ownerId', '') == uid()
             && memberId == uid()
             && request.resource.data.get('isOwner', false) == true
+            && request.resource.data.get('role', 'admin') == 'admin'
             || memberId == uid()
               && crewInvitationCanBeAccepted(
                 crewId,
@@ -1523,22 +1624,33 @@ service cloud.firestore {
                 memberId
               )
               && request.resource.data.get('isOwner', true) == false
+              && request.resource.data.get('role', 'editor') == 'editor'
           )
           && request.resource.data.get('email', '') == myEmail()
           && request.resource.data.get('joinedAt', request.time) == request.time;
 
         allow update: if signedIn()
-          && memberId == uid()
-          && crewInvitationCanBeAccepted(
-            crewId,
-            request.resource.data.get('invitationId', ''),
-            memberId
-          )
-          && request.resource.data.get('email', '') == myEmail();
+          && (
+            memberId == uid()
+            && crewInvitationCanBeAccepted(
+              crewId,
+              request.resource.data.get('invitationId', ''),
+              memberId
+            )
+            && request.resource.data.get('email', '') == myEmail()
+            || isCrewOwner(crewId, uid())
+              && memberId != uid()
+              && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['role'])
+              && request.resource.data.get('role', '') in ['admin', 'editor', 'viewer']
+          );
 
         allow delete: if signedIn()
-          && memberId == uid()
-          && exists(/databases/$(database)/documents/crews/$(crewId)/members/$(memberId));
+          && (
+            memberId == uid()
+            && exists(/databases/$(database)/documents/crews/$(crewId)/members/$(memberId))
+            || crewOwnerRemovedMember(crewId, memberId)
+          );
       }
 
       match /sharedRooms/{roomId} {
@@ -1555,7 +1667,8 @@ service cloud.firestore {
           && crewId in request.resource.data.sharedWithCrewIds
           && request.resource.data.get('createdAt', request.time) == request.time;
 
-        allow update, delete: if false;
+        allow update: if false;
+        allow delete: if isCrewOwner(crewId, uid());
       }
     }
 
