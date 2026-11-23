@@ -850,7 +850,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.';
+      'Open Settings > Instructions on how to delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Who can see my room?';
@@ -1568,6 +1568,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountInstructions =>
+      'Instructions on how to delete account';
 
   @override
   String get deleteAccountWarning =>

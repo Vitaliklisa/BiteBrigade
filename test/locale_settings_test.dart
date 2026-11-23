@@ -1,16 +1,21 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_talk/core/countdown.dart';
 import 'package:table_talk/core/locale_settings.dart';
 import 'package:table_talk/l10n/countdown_localization.dart';
 import 'package:table_talk/l10n/generated/app_localizations.dart';
 import 'package:table_talk/providers/app_providers.dart';
 import 'package:table_talk/providers/locale_provider.dart';
-import 'package:table_talk/screens/settings_screen.dart';
 import 'package:table_talk/screens/login_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:table_talk/screens/settings_screen.dart';
+import 'package:table_talk/services/auth_service.dart';
+import 'package:table_talk/services/notification_service.dart';
+
+class _MockNotificationService extends Mock implements NotificationService {}
 
 class _SettingsTestApp extends ConsumerWidget {
   const _SettingsTestApp();
@@ -142,16 +147,16 @@ void main() {
     };
     const expectedDeleteAccountHelp = {
       'en':
-          'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.',
+          'Open Settings > Instructions on how to delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.',
       'fr':
-          'Ouvrez Réglages > Supprimer le compte et suivez les étapes de confirmation. Si vous ne pouvez pas vous connecter, contactez l’assistance depuis l’adresse e-mail de votre compte.',
+          'Ouvrez Réglages > Instructions pour supprimer votre compte et suivez les étapes de confirmation. Si vous ne pouvez pas vous connecter, contactez l’assistance depuis l’adresse e-mail de votre compte.',
       'es':
-          'Abre Ajustes > Eliminar cuenta y sigue los pasos de confirmación. Si no puedes iniciar sesión, contacta con soporte desde el correo electrónico de tu cuenta.',
+          'Abre Ajustes > Instrucciones para eliminar tu cuenta y sigue los pasos de confirmación. Si no puedes iniciar sesión, contacta con soporte desde el correo electrónico de tu cuenta.',
       'uk':
-          'Відкрийте Налаштування > Видалити обліковий запис і виконайте кроки підтвердження. Якщо не можете ввійти, зверніться до підтримки з адреси електронної пошти свого облікового запису.',
+          'Відкрийте Налаштування > Інструкції з видалення облікового запису й виконайте кроки підтвердження. Якщо не можете ввійти, зверніться до підтримки з адреси електронної пошти свого облікового запису.',
       'de':
-          'Öffne Einstellungen > Konto löschen und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.',
-      'zh': '請開啟「設定」>「刪除帳戶」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。',
+          'Öffne Einstellungen > Anleitung zum Löschen deines Kontos und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.',
+      'zh': '請開啟「設定」>「刪除帳戶說明」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。',
     };
 
     for (final locale in supportedAppLocales) {
@@ -288,6 +293,53 @@ void main() {
     expect(find.text('APPARENCE'), findsOneWidget);
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.getString(localePreferenceKey), 'fr');
+  });
+
+  testWidgets('signed-in settings puts sign out above deletion instructions',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final notificationService = _MockNotificationService();
+    when(() => notificationService.fetchThemeMode('user-id'))
+        .thenAnswer((_) async => null);
+    when(() => notificationService.fetchTimeFormat('user-id'))
+        .thenAnswer((_) async => null);
+    when(() => notificationService.saveThemeMode('user-id', any()))
+        .thenAnswer((_) async {});
+    when(() => notificationService.saveTimeFormat('user-id', any()))
+        .thenAnswer((_) async {});
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          localePreferenceProvider.overrideWith(
+            () => LocalePreferenceController(
+              initialPreference: resolveLocalePreference(
+                savedLanguageCode: null,
+                deviceLocale: const Locale('en'),
+              ),
+            ),
+          ),
+          currentUserProvider.overrideWith(
+            (ref) => const AppUser(
+              id: 'user-id',
+              email: 'person@example.com',
+            ),
+          ),
+          eventsProvider.overrideWith((ref) => Stream.value(const [])),
+          notificationServiceProvider.overrideWithValue(notificationService),
+        ],
+        child: const _SettingsTestApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final signOut = tester.getRect(find.text('Sign out'));
+    final deleteInstructions =
+        tester.getRect(find.text('Instructions on how to delete account'));
+    expect(signOut.bottom, lessThan(deleteInstructions.top));
   });
 
   testWidgets('login picker sits at top right and selects Taiwan Chinese',

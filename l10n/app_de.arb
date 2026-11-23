@@ -347,7 +347,7 @@
     "faqInviteeQuestion": "Eine eingeladene Person kann den Raum nicht sehen.",
     "faqInviteeAnswer": "Bitte die Person, sich mit der E-Mail-Adresse anzumelden, die die Einladung erhalten hat, und diese im Einladungsbereich anzunehmen.",
     "faqDeleteAccountQuestion": "Wie lösche ich mein Konto und meine Daten?",
-    "faqDeleteAccountAnswer": "Öffne Einstellungen > Konto löschen und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.",
+    "faqDeleteAccountAnswer": "Öffne Einstellungen > Anleitung zum Löschen deines Kontos und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.",
     "faqWhoSeesRoomQuestion": "Wer kann meinen Raum sehen?",
     "faqWhoSeesRoomAnswer": "Der Ersteller und angenommene Teilnehmende sehen die Details. Mitglieder einer Gruppe sehen außerdem Räume, die mit dieser Gruppe geteilt wurden.",
     "faqDataQuestion": "Verkauft ihr meine Daten oder zeigt ihr Werbung?",
@@ -722,6 +722,7 @@
       }
     },
     "deleteAccount": "Konto löschen",
+    "deleteAccountInstructions": "Anleitung zum Löschen deines Kontos",
     "deleteAccountWarning": "Diese Aktion ist endgültig. Alle deine Essenspläne, Gruppen und Daten werden für immer gelöscht.",
     "deleteAccountConfirmationPrompt": "Gib deine genaue Konto-E-Mail-Adresse ein, um fortzufahren.",
     "deleteAccountConfirmationLabel": "Konto-E-Mail-Adresse",

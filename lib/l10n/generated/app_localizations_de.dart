@@ -870,7 +870,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Öffne Einstellungen > Konto löschen und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.';
+      'Öffne Einstellungen > Anleitung zum Löschen deines Kontos und folge den Bestätigungsschritten. Wenn du dich nicht anmelden kannst, kontaktiere den Support über die E-Mail-Adresse deines Kontos.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Wer kann meinen Raum sehen?';
@@ -1596,6 +1596,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deleteAccount => 'Konto löschen';
+
+  @override
+  String get deleteAccountInstructions => 'Anleitung zum Löschen deines Kontos';
 
   @override
   String get deleteAccountWarning =>

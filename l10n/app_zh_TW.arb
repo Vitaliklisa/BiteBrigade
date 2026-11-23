@@ -116,7 +116,7 @@
   "navNotifications": "通知",
   "navSupport": "支援",
   "openDecision": "查看用餐選擇",
-  "faqDeleteAccountAnswer": "請開啟「設定」>「刪除帳戶」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。",
+  "faqDeleteAccountAnswer": "請開啟「設定」>「刪除帳戶說明」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。",
   "tableIsYours": "餐桌由你作主",
   "whereAreWeGoing": "我們要去哪裡吃？",
   "groupDecisionDescription": "美味的一餐，從大家一起決定開始。",
@@ -130,5 +130,6 @@
   "roomOpen": "進行中",
   "roomDecided": "已決定",
   "roomCancelled": "已取消",
-  "accountDeletionReauthRequired": "為了安全起見，請重新登入後再試一次刪除帳戶。"
+  "accountDeletionReauthRequired": "為了安全起見，請重新登入後再試一次刪除帳戶。",
+  "deleteAccountInstructions": "刪除帳戶說明"
 }

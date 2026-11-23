@@ -850,7 +850,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.';
+      'Open Settings > Instructions on how to delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Who can see my room?';
@@ -1570,6 +1570,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deleteAccount => 'Delete account';
 
   @override
+  String get deleteAccountInstructions =>
+      'Instructions on how to delete account';
+
+  @override
   String get deleteAccountWarning =>
       'This action is permanent. All your meal plans, crews, and data will be deleted forever.';
 
@@ -1828,7 +1832,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get faqDeleteAccountAnswer =>
-      '請開啟「設定」>「刪除帳戶」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。';
+      '請開啟「設定」>「刪除帳戶說明」，並依照確認步驟操作。如果無法登入，請使用帳戶所屬的電子郵件地址聯絡支援團隊。';
 
   @override
   String get roleAdmin => '管理員';
@@ -1899,6 +1903,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String personRemoved(String name) {
     return '已移除 $name。';
   }
+
+  @override
+  String get deleteAccountInstructions => '刪除帳戶說明';
 
   @override
   String get accountDeletionReauthRequired => '為了安全起見，請重新登入後再試一次刪除帳戶。';

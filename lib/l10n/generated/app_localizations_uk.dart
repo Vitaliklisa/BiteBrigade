@@ -861,7 +861,7 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Відкрийте Налаштування > Видалити обліковий запис і виконайте кроки підтвердження. Якщо не можете ввійти, зверніться до підтримки з адреси електронної пошти свого облікового запису.';
+      'Відкрийте Налаштування > Інструкції з видалення облікового запису й виконайте кроки підтвердження. Якщо не можете ввійти, зверніться до підтримки з адреси електронної пошти свого облікового запису.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Хто бачить мою зустріч?';
@@ -1601,6 +1601,10 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get deleteAccount => 'Видалити обліковий запис';
+
+  @override
+  String get deleteAccountInstructions =>
+      'Інструкції з видалення облікового запису';
 
   @override
   String get deleteAccountWarning =>

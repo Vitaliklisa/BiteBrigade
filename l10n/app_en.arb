@@ -347,7 +347,7 @@
     "faqInviteeQuestion": "Someone I invited cannot see the room.",
     "faqInviteeAnswer": "Ask them to sign in with the email address that received the invitation and accept it from the Invitations screen.",
     "faqDeleteAccountQuestion": "How do I delete my account and my data?",
-    "faqDeleteAccountAnswer": "Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.",
+    "faqDeleteAccountAnswer": "Open Settings > Instructions on how to delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.",
     "faqWhoSeesRoomQuestion": "Who can see my room?",
     "faqWhoSeesRoomAnswer": "The room creator and accepted participants can see its details. Rooms shared with a crew are also visible to that crew’s members.",
     "faqDataQuestion": "Do you sell my data or show ads?",
@@ -722,6 +722,7 @@
       }
     },
     "deleteAccount": "Delete account",
+    "deleteAccountInstructions": "Instructions on how to delete account",
     "deleteAccountWarning": "This action is permanent. All your meal plans, crews, and data will be deleted forever.",
     "deleteAccountConfirmationPrompt": "Type your exact account email to continue.",
     "deleteAccountConfirmationLabel": "Account email",

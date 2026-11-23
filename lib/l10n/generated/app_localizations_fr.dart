@@ -860,7 +860,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqDeleteAccountAnswer =>
-      'Ouvrez Réglages > Supprimer le compte et suivez les étapes de confirmation. Si vous ne pouvez pas vous connecter, contactez l’assistance depuis l’adresse e-mail de votre compte.';
+      'Ouvrez Réglages > Instructions pour supprimer votre compte et suivez les étapes de confirmation. Si vous ne pouvez pas vous connecter, contactez l’assistance depuis l’adresse e-mail de votre compte.';
 
   @override
   String get faqWhoSeesRoomQuestion => 'Qui peut voir ma salle ?';
@@ -1586,6 +1586,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get deleteAccount => 'Supprimer le compte';
+
+  @override
+  String get deleteAccountInstructions =>
+      'Instructions pour supprimer votre compte';
 
   @override
   String get deleteAccountWarning =>

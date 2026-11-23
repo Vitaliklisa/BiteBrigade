@@ -1622,7 +1622,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqDeleteAccountAnswer.
   ///
   /// In en, this message translates to:
-  /// **'Open Settings > Delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.'**
+  /// **'Open Settings > Instructions on how to delete account and follow the confirmation steps. If you cannot sign in, contact support from the email address on your account.'**
   String get faqDeleteAccountAnswer;
 
   /// No description provided for @faqWhoSeesRoomQuestion.
@@ -2740,6 +2740,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete account'**
   String get deleteAccount;
+
+  /// No description provided for @deleteAccountInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions on how to delete account'**
+  String get deleteAccountInstructions;
 
   /// No description provided for @deleteAccountWarning.
   ///

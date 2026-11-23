@@ -347,7 +347,7 @@
     "faqInviteeQuestion": "Una persona invitada no puede ver la sala.",
     "faqInviteeAnswer": "Pídele que inicie sesión con el correo que recibió la invitación y la acepte desde la pantalla de Invitaciones.",
     "faqDeleteAccountQuestion": "¿Cómo elimino mi cuenta y mis datos?",
-    "faqDeleteAccountAnswer": "Abre Ajustes > Eliminar cuenta y sigue los pasos de confirmación. Si no puedes iniciar sesión, contacta con soporte desde el correo electrónico de tu cuenta.",
+    "faqDeleteAccountAnswer": "Abre Ajustes > Instrucciones para eliminar tu cuenta y sigue los pasos de confirmación. Si no puedes iniciar sesión, contacta con soporte desde el correo electrónico de tu cuenta.",
     "faqWhoSeesRoomQuestion": "¿Quién puede ver mi sala?",
     "faqWhoSeesRoomAnswer": "El creador de la sala y los participantes que aceptaron la invitación pueden ver sus detalles. Los miembros del grupo también pueden ver las salas compartidas con él.",
     "faqDataQuestion": "¿Vendéis mis datos o mostráis anuncios?",
@@ -722,6 +722,7 @@
       }
     },
     "deleteAccount": "Eliminar cuenta",
+    "deleteAccountInstructions": "Instrucciones para eliminar tu cuenta",
     "deleteAccountWarning": "Esta acción es permanente. Todos tus planes de comida, grupos y datos se eliminarán para siempre.",
     "deleteAccountConfirmationPrompt": "Escribe exactamente el correo electrónico de tu cuenta para continuar.",
     "deleteAccountConfirmationLabel": "Correo electrónico de la cuenta",
