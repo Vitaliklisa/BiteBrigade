@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
+import { createRequire } from "node:module";
 import { test } from "node:test";
 import { hasRecentAuthentication } from "./recent-auth.mjs";
+
+test("Firebase Admin Auth loads through both module entry points", async () => {
+  const require = createRequire(import.meta.url);
+  const commonJsAuth = require("firebase-admin/auth");
+  const esmAuth = await import("firebase-admin/auth");
+
+  assert.equal(typeof commonJsAuth.getAuth, "function");
+  assert.equal(typeof esmAuth.getAuth, "function");
+});
 
 test("accepts authentication from within the five-minute window", () => {
   assert.equal(hasRecentAuthentication(700, 1000), true);

@@ -66,6 +66,10 @@ The private key must contain the service-account key content with newlines
 escaped or otherwise supplied as environment text. Never commit the credential
 or the service-account JSON file.
 
+`package.json` pins Firebase Admin's transitive `jwks-rsa` dependency to
+3.2.2. Its 4.x release loads ESM-only `jose` through CommonJS `require()`,
+which crashes the Vercel Node runtime before the deletion handler starts.
+
 The deletion function is configured for up to 60 seconds, subject to the
 Vercel plan's limits. For security, the API also requires a sign-in from within
 the last five minutes; if the session is older, the app signs out and asks the
