@@ -6,11 +6,17 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class DeletionFailure implements Exception {
-  const DeletionFailure(this.message, {this.statusCode, this.code});
+  const DeletionFailure(
+    this.message, {
+    this.statusCode,
+    this.code,
+    this.reference,
+  });
 
   final String message;
   final int? statusCode;
   final String? code;
+  final String? reference;
 
   @override
   String toString() => message;
@@ -110,6 +116,9 @@ class DeletionService {
             : 'Deletion could not be completed. Please retry.',
         statusCode: response.statusCode,
         code: payload['code'] is String ? payload['code'] as String : null,
+        reference: payload['reference'] is String
+            ? payload['reference'] as String
+            : null,
       );
     }
   }

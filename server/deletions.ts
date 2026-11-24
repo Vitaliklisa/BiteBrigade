@@ -9,15 +9,18 @@ import {
   type Query,
 } from "firebase-admin/firestore";
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { randomUUID } from "node:crypto";
 import { hasRecentAuthentication } from "./recent-auth.mjs";
 
 type Request = IncomingMessage & { body?: unknown };
 type Input = Record<string, unknown>;
 type DeletionContext = {
   uid: string;
+  email: string;
   input: Input;
   db: Firestore;
   auth: ReturnType<typeof getAuth>;
+  setPhase: (phase: string) => void;
 };
 type DeletionAction = (context: DeletionContext) => Promise<void>;
 
@@ -34,20 +37,14 @@ class HttpError extends Error {
 
 function getAdmin() {
   if (process.env.VERCEL === "1" && process.env.FIRESTORE_EMULATOR_HOST) {
-    throw new HttpError(
-      503,
-      "Firestore emulator configuration is set in this deployment.",
-    );
+    throw new HttpError(503, "Firestore emulator configuration is set in this deployment.");
   }
 
   const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, "\n");
   if (!projectId || !clientEmail || !privateKey) {
-    throw new HttpError(
-      503,
-      "The account deletion service is not configured.",
-    );
+    throw new HttpError(503, "The account deletion service is not configured.");
   }
 
   const app =
@@ -111,6 +108,8 @@ export function deletionHandler(action: DeletionAction) {
       return;
     }
 
+    const requestId = randomUUID();
+    let phase = "initialize";
     try {
       const authorization = req.headers.authorization;
       const token =
@@ -121,6 +120,7 @@ export function deletionHandler(action: DeletionAction) {
 
       const { auth, db } = getAdmin();
       let decodedToken: Awaited<ReturnType<typeof auth.verifyIdToken>>;
+      phase = "verify-token";
       try {
         decodedToken = await auth.verifyIdToken(token, true);
       } catch {
@@ -134,7 +134,23 @@ export function deletionHandler(action: DeletionAction) {
         );
       }
 
-      await action({ uid: decodedToken.uid, input: await parseInput(req), db, auth });
+      const email = decodedToken.email?.toLowerCase();
+      if (!email) {
+        throw new HttpError(400, "Your account has no email address to confirm deletion.");
+      }
+
+      phase = "parse-request";
+      const input = await parseInput(req);
+      await action({
+        uid: decodedToken.uid,
+        email,
+        input,
+        db,
+        auth,
+        setPhase: (nextPhase) => {
+          phase = nextPhase;
+        },
+      });
       res.statusCode = 200;
       res.end(JSON.stringify({ success: true }));
     } catch (error) {
@@ -149,12 +165,18 @@ export function deletionHandler(action: DeletionAction) {
         );
         return;
       }
-      console.error("[bite-brigade] Admin deletion request failed:", error);
+      console.error("[bite-brigade] Account deletion failed:", {
+        requestId,
+        phase,
+        error,
+      });
       res.statusCode = 500;
       res.end(
         JSON.stringify({
           success: false,
-          error: "Deletion could not be completed. Please retry.",
+          error: "Account deletion could not be completed. Please retry.",
+          code: "deletion-failed",
+          reference: requestId,
         }),
       );
     }
@@ -182,10 +204,7 @@ async function finishBulkWriter(
   }
 }
 
-async function deleteReferences(
-  db: Firestore,
-  references: DocumentReference[],
-): Promise<void> {
+async function deleteReferences(db: Firestore, references: DocumentReference[]): Promise<void> {
   for (let offset = 0; offset < references.length; offset += 400) {
     const writer = db.bulkWriter();
     writer.onWriteError((error) => error.failedAttempts < 3);
@@ -203,6 +222,25 @@ async function deleteQuery(db: Firestore, query: Query): Promise<void> {
       db,
       page.docs.map((document) => document.ref),
     );
+  }
+}
+
+async function removeUserFromMealPlans(db: Firestore, uid: string): Promise<void> {
+  const rooms = db.collection("rooms");
+  while (true) {
+    const page = await rooms.where("participantIds", "array-contains", uid).limit(200).get();
+    if (page.empty) return;
+
+    const batch = db.batch();
+    for (const room of page.docs) {
+      batch.update(room.ref, {
+        participantIds: FieldValue.arrayRemove(uid),
+        participantCount: FieldValue.increment(-1),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+      batch.delete(room.ref.collection("participants").doc(uid));
+    }
+    await batch.commit();
   }
 }
 
@@ -230,25 +268,19 @@ async function runInBatches<T>(
 
 async function deleteAccount({
   uid,
+  email,
   input,
   db,
   auth,
+  setPhase,
 }: DeletionContext): Promise<void> {
+  setPhase("validate-confirmation");
   const confirmation = requiredString(input, "confirmation");
-  const user = await auth.getUser(uid);
-  const accountEmail = user.email?.toLowerCase();
-  if (!accountEmail) {
-    throw new HttpError(400, "Your account has no email address to confirm deletion.");
-  }
-  if (confirmation.trim().toLowerCase() !== accountEmail) {
+  if (confirmation.trim().toLowerCase() !== email) {
     throw new HttpError(400, "The confirmation value does not match your account email.");
   }
 
-  await Promise.all([
-    auth.deleteUser(uid),
-    db.recursiveDelete(db.collection("users").doc(uid)),
-  ]);
-
+  setPhase("delete-owned-meal-plans");
   const ownedRooms = await db.collection("rooms").where("createdBy", "==", uid).get();
   await runInBatches(
     ownedRooms.docs,
@@ -257,6 +289,7 @@ async function deleteAccount({
     "delete owned meal plans",
   );
 
+  setPhase("delete-owned-legacy-events");
   const ownedEvents = await db.collection("events").where("createdBy", "==", uid).get();
   await runInBatches(
     ownedEvents.docs,
@@ -265,38 +298,32 @@ async function deleteAccount({
     "delete owned legacy countdowns",
   );
 
+  setPhase("delete-owned-crews");
   const ownedCrews = await db.collection("crews").where("ownerId", "==", uid).get();
   await runInBatches(
     ownedCrews.docs,
     5,
     async (crew) => {
-      await deleteQuery(
-        db,
-        db.collection("crew_invitations").where("crewId", "==", crew.id),
-      );
+      await deleteQuery(db, db.collection("crew_invitations").where("crewId", "==", crew.id));
       await db.recursiveDelete(crew.ref);
     },
     "delete owned crews",
   );
 
+  setPhase("delete-owned-circles");
   const ownedCircles = await db.collection("circles").where("ownerId", "==", uid).get();
   await runInBatches(
     ownedCircles.docs,
     5,
     async (circle) => {
-      await deleteQuery(
-        db,
-        db.collection("circle_invitations").where("circleId", "==", circle.id),
-      );
+      await deleteQuery(db, db.collection("circle_invitations").where("circleId", "==", circle.id));
       await db.recursiveDelete(circle.ref);
     },
     "delete owned circles",
   );
 
-  const memberCrews = await db
-    .collection("crews")
-    .where("memberIds", "array-contains", uid)
-    .get();
+  setPhase("remove-memberships");
+  const memberCrews = await db.collection("crews").where("memberIds", "array-contains", uid).get();
   const memberCircles = await db
     .collection("circles")
     .where("memberIds", "array-contains", uid)
@@ -307,21 +334,25 @@ async function deleteAccount({
     writer.onWriteError((error) => error.failedAttempts < 3);
     const writes: Promise<unknown>[] = [];
     for (const crew of memberCrews.docs) {
-      writes.push(writer.update(crew.ref, {
-        memberIds: FieldValue.arrayRemove(uid),
-      }));
+      writes.push(
+        writer.update(crew.ref, {
+          memberIds: FieldValue.arrayRemove(uid),
+        }),
+      );
       writes.push(writer.delete(crew.ref.collection("members").doc(uid)));
     }
     for (const circle of memberCircles.docs) {
-      writes.push(writer.update(circle.ref, {
-        memberIds: FieldValue.arrayRemove(uid),
-      }));
+      writes.push(
+        writer.update(circle.ref, {
+          memberIds: FieldValue.arrayRemove(uid),
+        }),
+      );
       writes.push(writer.delete(circle.ref.collection("members").doc(uid)));
     }
     await finishBulkWriter(writer, "write", writes);
   }
 
-  const email = accountEmail;
+  setPhase("delete-invitations-and-responses");
   const invitationQueries = [
     db.collection("invitations").where("invitedBy", "==", uid),
     db.collection("crew_invitations").where("invitedBy", "==", uid),
@@ -334,14 +365,21 @@ async function deleteAccount({
   ];
   await Promise.all(invitationQueries.map((query) => deleteQuery(db, query)));
 
-  const participantRows = await db
-    .collectionGroup("participants")
-    .where("userId", "==", uid)
-    .get();
+  setPhase("delete-legacy-participants");
+  const participantRows = await db.collectionGroup("participants").where("userId", "==", uid).get();
   await deleteReferences(
     db,
     participantRows.docs.map((row) => row.ref),
   );
+
+  setPhase("remove-meal-plan-participation");
+  await removeUserFromMealPlans(db, uid);
+
+  setPhase("delete-user-profile");
+  await db.recursiveDelete(db.collection("users").doc(uid));
+
+  setPhase("delete-auth-user");
+  await auth.deleteUser(uid);
 }
 
 export const deleteAccountHandler = deletionHandler(deleteAccount);

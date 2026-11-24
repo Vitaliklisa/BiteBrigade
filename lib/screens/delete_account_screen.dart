@@ -194,9 +194,14 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
         messenger.showSnackBar(SnackBar(content: Text(cleanupWarning)));
       }
     } on DeletionFailure catch (failure) {
-      final message = failure.statusCode == 500 || failure.statusCode == 504
+      debugPrint(
+        '[bite-brigade] Deletion API failed: '
+        'status=${failure.statusCode}, code=${failure.code}, '
+        'reference=${failure.reference}',
+      );
+      final message = failure.statusCode == 504
           ? l10n.serverTimedOutTryAgain
-          : failure.message;
+          : l10n.accountDeletionFailed;
       messenger.showSnackBar(SnackBar(content: Text(message)));
     } on AuthFailure catch (failure) {
       final message = failure.code == 'requires-recent-login'

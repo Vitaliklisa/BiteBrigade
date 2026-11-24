@@ -50,7 +50,7 @@ void main() {
     });
   });
 
-  test('deleteAccount signs out even when Firebase deletion fails', () async {
+  test('deleteAccount keeps the session when the server fails', () async {
     final auth = _MockFirebaseAuth();
     final user = _MockUser();
     final googleSignIn = _MockGoogleSignIn();
@@ -73,6 +73,28 @@ void main() {
       ).deleteAccount(confirmation: 'person@example.com'),
       throwsA(isA<DeletionFailure>()),
     );
+
+    verifyNever(() => googleSignIn.signOut());
+    verifyNever(() => auth.signOut());
+  });
+
+  test('deleteAccount signs out after the server confirms deletion', () async {
+    final auth = _MockFirebaseAuth();
+    final user = _MockUser();
+    final googleSignIn = _MockGoogleSignIn();
+    final deletionService = _MockDeletionService();
+
+    when(() => auth.currentUser).thenReturn(user);
+    when(() => deletionService.deleteAccount('person@example.com'))
+        .thenAnswer((_) async {});
+    when(() => googleSignIn.signOut()).thenAnswer((_) => Future.value(null));
+    when(() => auth.signOut()).thenAnswer((_) async {});
+
+    await AuthService(
+      auth: auth,
+      googleSignIn: googleSignIn,
+      deletionService: deletionService,
+    ).deleteAccount(confirmation: 'person@example.com');
 
     verify(() => googleSignIn.signOut()).called(1);
     verify(() => auth.signOut()).called(1);

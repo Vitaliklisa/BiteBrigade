@@ -29,7 +29,7 @@ void main() {
     final service = DeletionService(
       auth: _MockFirebaseAuth(),
       client: _JsonResponseClient(
-        '{"success":false,"error":"Sign in again.","code":"requires-recent-login"}',
+        '{"success":false,"error":"Sign in again.","code":"requires-recent-login","reference":"req-123"}',
         401,
       ),
       apiBase: Uri.parse('https://bitebrigade.vercel.app'),
@@ -46,6 +46,11 @@ void main() {
               (failure) => failure.code,
               'code',
               'requires-recent-login',
+            )
+            .having(
+              (failure) => failure.reference,
+              'reference',
+              'req-123',
             ),
       ),
     );

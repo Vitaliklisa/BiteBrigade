@@ -256,8 +256,10 @@ class AuthService {
     }
     try {
       await deletionService.deleteAccount(confirmation);
+      await _signOutBestEffort();
     } on DeletionFailure catch (e) {
       if (e.code == 'requires-recent-login') {
+        await _signOutBestEffort();
         throw const AuthFailure(
           'For security, sign in again before deleting your account.',
           code: 'requires-recent-login',
@@ -266,14 +268,13 @@ class AuthService {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
+        await _signOutBestEffort();
         throw const AuthFailure(
           'For security, please sign in again before deleting your account.',
           code: 'requires-recent-login',
         );
       }
       throw _mapException(e);
-    } finally {
-      await _signOutBestEffort();
     }
   }
 
