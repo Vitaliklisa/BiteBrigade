@@ -13,7 +13,13 @@ class _MockGoogleSignIn extends Mock implements GoogleSignIn {}
 
 class _MockDeletionService extends Mock implements DeletionService {}
 
+class _FakeAuthProvider extends Fake implements AuthProvider {}
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(_FakeAuthProvider());
+  });
+
   group('AuthService email sign-in', () {
     test('explains when Firebase Authentication is not configured', () async {
       final auth = _MockFirebaseAuth();
@@ -48,6 +54,27 @@ void main() {
         ),
       );
     });
+  });
+
+  test('web Google sign-in redirects when the browser blocks its popup',
+      () async {
+    final auth = _MockFirebaseAuth();
+    final googleSignIn = _MockGoogleSignIn();
+
+    when(() => auth.signInWithPopup(any())).thenThrow(
+      FirebaseAuthException(code: 'popup-blocked'),
+    );
+    when(() => auth.signInWithRedirect(any())).thenAnswer((_) async {});
+
+    final result = await AuthService(
+      auth: auth,
+      googleSignIn: googleSignIn,
+      isWeb: true,
+    ).signInWithGoogle();
+
+    expect(result, isNull);
+    verify(() => auth.signInWithPopup(any())).called(1);
+    verify(() => auth.signInWithRedirect(any())).called(1);
   });
 
   test('deleteAccount keeps the session when the server fails', () async {

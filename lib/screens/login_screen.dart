@@ -70,12 +70,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _google() async {
     setState(() => _busy = true);
     try {
+      var redirecting = false;
       final error = await runAction(
         context,
-        () => ref.read(authServiceProvider).signInWithGoogle(),
-        successMessage: context.l10n.signedInWithGoogle,
+        () async {
+          redirecting =
+              await ref.read(authServiceProvider).signInWithGoogle() == null;
+        },
       );
-      if (error == null && mounted) {
+      if (error == null && mounted && !redirecting) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.signedInWithGoogle)),
+        );
         context.go(Routes.home);
       }
     } finally {

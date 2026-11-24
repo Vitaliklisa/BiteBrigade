@@ -73,9 +73,11 @@ class AuthService {
     FirebaseAuth? auth,
     GoogleSignIn? googleSignIn,
     DeletionService? deletionService,
+    @visibleForTesting bool? isWeb,
   })  : _auth = auth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? _defaultGoogleSignIn(),
-        _deletionService = deletionService;
+        _deletionService = deletionService,
+        _isWeb = isWeb ?? kIsWeb;
 
   /// Builds the Google client.
   ///
@@ -93,6 +95,7 @@ class AuthService {
   final FirebaseAuth _auth;
   final GoogleSignIn _googleSignIn;
   final DeletionService? _deletionService;
+  final bool _isWeb;
   Future<void>? _googleSignInInitialization;
 
   /// Fires on every sign-in/sign-out. `null` means signed out.
@@ -164,21 +167,27 @@ class AuthService {
     }
   }
 
-  /// Google sign-in.
+  /// Google sign-in. Returns null when a blocked web popup starts a redirect.
   ///
   /// The flow differs per platform but the credential shape is the same:
-  /// - **web**: `signInWithPopup` is the only option — `google_sign_in` on web
-  ///   routes through it under the hood, and Firebase rejects a manual
-  ///   `signInWithCredential` from a popup origin.
+  /// - **web**: Firebase popup sign-in, with redirect fallback if the browser
+  ///   blocks the popup. `google_sign_in` on web routes through Firebase too.
   /// - **mobile**: the native picker returns an idToken, which is exchanged for
   ///   a Firebase credential.
-  Future<AppUser> signInWithGoogle() async {
+  Future<AppUser?> signInWithGoogle() async {
     try {
-      if (kIsWeb) {
+      if (_isWeb) {
         final provider = GoogleAuthProvider()
           ..addScope('email')
           ..addScope('profile');
-        final credential = await _auth.signInWithPopup(provider);
+        UserCredential credential;
+        try {
+          credential = await _auth.signInWithPopup(provider);
+        } on FirebaseAuthException catch (error) {
+          if (error.code != 'popup-blocked') rethrow;
+          await _auth.signInWithRedirect(provider);
+          return null;
+        }
         await _freshToken(credential.user);
         return AppUser.fromFirebase(credential.user!);
       }
